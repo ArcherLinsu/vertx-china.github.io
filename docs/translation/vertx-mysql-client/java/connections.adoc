@@ -1,11 +1,9 @@
-[[_using_connections]]
-== 使用连接
+== Using connections
 
-[[_getting_a_connection]]
-=== 获取连接
+=== Getting a connection
 
-当需要执行顺序查询（无事务）时，可以创建一个新连接或从连接池中借用一个。
-请注意在从拿到连接到将连接释放回连接池这之间的连接状态，服务端可能由于某些原因比如空闲时间超时，而关闭这条连接。
+When you need to execute sequential queries (without a transaction), you can create a new connection
+or borrow one from the pool. Remember that between acquiring the connection from the pool and returning it to the pool, you should take care of the connection because it might be closed by the server for some reason such as an idle time out.
 
 [source,java]
 ----
@@ -19,18 +17,18 @@ pool
         Tuple.of("Emad", "Alblueshi")
       ))
       .compose(res -> connection
-        // 对行执行一些操作
+        // Do something with rows
         .query("SELECT COUNT(*) FROM Users")
         .execute()
         .map(rows -> rows.iterator().next().getInteger(0)))
-      // 将连接返回到连接池中
+      // Return the connection to the pool
       .eventually(v -> connection.close())
   ).onSuccess(count -> {
   System.out.println("Insert users, now the number of users is " + count);
 });
 ----
 
-可以创建预处理查询语句：
+Prepared queries can be created:
 
 [source,java]
 ----
@@ -41,20 +39,20 @@ connection
       .execute(Tuple.of("Julien"))
       .eventually(v -> pq.close())
   ).onSuccess(rows -> {
-  // 所有的行
+  // All rows
 });
 ----
 
-[[_simplified_connection_api]]
-=== 简单连接 API
+=== Simplified connection API
 
-当您创建了一个连接池, 您可以调用 `link:../../apidocs/io/vertx/sqlclient/Pool.html#withConnection-java.util.function.Function-io.vertx.core.Handler-[withConnection]` 并传入一个使用连接进行处理的函数。
+When you use a pool, you can call `link:../../apidocs/io/vertx/sqlclient/Pool.html#withConnection-java.util.function.Function-io.vertx.core.Handler-[withConnection]` to pass it a function executed
+within a connection.
 
-它从连接池中借用一个连接，并使用该连接调用函数。
+It borrows a connection from the pool and calls the function with this connection.
 
-该函数必须返回一个任意结果的 Future。
+The function must return a future of an arbitrary result.
 
-Future 完成后, 连接将归还至连接池，并提供全部的结果。
+After the future completes, the connection is returned to the pool and the overall result is provided.
 
 [source,java]
 ----

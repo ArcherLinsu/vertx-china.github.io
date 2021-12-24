@@ -1,9 +1,9 @@
-= Vertx Zipkin 链路追踪
+= Vertx Zipkin Tracing
 
-Vert.x 借助 Zipkin Brave client 的支持集成了 Zipkin。
+Vert.x integrates with Zipkin thanks to the Zipkin Brave client.
 
-Vert.x 在 Vert.x HTTP Client 中使用 ZipKin HTTP sender 将 span 信息以 JSON 格式
-报告给 `http://localhost:9411/api/v2/spans` 。
+Vert.x uses the ZipKin HTTP sender based using a Vert.x HTTP Client reporting
+spans to `http://localhost:9411/api/v2/spans` in JSON format.
 
 [source,java]
 ----
@@ -14,9 +14,9 @@ Vertx vertx = Vertx.vertx(new VertxOptions()
 );
 ----
 
-service name 必须是合法的 Zipkin 服务名称。如果没有填写，则会被以 `a-service` 名称替代。
+The service name is the mandatory Zipkin service name. If you don't set it, then `a-service` will be used instead.
 
-您可以将 sender 配置成使用别的 URL
+You can configure the sender to use a specific URL
 
 [source,java]
 ----
@@ -28,9 +28,9 @@ Vertx vertx = Vertx.vertx(new VertxOptions()
 );
 ----
 
-缺省的 sender 使用单一的 HTTP 连接发送纯文本（body的内容是经过压缩的）。
+The default sender uses a single HTTP connection in plain text with compressed bodies.
 
-您可使用自定义的 `HttpClientOptions` 来覆盖 HTTP sender 默认选项。
+You can override the configuration of the HTTP sender with custom `HttpClientOptions`.
 
 [source,java]
 ----
@@ -45,8 +45,8 @@ Vertx vertx = Vertx.vertx(new VertxOptions()
 );
 ----
 
-最后，您可以设置一个自定义的 ZipKin `Tracing` 对象
-来实施更进一步的控制。
+Finally you can set a custom ZipKin `Tracing` allowing for greater control
+over the configuration.
 
 [source,java]
 ----
@@ -57,29 +57,27 @@ Vertx vertx = Vertx.vertx(new VertxOptions()
 );
 ----
 
-[[_tracing_policy]]
-== 追踪策略
+== Tracing policy
 
-当开启追踪时，追踪策略用于在指定组件的追踪行为：
+The tracing policy defines the behavior of a component when tracing is enabled:
 
-- `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#PROPAGATE[PROPAGATE]` ：组件在当前追踪活动中报告 span
-- `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#ALWAYS[ALWAYS]` ：组件在当前追踪活动中报告 span 或者创建一个新的追踪活动
-- `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#IGNORE[IGNORE]` ：该组件不参与任何追踪活动。
+- `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#PROPAGATE[PROPAGATE]`: the component reports a span in the active trace
+- `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#ALWAYS[ALWAYS]`: the component reports a span in the active trace or creates a new active trace
+- `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#IGNORE[IGNORE]`: the component will not be involved in any trace.
 
-追踪策略一般是通过组件选项来配置。
+The tracing policy is usually configured in the component options.
 
-[[_http_tracing]]
-== HTTP追踪
+== HTTP tracing
 
-Vert.x HTTP 服务端和客户端基于 HTTP 请求来报告 span ：
+The Vert.x HTTP server and client reports span around HTTP requests:
 
-- `operationName` ：HTTP 方法
+- `operationName`: the HTTP method
 - tags
-- `http.method` ：HTTP 方法
-- `http.url` ：请求的 URL
-- `http.status_code` ：HTTP 状态码
+- `http.method`: the HTTP method
+- `http.url`: the request URL
+- `http.status_code`: the HTTP status code
 
-HTTP 服务端的缺省追踪策略是 `ALWAYS`, 您可以通过 `link:../../apidocs/io/vertx/core/http/HttpServerOptions.html#setTracingPolicy-io.vertx.core.tracing.TracingPolicy-[setTracingPolicy]` 来配置追踪策略
+The default HTTP server tracing policy is `ALWAYS`, you can configure the policy with `link:../../apidocs/io/vertx/core/http/HttpServerOptions.html#setTracingPolicy-io.vertx.core.tracing.TracingPolicy-[setTracingPolicy]`
 
 [source,java]
 ----
@@ -88,7 +86,7 @@ HttpServer server = vertx.createHttpServer(new HttpServerOptions()
 );
 ----
 
-HTTP 客户端的缺省追踪策略是 `PROPAGATE` ， 您可以通过 `link:../../apidocs/io/vertx/core/http/HttpClientOptions.html#setTracingPolicy-io.vertx.core.tracing.TracingPolicy-[setTracingPolicy]` 来配置追踪策略
+The default HTTP client tracing policy is `PROPAGATE`, you can configure the policy with `link:../../apidocs/io/vertx/core/http/HttpClientOptions.html#setTracingPolicy-io.vertx.core.tracing.TracingPolicy-[setTracingPolicy]`
 
 [source,java]
 ----
@@ -97,12 +95,11 @@ HttpClient client = vertx.createHttpClient(new HttpClientOptions()
 );
 ----
 
-[[_eventbus_tracing]]
-== EventBus 追踪
+== EventBus tracing
 
-Vert.x EventBus 在消息交换过程中报告 span 。
+The Vert.x EventBus reports spans around message exchanges.
 
-发送消息时的缺省追踪策略是 `PROPAGATE` ，您可以通过 `link:../../apidocs/io/vertx/core/eventbus/DeliveryOptions.html#setTracingPolicy-io.vertx.core.tracing.TracingPolicy-[setTracingPolicy]` 来配置追踪策略。
+The default sending policy is `PROPAGATE`, you can configure the policy with `link:../../apidocs/io/vertx/core/eventbus/DeliveryOptions.html#setTracingPolicy-io.vertx.core.tracing.TracingPolicy-[setTracingPolicy]`.
 
 [source,java]
 ----

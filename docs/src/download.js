@@ -7,7 +7,8 @@ import util from "util"
 
 const pipeline = util.promisify(stream.pipeline)
 
-const repoUrl = "https://repo1.maven.org/maven2"
+// const repoUrl = "https://repo1.maven.org/maven2"
+const repoUrl = "https://maven.aliyun.com/repository/central"
 const downloadPath = "download"
 
 async function downloadFile(url, dest, version, progressListener) {
@@ -17,7 +18,7 @@ async function downloadFile(url, dest, version, progressListener) {
 
   let res = await fetch(url)
   if (res.status !== 200) {
-    throw "Could not download `${url}'. Status code: ${res.status}"
+    throw `Could not download "${url}". Status code: ${res.status}`
   }
 
   let lastProgress = 0

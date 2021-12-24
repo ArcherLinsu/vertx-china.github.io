@@ -1,37 +1,35 @@
-[[_zookeeper_bridge]]
-=== Zookeeper 桥
+=== Zookeeper bridge
 
-该发现桥将服务从 https://zookeeper.apache.org/[Apache Zookeeper] 导入到 Vert.x 服务发现中。
-该桥使用 http://curator.apache.org/curator-x-discovery/[用于服务发现的 Curator 扩展]。
+This discovery bridge imports services from https://zookeeper.apache.org/[Apache Zookeeper] into the Vert.x service
+discovery. The bridge uses the http://curator.apache.org/curator-x-discovery/[Curator extension for service discovery].
 
-服务描述可被读取为 JSON 对象（该对象合并在 Vert.x 服务记录元数据中）。
-可通过阅读 `service-type` 从该描述中推断出服务类型。
+Service description are read as JSON Object (merged in the Vert.x service record metadata). The service type is
+deduced from this description by reading the `service-type`.
 
-[[_using_the_bridge_3]]
-==== 使用该桥
+==== Using the bridge
 
-要使用这个 Vert.x 发现桥，
-请将以下依赖项添加到构建描述符的 _dependencies_ 部分：
+To use this Vert.x discovery bridge, add the following dependency to the _dependencies_ section of your build
+descriptor:
 
-* Maven（在您的 `pom.xml`）：
+* Maven (in your `pom.xml`):
 
 [source,xml,subs="+attributes"]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-service-discovery-bridge-zookeeper</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 ----
 
-* Gradle（在您的 `build.gradle` 文件中）：
+* Gradle (in your `build.gradle` file):
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-service-discovery-bridge-zookeeper:4.2.3'
+compile 'io.vertx:vertx-service-discovery-bridge-zookeeper:4.1.7'
 ----
 
-然后，在创建服务发现时按如下方式注册此桥：
+Then, when creating the service discovery registers this bridge as follows:
 
 [source, java]
 ----
@@ -41,16 +39,16 @@ ServiceDiscovery.create(vertx)
             .put("connection", "127.0.0.1:2181"));
 ----
 
-只有 `connection` 配置是强制的。它是 Zookeeper 服务器连接的 _字符串_。
+Only the `connection` configuration is mandatory. It's the connection _string_ of the Zookeeper server.
 
-此外，您亦可配置：
+In addition you can configure:
 
-* `maxRetries`：尝试连接次数，默认为3
-* `baseSleepTimeBetweenRetries`：重试之间等待的毫秒数（指数退避策略）。
-默认为 1000 毫秒。
-* `basePath`：存储服务的 Zookeeper 路径。默认为`/discovery`。
-* `connectionTimeoutMs`：以毫秒为单位的连接超时。默认为 1000。
-* `canBeReadOnly`：后端是否支持 _只读_ 模式（默认为true）
+* `maxRetries`: the number of connection attempt, 3 by default
+* `baseSleepTimeBetweenRetries`: the amount of milliseconds to wait between retries (exponential backoff strategy).
+1000 ms by default.
+* `basePath`: the Zookeeper path in which the service are stored. Default to `/discovery`.
+* `connectionTimeoutMs`: the connection timeout in milliseconds. Defaults to 1000.
+* `canBeReadOnly` : whether or not the backend support the _read-only_ mode (defaults to true)
 
 [source,java]
 ----

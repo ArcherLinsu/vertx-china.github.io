@@ -1,43 +1,42 @@
-= Infinispan 集群管理器
+= Infinispan Cluster Manager
 
-本项目基于 https://infinispan.org/[Infinispan] 实现了一个集群管理器。
+This is a cluster manager implementation for Vert.x that uses https://infinispan.org/[Infinispan].
 
-这个集群管理器的实现由以下依赖引入：
+This implementation is packaged inside:
 
 [source,xml,subs="+attributes"]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-infinispan</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 ----
 
-Vert.x 集群管理器包含以下几项功能：
+In Vert.x a cluster manager is used for various functions including:
 
-* 发现并管理集群中的节点
-* 管理集群的 EventBus 地址订阅清单（这样就可以轻松得知集群中的哪些节点订阅了哪些 EventBus 地址）
-* 分布式 Map 支持
-* 分布式锁
-* 分布式计数器
+* Discovery and group membership of Vert.x nodes in a cluster
+* Maintaining cluster wide topic subscriber lists (so we know which nodes are interested in which event bus addresses)
+* Distributed Map support
+* Distributed Locks
+* Distributed Counters
 
-Vert.x 集群器 *并不* 处理节点之间的通信。在 Vert.x 中，集群节点间通信是直接由 TCP 连接处理的。
+Cluster managers *do not* handle the event bus inter-node transport, this is done directly by Vert.x with TCP connections.
 
-[[_using_this_cluster_manager]]
-== 使用集群管理器
+== Using this cluster manager
 
-如果通过命令行来使用 Vert.x，对应集群管理器的 `jar` 包（名为 `vertx-infinispan-4.2.3.jar` ）
-应该在 Vert.x 中安装路径的 `lib` 目录中。
+If you are using Vert.x from the command line, the jar corresponding to this cluster manager (it will be named `vertx-infinispan-4.1.7.jar`
+should be in the `lib` directory of the Vert.x installation.
 
-若您希望在集群中使用此集群管理器，只需要在您的Vert.x Maven 或 Gradle 工程中添加依赖：
-`io.vertx:vertx-infinispan:4.2.3`。
+If you want clustering with this cluster manager in your Vert.x Maven or Gradle project then just add a dependency to
+the artifact: `io.vertx:vertx-infinispan:4.1.7` in your project.
 
-如果（集群管理器的）jar 包在 classpath 中，Vert.x将自动检测到并将其作为集群管理器。
-需要注意的是，要确保 Vert.x 的 classpath 中没有其它的集群管理器实现，
-否则会使用错误的集群管理器。
+If the jar is on your classpath as above then Vert.x will automatically detect this and use it as the cluster manager.
+Please make sure you don't have any other cluster managers on your classpath or Vert.x might
+choose the wrong one.
 
-编程内嵌 Vert.x 可以在创建 Vert.x 实例时，
-通过代码显式配置 Vert.x 集群管理器，例如：
+You can also specify the cluster manager programmatically if you are embedding Vert.x by specifying it on the options
+when you are creating your Vert.x instance, for example:
 
 [source,java]
 ----
@@ -49,62 +48,60 @@ Vertx.clusteredVertx(options, res -> {
   if (res.succeeded()) {
     Vertx vertx = res.result();
   } else {
-    // 失败！
+    // failed!
   }
 });
 ----
 
-[[_configuring_this_cluster_manager]]
-== 配置集群管理器
+== Configuring this cluster manager
 
-默认的集群管理器配置可以通过 `infinispan.xml` 及/或 `jgroups.xml` 文件进行修改。
-前者配置数据网格（data grid），后者配置组管理和集群成员发现。
+The default cluster manager configuration can be modified with `infinispan.xml` and/or `jgroups.xml` files.
+The former configures the data grid, the latter group management and member discovery.
 
-您可以在 classpath 中替换这些配置文件（其中一个或两个）。
-如果想在 fat jar 中内嵌自己的配置文件，这些文件必须在 fat jar 的根目录中。
-如果这些配置文件是外部文件，则必须将其所在的 **目录** 添加至 classpath 中。
-举个例子，如果使用 Vert.x 的 _launcher_ 类启动应用，则 classpath 应该设置为：
+You can place one or both of them on your classpath.
+If you want to embed your custom file in a fat jar, it must be located at the root of the fat jar.
+If it's an external file, the **directory** containing the file must be added to the classpath. For
+example, if you are using the _launcher_ class from Vert.x, the classpath enhancement can be done as follows:
 
 [source,shell]
 ----
-# 如果 infinispan.xml 及/或 jgroups.xml 在当前目录：
+# If infinispan.xml and/or jgroups.xml files are in the current directory:
 java -jar my-app.jar -cp . -cluster
 
-# 如果 infinispan.xml 及/或 jgroups.xml 在 conf 目录：
+# If infinispan.xml and/or jgroups.xml files are in the conf directory:
 java -jar my-app.jar -cp conf -cluster
 ----
 
-还可以通过配置系统属性 `vertx.infinispan.config` 及/或 `vertx.jgroups.config`
-覆盖默认配置、指定配置文件：
+Another way to override the configuration is by providing the file locations via system properties:
+`vertx.infinispan.config` and/or `vertx.jgroups.config`.
 
 [source,shell]
 ----
-# 指定一个外部文件为自定义配置文件
+# Use a cluster configuration located in an external file
 java -Dvertx.infinispan.config=./config/my-infinispan.xml -jar ... -cluster
 
-# 或从 classpath 中加载一个文件为自定义配置文件
+# Or use a custom configuration from the classpath
 java -Dvertx.infinispan.config=my/package/config/my-infinispan.xml -jar ... -cluster
 ----
 
-集群管理器优先在 classpath 查找指定的配置文件，如果没有找到，则在文件系统中查找指定的配置文件。
+The cluster manager will search for the file in classpath first, and fallback to the filesystem.
 
-如果设置了上述系统属性，则会覆盖 classpath 中的 `infinispan.xml` 或 `jgroups.xml` 文件。
+The system properties, when present, override any `infinispan.xml` or `jgroups.xml` on the classpath.
 
-`jgroup.xml` 与 `infinispan.xml` 分别是 JGroups 、 Infinispan 配置文件。在对应的官方可以网站可以详细的配置攻略。
+The xml files are Infinispan and JGroups configuration files and are described in detail in the documentation on the Infinispan and JGroups web-sites.
 
-IMPORTANT: 如果 classpath 中包含 `jgroups.xml` 文件，同时也设置了 `vertx.jgroups.config` 系统属性，
-那么 Infinispan 配置中所有的 JGroups 的 `stack-file` 路径配置会被 `jgroups.xml` 中的覆盖。
+IMPORTANT: if a `jgroups.xml` file is on the classpath or if you set the `vertx.jgroups.config` system property,
+it will override any JGroups `stack-file` path defined in the Infinispan configuration file.
 
-在默认的 JGroups 配置中，节点发现使用组播，组管理使用 TCP 。
-请确认您的网络支持组播。
+The default JGroups configuration uses multicast for discovery and TCP for group management.
+Make sure multicast is enabled on your network for this to work.
 
-有关如何配置或使用其他传输方式的完整文档，
-请查询 Infinispan 或 JGroups 文档。
+For full documentation on how to configure the transport differently or use a different transport please consult the
+Infinispan / JGroups documentations.
 
-[[_using_an_existing_infinispan_cache_manager]]
-== 使用已有的 Infinispan 缓存管理器
+== Using an existing Infinispan Cache Manager
 
-构造集群管理器时，传入已有的 `DefaultCacheManager` 可以复用已有的缓存管理器。
+You can pass an existing `DefaultCacheManager` in the cluster manager to reuse an existing cache manager:
 
 [source,java]
 ----
@@ -116,14 +113,14 @@ Vertx.clusteredVertx(options, res -> {
   if (res.succeeded()) {
     Vertx vertx = res.result();
   } else {
-    // 失败！
+    // failed!
   }
 });
 ----
 
-在这种情况下，Vert.x 并不是缓存管理器的所有者，因此不能在关闭 Vert.x 时停止 Infinispan 。
+In this case, vert.x is not the cache manager owner and so do not shut it down on close.
 
-请注意，可通过如下配置以定制 Infinispan 实例：
+Notice that the custom Infinispan instance need to be configured with:
 
 [source,xml]
 ----
@@ -136,14 +133,13 @@ Vertx.clusteredVertx(options, res -> {
 </cache-container>
 ----
 
-[[_packaging_an_executable_uber_jar]]
-== 打包可执行的 fat-jar 包
+== Packaging an executable uber JAR
 
-Infinispan 在运行时使用 Java SPI 机制（`ServiceLoader`） 发现一些类/接口的实现。
+Infinispan uses Java's `ServiceLoader` mechanism to discover implementations of a few classes at runtime.
 
-构建可执行的超级 JAR（也称为 fat-JAR ）包时，必须在构建工具中配置将服务描述文件打包。
+You must configure your build tool to merge service descriptors files when creating an executable uber JAR (also known as "fat" JAR).
 
-如果您使用 Maven 及 Maven Shade 插件，插件应该配置如下：
+If you use Maven and the Maven Shade Plugin, the plugin configuration should look like:
 
 [source,xml]
 ----
@@ -156,7 +152,7 @@ Infinispan 在运行时使用 Java SPI 机制（`ServiceLoader`） 发现一些�
 </configuration>
 ----
 
-如果您使用 Gradle 及 Gradle Shadow 插件：
+If you use Gradle and the Gradle Shadow Plugin:
 
 [source,kotlin]
 ----
@@ -165,36 +161,35 @@ shadowJar {
 }
 ----
 
-[[_configuring_for_kubernetes]]
-== 适配 Kubernetes
+== Configuring for Kubernetes
 
-在 Kubernetes 上，JGroups 的节点发现配置可选择使用 Kubernetes API (`KUBE_PING`) 或 DNS (`DNS_PING`)。
-本文将使用 DNS 发现。
+On Kubernetes, JGroups can be configured to use either the Kubernetes API (`KUBE_PING`) or DNS (`DNS_PING`) for discovery.
+In this document, we will use DNS discovery.
 
-首先通过以下系统属性配置 JVM 强制使用 IPv4：
+First, force usage of IPv4 in the JVM with a system property.
 
 [source,shell]
 ----
 -Djava.net.preferIPv4Stack=true
 ----
 
-然后设置系统属性 `vertx.jgroups.config` 为 `default-configs/default-jgroups-kubernetes.xml`。
-JGroups 的 stack-file 在 `infinispan-core` 的JAR包中，并已为 Kubernetes 做了预配置。
+Then, set the `vertx.jgroups.config` system property to `default-configs/default-jgroups-kubernetes.xml`.
+This JGroups stack file is located in the `infinispan-core` JAR and preconfigured for Kubernetes.
 
 [source,shell]
 ----
 -Dvertx.jgroups.config=default-configs/default-jgroups-kubernetes.xml
 ----
 
-同时设置 JGroups DNS 查询以便发现集群成员。
+Also, set the JGroups DNS query to find members.
 
 [source,shell]
 ----
 -Djgroups.dns.query=MY-SERVICE-DNS-NAME
 ----
 
-其中 `MY-SERVICE-DNS-NAME` 的取值必须是一个 https://kubernetes.io/docs/user-guide/services/#headless-services[Kubernetes *无头* 服务（Headless Service）] 名，JGroups 会用该名称来标识所有集群成员。
-无头服务的创建配置可参考下面代码：
+The `MY-SERVICE-DNS-NAME` value must be a https://kubernetes.io/docs/user-guide/services/#headless-services[*headless* Kubernetes service] name that will be used by JGroups to identify all cluster members.
+A headless service can be created with:
 
 [source,yaml]
 ----
@@ -212,11 +207,11 @@ spec:
  publishNotReadyAddresses: true # <3>
  clusterIP: None
 ----
-<1> JGroups TCP 端口
-<2> 由 `cluster=clustered-app` 标签选择的集群成员
-<3> 设置为true，则可以在不干涉就绪探针（readiness probe）逻辑的前提下，发现集群成员
+<1> JGroups TCP port
+<2> Cluster members selected by the `cluster=clustered-app` label
+<3> Set to true so that members can be discovered without interfering with your readiness probe logic
 
-最后，属于集群的所有 Kubernetes 部署需要增加 `cluster=clustered-app` 标签：
+Eventually, apply the `cluster=clustered-app` label to all deployments that should be part of the cluster:
 
 [source,yaml]
 ----
@@ -229,15 +224,14 @@ spec:
        cluster: clustered-app
 ----
 
-[[_rolling_updates]]
-=== 滚动更新
+=== Rolling updates
 
-Infinispan 团队 http://infinispan.org/docs/stable/user_guide/user_guide.html#using_kubernetes_and_openshift_rolling_updates[建议] 在滚动更新期间逐一更换 Pod。
+During rolling udpates, the Infinispan team http://infinispan.org/docs/stable/user_guide/user_guide.html#using_kubernetes_and_openshift_rolling_updates[recommends] to replace pods one by one.
 
-为此，我们必须将 Kubernetes 配置为：
+To do so, we must configure Kubernetes to:
 
-* 不要同时启动多个新 Pod
-* 在滚动更新过程中，不可用的 Pod 不能多于一个
+* never start more than one new pod at once
+* forbid more than one unavailable pod during the process
 
 [source,yaml]
 ----
@@ -251,43 +245,39 @@ spec:
      maxUnavailable: 1 <1>
      maxSurge: 1 <2>
 ----
-<1> 在升级过程中允许 不可用的最大 Pod 数
-<2> 允许超过预期创建数量的最大 Pod 数（译者注：即，实际创建的 Pod 数量 ≤ 预期 Pod 数量 + maxSurge）
+<1> the maximum number of pods that can be unavailable during the update process
+<2> the maximum number of pods that can be created over the desired number of pods
 
-同样地，Pod 的就绪探针（readiness probe）必须考虑集群状态。
-请参阅 <<one-by-one, 集群管理>> 章节，了解如何使用 link:../../vertx-health-check/java/[Vert.x 健康检查] 实现准备情况探针。
+Also, pod readiness probe must take cluster health into account.
+Please refer to the <<one-by-one, cluster administration>> section for details on how to implement a readiness probe with link:../../vertx-health-check/java/[Vert.x Health Checks].
 
-[[_configuring_for_docker_compose]]
-== 适配 Docker Compose
+== Configuring for Docker Compose
 
-确认 JVM 在启动时 设置了下面的配置：
+Make sure to start the Java Virtual Machines with those system properties:
 
 [source,shell]
 ----
 -Djava.net.preferIPv4Stack=true -Djgroups.bind.address=NON_LOOPBACK
 ----
 
-通过上述两项系统配置，JGroups 才能正确地选择 Docker 创建的虚拟网络接口。
+This will make JGroups pick the interface of the virtual private network created by Docker.
 
-[[_trouble_shooting_clustering]]
-== 集群故障排查
+== Trouble shooting clustering
 
-如果默认的组播配置不能正常运行，通常有以下原因：
+If the default multicast discovery configuration is not working here are some common causes:
 
-[[_multicast_not_enabled_on_the_machine]]
-=== 机器禁用组播
+=== Multicast not enabled on the machine.
 
-通常来说，OSX 默认禁用组播。
-请自行Google一下如何启用组播。
+It is quite common in particular on OSX machines for multicast to be disabled by default. Please google for
+information on how to enable this.
 
-[[_using_wrong_network_interface]]
-=== 使用错误的网络接口
+=== Using wrong network interface
 
-如果机器上有多个网络接口（也有可能是在运行 VPN 的情况下），
-那么 JGroups 很有可能使用错误的网络接口。
+If you have more than one network interface on your machine (and this can also be the case if you are running
+VPN software on your machine), then JGroups may be using the wrong one.
 
-为了确保 JGroups 使用正确的网络接口，在配置文件中将 `bind_addr` 设置为指定IP地址。
-例如：
+To tell JGroups to use a specific interface you can provide the IP address of the interface in the `bind_addr`
+element of the configuration. For example:
 
 [source,xml]
 ----
@@ -299,103 +289,93 @@ spec:
     />
 ----
 
-如果您直接使用了内置的 `jgroups.xml` 配置文件，也可以通过设置 `jgroups.bind.address` 系统属性来指定 JGroups 的网络接口：
+Alternatively, if you want to stick with the bundled `jgroups.xml` file, you can set the `jgroups.bind.address` system property:
 
 ----
 -Djgroups.bind.address=192.168.1.20
 ----
 
-Vert.x 运行在集群模式时，必须确保 Vert.x 获取到正确的网络接口。
-在 Vert.x 命令行模式下，可以通过 `cluster-host` 选项指定集群的网络接口：
+When running Vert.x is in clustered mode, you should also make sure that Vert.x knows about the correct interface.
+When running at the command line this is done by specifying the `cluster-host` option:
 
 ----
 vertx run myverticle.js -cluster -cluster-host your-ip-address
 ----
 
-其中 `your-ip-address` 与 JGroups 配置中指定的IP地址一致。
+Where `your-ip-address` is the same IP address you specified in the JGroups configuration.
 
-若使用编码的方式启动 Vert.x，可以通过 `link:../../apidocs/io/vertx/core/VertxOptions.html#getEventBusOptions--[.setHost(java.lang.String)]` 设置集群的网络接口。
+If using Vert.x programmatically you can specify this using `link:../../apidocs/io/vertx/core/eventbus/EventBusOptions.html#setHost-java.lang.String-[setHost]`.
 
-[[_using_a_vpn]]
-=== 使用VPN
+=== Using a VPN
 
-使用VPN是上述问题的变种。
-VPN 软件工作时通常会创建虚拟网络接口，但往往不支持组播。
-在 VPN 环境中，如果 JGroups 与 Vert.x 没有配置正确的话，
-将会选择 VPN 创建的网络接口，而不是正确的网络接口。
+This is a variation of the above case.
+VPN software often works by creating a virtual network interface which often doesn't support multicast.
+If you have a VPN running and you do not specify the correct interface to use in both the JGroups configuration and to Vert.x then the VPN interface may be chosen instead of the correct interface.
 
-所以，如果您的应用运行在 VPN 环境中，请参考上述章节，
-设置正确的网络接口。
+So, if you have a VPN running you may have to configure both JGroups and Vert.x to use the correct interface as described in the previous section.
 
-[[_when_multicast_is_not_available]]
-=== 组播不可用
+=== When multicast is not available
 
-在某些情况下，由于特殊的运行环境，可能无法使用组播。
-在这种情况下，应该配置为其他协议，例如配置 `TCPPING` 以使用 TCP 套接字，或配置 `S3_PING` 以使用亚马逊 EC2。
+In some cases you may not be able to use multicast discovery as it might not be available in your environment.
+In that case you should configure another protocol, e.g. `TCPPING` to use TCP sockets, or `S3_PING` when running on Amazon EC2.
 
-有关其他可用的 JGroups 发现协议及其如何配置的更多信息，请查阅 http://www.jgroups.org/manual/index.html#Discovery[JGroups文档] 。
+For more information on available JGroups discovery protocols and how to configure them please consult the http://www.jgroups.org/manual/index.html#Discovery[JGroups documentation].
 
-[[_problems_with_ipv6]]
-=== 使用IPv6的问题
+=== Problems with IPv6
 
-如果在 IPv6 地址配置遇到困难，可以通过设置系统属性 `java.net.preferIPv4Stack` 强制使用 IPv4：
+If you have troubles configuring an IPv6 host, force the use of IPv4 with the `java.net.preferIPv4Stack` system property.
 
 ----
 -Djava.net.preferIPv4Stack=true
 ----
 
-[[_enabling_logging]]
-=== 开启日志
+=== Enabling logging
 
-在排除故障时，开启 Infinispan 和 JGroups 日志很有帮助，可以观察是否组成了集群。
-使用默认的 JUL 日志时，在 classpath 中添加 `vertx-default-jul-logging.properties` 文件可开启 Infinispan 和 JGroups 日志。
-这是一个标准 java.util.logging（JUL） 配置文件。
-具体配置如下：
+When trouble-shooting clustering issues with it's often useful to get some logging output from Infinispan and JGroups
+to see if it's forming a cluster properly. You can do this (when using the default JUL logging) by adding a file
+called `vertx-default-jul-logging.properties` on your classpath. This is a standard java.util.logging (JUL)
+configuration file. Inside it set:
 
 ----
 org.infinispan.level=INFO
 org.jgroups.level=INFO
 ----
 
-以及
+and also
 
 ----
 java.util.logging.ConsoleHandler.level=INFO
 java.util.logging.FileHandler.level=INFO
 ----
 
-[[_infinispan_logging]]
-== Infinispan 日志配置
+== Infinispan logging
 
-Infinispan 依赖与 JBoss Logging 。JBoss Logging 是一个与多种日志框架的桥接器。
+Infinispan relies on JBoss logging. JBoss Logging is a logging bridge providing integration with numerous logging frameworks.
 
-请将日志框架实现的jar包放入 classpath 中，JBoss Logging 能够自动检测到并使用。
+Add the logging JARs of you choice to the classpath and JBoss Logging will pick them up automatically.
 
-如果在 classpath 有多种日志框架，可以通过设置系统变量 `org.jboss.logging.provider` 来指定具体的实现。
-例如：
+If you have multiple logging backends on your classpath, you can force selection with the `org.jboss.logging.provider` system property.
+For exeample:
 
 ----
 -Dorg.jboss.logging.provider=log4j2
 ----
 
-更多配置信息请参考 http://docs.jboss.org/hibernate/orm/4.3/topical/html/logging/Logging.html[JBoss日志指南] 。
+See this http://docs.jboss.org/hibernate/orm/4.3/topical/html/logging/Logging.html[JBoss Logging guide] for more details.
 
-[[_jgroups_logging]]
-== JGroups 日志配置
+== JGroups logging
 
-JGroups 默认采用 JDK Logging 实现。同时也支持 log4j 与 log4j2 ，只要相应的 jar 包 在 classpath 中。
+JGroups uses JDK logging by default. log4j and log4j2 are supported if the corresponding JARs are found on the classpath.
 
-如果想查阅更详细的信息，或实现自己的日志后端，请参考
-http://www.jgroups.org/manual/index.html#Logging[JGroups日志文档]。
+Please refer to the http://www.jgroups.org/manual/index.html#Logging[JGroups logging documentation] if you need
+more details or want to implement your own logging backend implementation.
 
-[[_sharedData_extensions]]
-== SharedData 扩展
+== SharedData extensions
 
-[[_asyncMap_content_streams]]
-=== AsyncMap 内容流
+=== AsyncMap content streams
 
-`InfinispanAsyncMap` API支持将 AsyncMap 的键、值及 Entry 作为流进行读取。
-如果您需要遍历读取很大的 AsyncMap 并进行批量处理，这将很有帮助。
+The `InfinispanAsyncMap` API allows to retrieve keys, values and entries as streams.
+This can be useful if you need to go through the content of a large map for bulk processing.
 
 [source,java]
 ----
@@ -405,63 +385,58 @@ ReadStream<V> valueStream = infinispanAsyncMap.valueStream();
 ReadStream<Map.Entry<K, V>> entryReadStream = infinispanAsyncMap.entryStream();
 ----
 
-[[_cluster_administration]]
-== 集群管理
+== Cluster administration
 
-Infinispan 集群管理器的工作原理是将 Vert.x 节点作为 Infinispan 集群的成员。
-因此，Vert.x 使用 Infinispan 集群管理器时，应遵循 Infinispan 的管理准则。
+The Infinispan cluster manager works by turning Vert.x nodes into members of an Infinispan cluster.
+As a consequence, Vert.x cluster manager administration should follow the Infinispan management guidelines.
 
-首先介绍下再平衡（Rebalancing）和脑裂。
+First, let's take a step back and introduce rebalancing and split-brain syndrome.
 
-[[_rebalancing]]
-=== 再平衡（Rebalancing）
+=== Rebalancing
 
-每个 Vert.x 节点都包含部分集群数据，包括：EventBus 订阅，异步 Map，分布式计数器等等。
+Each Vert.x node holds pieces of the clustering data: eventbus subscriptions, async map entries, clustered counters... etc.
 
-当有节点加入或离开集群时，Infinispan 会在新的集群拓扑中重新平衡分配（rebalance）缓存条目。
-换句话说，它可以移动数据以适应新的集群拓扑。
-此过程可能需要一些时间，具体取决于集群数据量和节点数量。
+When a member joins or leaves the cluster, Infinispan rebalances cache entries on the new set of members.
+In other words, it moves data around to accomodate the new cluster topology.
+This process may take some time, depending on the amount of clustered data and number of nodes.
 
-[[_split_brain_syndrome]]
-=== 脑裂
+=== Split-brain syndrome
 
-在理想环境中，不会出现网络设备故障。
-实际上，集群迟早会被分成多个小组，彼此之间不可见。
+In a perfect world, there would be no network equipment failures.
+Reality is, though, that sooner or later your cluster will be divided into smaller groups, unable to see each others.
 
-Infinispan 能够将节点合并回单个集群。
-但是，就像数据分区迁移一样，此过程可能需要一些时间。
-在集群变回可用之前，某些 EventBus 的消费者可能无法获取到消息。
-否则，重新部署故障的 Verticle 过程中无法保证高可用。
+Infinispan is capable of merging the nodes back into a single cluster.
+But just as with rebalancing, this process may take some time.
+Before the cluster is fully functional again, some eventbus consumers might not be able to get messages.
+Or high-availability may not be able to redeploy a failing verticle.
 
 [NOTE]
 ====
-很难（或者说基本不可能）区分脑裂和:
+It is difficult (if possible at all) to make a difference between a network partition and:
 
-- 长时间的GC暂停 （导致错过了心跳检查），
-- 部署新版本应用时，同时强制关闭了很多节点
+- long GC pauses (leading to missed pings),
+- many nodes being killed forcefully, at-once, because you are deploying a new version of your application
 ====
 
-[[_recommendations]]
-=== 建议
+=== Recommendations
 
-考虑到上面讨论的常见集群问题，建议遵循下述的最佳实践。
+Considering the common clustering issues discussed above, it is recommended to stick to the following good practices.
 
-[[_graceful_shutdown]]
-==== 优雅地关闭
+==== Graceful shutdown
 
-应该避免强行停止集群成员节点（例如，对节点进程使用 `kill -9` ）。
+Avoid stopping members forcefully (e.g, `kill -9` a node).
 
-当然，进程崩溃是不可避免的，但是优雅地关闭进程有助于其余节点更快地恢复稳定状态。
+Of course process crashes are inevitable, but a graceful shutdown helps to get the remaining nodes in a stable state faster.
 
 [[one-by-one]]
-==== 逐个添加或移除节点
+==== One node after the other
 
-滚动更新新版本应用时，或扩大/缩小集群时，应该一个接一个地添加或移除节点。
+When rolling a new version of your app, scaling-up or down your cluster, add or remove nodes one after the other.
 
-逐个停止节点可避免集群误以为发生了脑裂。
-逐个添加节点可以进行干净的增量数据分区迁移。
+Stopping nodes one by one prevents the cluster from thinking a network partition occured.
+Adding them one by one allows for clean, incremental rebalancing operations.
 
-可以使用 link:../../vertx-health-check/java/[Vert.x 运行状况检查] 来验证集群安全性：
+The cluster healthiness can be verified with link:../../vertx-health-check/java/[Vert.x Health Checks]:
 
 [source,java]
 ----
@@ -469,7 +444,7 @@ Handler<Promise<Status>> procedure = ClusterHealthCheck.createProcedure(vertx, t
 HealthChecks checks = HealthChecks.create(vertx).register("cluster-health", procedure);
 ----
 
-完成集群创建后，可以通过 link:../../vertx-web/java/[Vert.x Web] 路由 Handler 编写的HTTP程序进行健康检查：
+After creation, the health check can be exposed over HTTP with a link:../../vertx-web/java/[Vert.x Web] router handler:
 
 [source,java]
 ----

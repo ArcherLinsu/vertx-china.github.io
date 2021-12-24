@@ -1,30 +1,29 @@
-= 响应式 MSSQL 客户端
-:PREPARED_PARAMS: `@p1`, `@p2`, etc…
+= Reactive MSSQL Client
+:PREPARED_PARAMS: `@p1`, `@p2`, etc…​
 
-Reactive MSSQL 客户端是微软 SQL Server 的客户端，
-具有简单直接专注于可扩展性和低开销的 API。
+The Reactive MSSQL Client is a client for Microsoft SQL Server with a straightforward API focusing on
+scalability and low overhead.
 
-*特性*
+*Features*
 
-* 事件驱动
-* 轻量级
-* 内置连接池
-* 支持内存直接映射到对象，避免了不必要的复制
-* Java 8 Date 和 Time 支持
+* Event driven
+* Lightweight
+* Built-in connection pooling
+* Direct memory to object without unnecessary copies
+* Java 8 Date and Time
 * RxJava API
 * SSL/TLS
 
-*暂不支持*
+*Not supported yet*
 
-* Prepared 查询缓存
-* 游标
-* 行流（Row streaming）
-* 不支持一些 https://github.com/eclipse-vertx/vertx-sql-client/issues/608#issuecomment-629390027[数据类型]
+* Prepared queries caching
+* Cursor
+* Row streaming
+* Some https://github.com/eclipse-vertx/vertx-sql-client/issues/608#issuecomment-629390027[data types] are not supported
 
-[[_usage]]
-== 用法
+== Usage
 
-要使用响应式 MSSQL 客户端，请将以下依赖项添加到构建描述文件中的 _dependencies_ 部分：
+To use the Reactive MSSQL Client add the following dependency to the _dependencies_ section of your build descriptor:
 
 * Maven (in your `pom.xml`):
 
@@ -33,7 +32,7 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mssql-client</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -41,14 +40,13 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mssql-client:4.2.3'
+ compile 'io.vertx:vertx-mssql-client:4.1.7'
 }
 ----
 
-[[_getting_started]]
-== 由此开始
+== Getting started
 
-这是最简单的连接、查询和断开连接方法：
+Here is the simplest way to connect, query and disconnect
 
 [source,java]
 ----
@@ -59,14 +57,14 @@ MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 连接池参数
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
 
-// 创建客户端池
+// Create the client pool
 MSSQLPool client = MSSQLPool.pool(connectOptions, poolOptions);
 
-// 一个简单的查询
+// A simple query
 client
   .query("SELECT * FROM users WHERE id='julien'")
   .execute(ar -> {
@@ -77,15 +75,14 @@ client
     System.out.println("Failure: " + ar.cause().getMessage());
   }
 
-  // 现在关闭池
+  // Now close the pool
   client.close();
 });
 ----
 
-[[_connecting_to_sql_server]]
-== 连接 SQL Server
+== Connecting to SQL Server
 
-大多数情况下，您将使用池连接到 MSSQL：
+Most of the time you will use a pool to connect to MSSQL:
 
 [source,java]
 ----
@@ -96,18 +93,18 @@ MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 池参数
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
 
-// 创建池化客户端
+// Create the pooled client
 MSSQLPool client = MSSQLPool.pool(connectOptions, poolOptions);
 ----
 
-池化客户端使用连接池，任何操作都会从池中借用连接，
-随后执行操作，并最终执行完之后将其释放到池中。
+The pooled client uses a connection pool and any operation will borrow a connection from the pool
+to execute the operation and release it to the pool.
 
-如果您使用 Vert.x 运行，您可以将它传递给您的 Vertx 实例：
+If you are running with Vert.x you can pass it your Vertx instance:
 
 [source,java]
 ----
@@ -118,24 +115,24 @@ MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 池选项
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
-// 创建池化客户端
+// Create the pooled client
 MSSQLPool client = MSSQLPool.pool(vertx, connectOptions, poolOptions);
 ----
 
-当您不再需要它时，您需要释放池：
+You need to release the pool when you don't need it anymore:
 
 [source,java]
 ----
 pool.close();
 ----
 
-当您需要在同一个连接上执行多个操作时，需要使用客户端
-`link:../../apidocs/io/vertx/mssqlclient/MSSQLConnection.html[连接]`。
+When you need to execute several operations on the same connection, you need to use a client
+`link:../../apidocs/io/vertx/mssqlclient/MSSQLConnection.html[connection]`.
 
-您可以轻松地从池中获取一个连接：
+You can easily get one from the pool:
 
 [source,java]
 ----
@@ -146,18 +143,18 @@ MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 池选项
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
 
-// 创建池化客户端
+// Create the pooled client
 MSSQLPool client = MSSQLPool.pool(vertx, connectOptions, poolOptions);
 
-// 从池中获取连接
+// Get a connection from the pool
 client.getConnection().compose(conn -> {
   System.out.println("Got a connection from the pool");
 
-  // 所有操作都在同一个连接上执行
+  // All operations execute on the same connection
   return conn
     .query("SELECT * FROM users WHERE id='julien'")
     .execute()
@@ -165,7 +162,7 @@ client.getConnection().compose(conn -> {
       .query("SELECT * FROM users WHERE id='emad'")
       .execute())
     .onComplete(ar -> {
-      // 释放连接并将其归还给池
+      // Release the connection to the pool
       conn.close();
     });
 }).onComplete(ar -> {
@@ -178,15 +175,13 @@ client.getConnection().compose(conn -> {
 });
 ----
 
-完成连接后，您必须关闭它以将其释放到池中，以便可以重复使用。
+Once you are done with the connection you must close it to release it to the pool, so it can be reused.
 
-[[_configuration]]
-== 配置
+== Configuration
 
-[[_data_object]]
-=== 数据对象
+=== Data Object
 
-一种配置客户端的简单方法是指定一个 `MSSQLConnectOptions` 数据对象。
+A simple way to configure the client is to specify a `MSSQLConnectOptions` data object.
 
 [source,java]
 ----
@@ -197,38 +192,37 @@ MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 池参数
+// Pool Options
 PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 
-// 根据数据对象创建池
+// Create the pool from the data object
 MSSQLPool pool = MSSQLPool.pool(vertx, connectOptions, poolOptions);
 
 pool.getConnection(ar -> {
-  // 处理您的连接
+  // Handling your connection
 });
 ----
 
-[[_connection_uri]]
-=== 连接 URI
+=== Connection URI
 
-一种替代用 `link:../../apidocs/io/vertx/mssqlclient/MSSQLConnectOptions.html[MSSQLConnectOptions]` 数据对象配置客户端的方案，便是您可使用连接 URI：
+As an alternative to configuring the client with a `link:../../apidocs/io/vertx/mssqlclient/MSSQLConnectOptions.html[MSSQLConnectOptions]` data object, you can use a connection URI:
 
 [source,java]
 ----
 String connectionUri = "sqlserver://dbuser:secretpassword@database.server.com:3211/mydb";
 
-// 从连接 URI 创建池
+// Create the pool from the connection URI
 MSSQLPool pool = MSSQLPool.pool(connectionUri);
 
-// 从连接 URI 创建连接
+// Create the connection from the connection URI
 MSSQLConnection.connect(vertx, connectionUri, res -> {
-  // 处理您的连接
+  // Handling your connection
 });
 ----
 
-连接 URI 格式由客户端以惯用方式定义： `sqlserver://[user[:[password]]@]host[:port][/database][?attribute1=value1&attribute2=value2...]`
+The connection URI format is defined by the client in an idiomatic way: `sqlserver://[user[:[password]]@]host[:port][/database][?attribute1=value1&attribute2=value2...]`
 
-当前，客户端在连接 uri 中支持以下参数关键字（key不区分大小写）：
+Currently, the client supports the following parameter keywords in connection uri (keys are case-insensitive):
 
 * host
 * port
@@ -236,10 +230,9 @@ MSSQLConnection.connect(vertx, connectionUri, res -> {
 * password
 * database
 
-[[_connect_retries]]
-== 连接重试
+== Connect retries
 
-您可以配置客户端连接失败后重试。
+You can configure the client to retry when a connection fails to be established.
 
 [source,java]
 ----
@@ -249,10 +242,10 @@ options
 ----
 
 include::queries.adoc[leveloffset=1]
-[[_working_with_identity_columns]]
-== 使用自增列
 
-您可以在插入新数据后使用 `OUTPUT` 子句来获取自增列的值
+== Working with `identity` columns
+
+You can retrieve the value of an `identity` column after inserting new data using the `OUTPUT` clause:
 
 [source,java]
 ----
@@ -270,15 +263,13 @@ include::connections.adoc[]
 
 include::transactions.adoc[]
 
-[[_tracing_queries]]
-== 查询追踪
+== Tracing queries
 
 include::tracing.adoc[]
 
-[[_data_types_supported]]
-== 支持的数据类型
+== Data types supported
 
-当前，客户端支持以下 SQL Server 类型：
+Currently, the client supports the following SQL Server types:
 
 * TINYINT(`java.lang.Short`)
 * SMALLINT(`java.lang.Short`)
@@ -292,23 +283,17 @@ include::tracing.adoc[]
 * NCHAR/NVARCHAR(`java.lang.String`)
 * DATE(`java.time.LocalDate`)
 * TIME(`java.time.LocalTime`)
-* SMALLDATETIME(`java.time.LocalDateTime`)
-* DATETIME(`java.time.LocalDateTime`)
 * DATETIME2(`java.time.LocalDateTime`)
 * DATETIMEOFFSET(`java.time.OffsetDateTime`)
 * BINARY/VARBINARY(`io.vertx.core.buffer.Buffer`)
-* MONEY (``link:../../apidocs/java/math/BigDecimal.html[BigDecimal]``)
-* SMALLMONEY (``link:../../apidocs/java/math/BigDecimal.html[BigDecimal]``)
-* GUID (``link:../../apidocs/java/util/UUID.html[UUID]``)
 
-元组（Tuple）解码在存储值时使用上述类型。
+Tuple decoding uses the above types when storing values.
 
-[[_using_java_enum_types]]
-=== 使用 Java 的 `枚举` 类型
+=== Using Java `enum` types
 
-SQL Server 没有 `ENUM` 数据类型，但客户端可以将检索到的字符串/数字数据类型映射到枚举。
+SQL Server does not have `ENUM` data type, but the client can map the retrieved string/numeric data type to enum.
 
-您可以像这样对 Java 枚举进行编码：
+You can encode Java enums like this:
 
 [source,java]
 ----
@@ -319,7 +304,7 @@ client
   });
 ----
 
-您可以像这样解码 Java 枚举：
+You can decode a Java enum like this:
 
 [source,java]
 ----
@@ -336,12 +321,11 @@ client
   });
 ----
 
-[[_handling_null]]
-=== 处理空 `NULL`
+=== Handling `NULL`
 
-如果您使用 `addXXX` 方法之一修改 `Tuple`，则 `null` 值被透明处理。
+If you modify a `Tuple` with one of the `addXXX` methods, `null` values are handled transparently.
 
-客户端可以在执行准备好的查询时推断正确的 SQL 类型：
+The client can infer the right SQL type when executing a prepared query:
 
 [source,java]
 ----
@@ -356,7 +340,7 @@ client
   });
 ----
 
-否则，您应该使用 `link:../../apidocs/io/vertx/sqlclient/data/NullValue.html[NullValue]` 常量和 `link:../../apidocs/io/vertx/sqlclient/data/NullValue.html#of-java.lang.Class-[NullValue.of]` 方法之一以显式声明类型：
+Otherwise, you should declare the type explicitely using one of the `link:../../apidocs/io/vertx/sqlclient/data/NullValue.html[NullValue]` constants or the `link:../../apidocs/io/vertx/sqlclient/data/NullValue.html#of-java.lang.Class-[NullValue.of]` method:
 
 [source,java]
 ----
@@ -368,10 +352,9 @@ client
   });
 ----
 
-[[_collector_queries]]
-== 收集器查询
+== Collector queries
 
-您可以通过查询 API 使用 Java 收集器：
+You can use Java collectors with the query API:
 
 [source,java]
 ----
@@ -379,14 +362,14 @@ Collector<Row, ?, Map<Long, String>> collector = Collectors.toMap(
   row -> row.getLong("id"),
   row -> row.getString("last_name"));
 
-// 使用收集器运行查询
+// Run the query with the collector
 client.query("SELECT * FROM users")
   .collecting(collector)
   .execute(ar -> {
     if (ar.succeeded()) {
       SqlResult<Map<Long, String>> result = ar.result();
 
-      // 获取收集器创建的映射（map）对象
+      // Get the map created by the collector
       Map<Long, String> map = result.value();
       System.out.println("Got " + map);
     } else {
@@ -395,11 +378,11 @@ client.query("SELECT * FROM users")
   });
 ----
 
-收集器处理时不得保留对 `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` 的引用，
-因为有一行用于处理整个集合。
+The collector processing must not keep a reference on the `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` as
+there is a single row used for processing the entire set.
 
-Java `Collectors` 提供了许多有趣的预定义收集器，例如您可以
-create 直接从行集轻松创建字符串：
+The Java `Collectors` provides many interesting predefined collectors, for example you can
+create easily create a string directly from the row set:
 
 [source,java]
 ----
@@ -408,14 +391,14 @@ Collector<Row, ?, String> collector = Collectors.mapping(
   Collectors.joining(",", "(", ")")
 );
 
-// 使用收集器运行查询
+// Run the query with the collector
 client.query("SELECT * FROM users")
   .collecting(collector)
   .execute(ar -> {
     if (ar.succeeded()) {
       SqlResult<String> result = ar.result();
 
-      // 获取收集器创建的字符串
+      // Get the string created by the collector
       String list = result.value();
       System.out.println("Got " + list);
     } else {
@@ -424,41 +407,38 @@ client.query("SELECT * FROM users")
   });
 ----
 
-[[_using_ssltls]]
-== 使用 SSL/TLS
+== Using SSL/TLS
 
-[[_encryption_level_negotiation]]
-=== 加密等级协商
+=== Encryption level negotiation
 
-当一个数据库连接建立时，客户端和服务端需要协商加密等级。
+When a connection is established, the client and the server negotiate the encryption level.
 
-协商的加密等级取决于客户端的 `link:../../apidocs/io/vertx/mssqlclient/MSSQLConnectOptions.html[MSSQLConnectOptions]` 配置和服务端和配置：
+The negotiated level depends on the client config in `link:../../apidocs/io/vertx/mssqlclient/MSSQLConnectOptions.html[MSSQLConnectOptions]` and the server config:
 
-* 不加密： 如果客户端的 `ssl` 配置设置为 `false` ，并且服务端不支持加密
-* 只加密登录报文: 如果客户端的 `ssl` 配置设置为 `false` , 并且服务端支持加密
-* 加密整个连接通道: 如果客户端的 `ssl` 配置设置为 `true` , 并且服务端要求加密
+* no encryption: if `ssl` is set to `false` in client options, and the server does not support encryption
+* encrypt login packet only: if `ssl` is set to `false` in client options, and the server supports encryption
+* encrypt entire connection: if `ssl` is set to `true` in client options, or the server requires encryption
 
 [NOTE]
 ====
-如果客户端的 `ssl` 配置设置为 `true` ，并且服务端不支持加密时，加密等级协商会失败。
-在这种情况下，客户端会终止连接。
+The negotiation fails if `ssl` is set to `true` in client options, and the server does not support encryption.
+In this case, the client terminates the connection.
 ====
 
-[[_configuration_2]]
-=== 配置
+=== Configuration
 
-为了设置客户端的 `ssl` 项配置, 使用 `link:../../apidocs/io/vertx/mssqlclient/MSSQLConnectOptions.html#setSsl-boolean-[setSsl]` 方法。
-默认情况下， `ssl` 配置为 `false`。
+To configure `ssl` in client options, use the `link:../../apidocs/io/vertx/mssqlclient/MSSQLConnectOptions.html#setSsl-boolean-[setSsl]` method.
+By default, `ssl` is set to `false`.
 
 [source,java]
 ----
 MSSQLConnectOptions connectOptions = new MSSQLConnectOptions().setSsl(true);
 ----
 
-当 `ssl` 配置为 `false` 时，客户端信任所有的服务端密钥。
-否则，客户端会验证主机名。
+When `ssl` is set to `false`, the client trusts all server certificates.
+Otherwise, it performs hostname validation.
 
-如果客户端的 `ssl` 配置为 `true`， 并且服务端使用了自签名的密钥， 可以禁用主机名验证：
+If `ssl` is set to true in client options, and the server uses a self-signed certificate, hostname validation can be disabled:
 
 [source,java]
 ----
@@ -467,8 +447,8 @@ MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
   .setTrustAll(true);
 ----
 
-客户端也可以选择配置信任所有服务端的密钥，使用 `link:../../apidocs/io/vertx/core/net/TrustOptions.html[TrustOptions]` 进行配置。
-例如，如果服务端密钥放置在一个 PEM 格式的文件中时，可以使用 `link:../../apidocs/io/vertx/core/net/PemTrustOptions.html[PemTrustOptions]` 进行如下配置：
+Alternatively, the client can be configured to trust the server certificate with `link:../../apidocs/io/vertx/core/net/TrustOptions.html[TrustOptions]`.
+For example, `link:../../apidocs/io/vertx/core/net/PemTrustOptions.html[PemTrustOptions]` can be used if a PEM file contains the server certificate:
 
 [source,java]
 ----
@@ -477,14 +457,8 @@ MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
   .setPemTrustOptions(new PemTrustOptions().addCertPath("/path/to/server-cert.pem"));
 ----
 
-对于 Vert.x 中更高级的 SSL 支持，请参考 https://vertx.io/docs/vertx-core/java/#ssl[Vert.x Core 文档]。
+For further details about SSL support in Vert.x, please refer to the https://vertx.io/docs/vertx-core/java/#ssl[Vert.x Core documentation].
 
-[[_pool_sharing]]
-== 可共享的连接池
-
-include::pool_sharing.adoc[]
-
-[[_advanced_pool_configuration]]
-== 高级连接池配置
+== Advanced pool configuration
 
 include::pool_config.adoc[]

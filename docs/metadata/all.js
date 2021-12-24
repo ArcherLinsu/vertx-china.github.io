@@ -25,6 +25,9 @@ for (let i = metadata.length - 1; i >= 0; --i) {
     break
   }
 }
+latestRelease = {
+  version: "4.1.7"
+}
 
 module.exports = {
   metadata,

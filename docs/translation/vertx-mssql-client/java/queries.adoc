@@ -1,10 +1,9 @@
-[[_running_queries]]
-= 执行查询
+= Running queries
 
-当您不需要事务或者只是执行一个单次查询操作，您可以直接在连接池里执行查询；
-连接池会使用某一条连接执行并给您返回结果。
+When you don't need a transaction or run single queries, you can run queries directly on the pool; the pool
+will use one of its connection to run the query and return the result to you.
 
-下边是如何执行一个简单的查询的例子：
+Here is how to run simple queries:
 
 [source,java]
 ----
@@ -20,12 +19,11 @@ client
 });
 ----
 
-[[_prepared_queries]]
-== 预查询
+== Prepared queries
 
-执行预查询也是一样的操作。
+You can do the same with prepared queries.
 
-SQL字符通过位置引用实际的参数，并使用数据库的语法 {PREPARED_PARAMS}
+The SQL string can refer to parameters by position, using the database syntax {PREPARED_PARAMS}
 
 [source,java]
 ----
@@ -41,7 +39,7 @@ client
 });
 ----
 
-查询相关的方法为 _SELECT_ 类型的操作提供了异步的 `link:../../apidocs/io/vertx/sqlclient/RowSet.html[RowSet]` 实例
+Query methods provides an asynchronous `link:../../apidocs/io/vertx/sqlclient/RowSet.html[RowSet]` instance that works for _SELECT_ queries
 
 [source,java]
 ----
@@ -59,7 +57,7 @@ client
 });
 ----
 
-或者 _UPDATE_/_INSERT_ 类型的查询：
+or _UPDATE_/_INSERT_ queries:
 
 [source,java]
 ----
@@ -75,23 +73,23 @@ client
 });
 ----
 
-Row对象（`link:../../apidocs/io/vertx/sqlclient/Row.html[Row]`）可以让您通过索引位置获取相应的数据
+The `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` gives you access to your data by index
 
 [source,java]
 ----
 System.out.println("User " + row.getString(0) + " " + row.getString(1));
 ----
 
-或者通过名称
+or by name
 
 [source,java]
 ----
 System.out.println("User " + row.getString("first_name") + " " + row.getString("last_name"));
 ----
 
-客户端在此处没有做特殊处理，无论您的SQL文本时什么，列名都将使用数据库表中的名称标识。
+The client will not do any magic here and the column name is identified with the name in the table regardless of how your SQL text is.
 
-您也可以直接访问得到多种类型
+You can access a wide variety of of types
 
 [source,java]
 ----
@@ -100,7 +98,7 @@ Boolean male = row.getBoolean("male");
 Integer age = row.getInteger("age");
 ----
 
-您可以使用缓存过的预处理语句去执行一次性的预查询：
+You can use cached prepared statements to execute one-shot prepared queries:
 
 [source,java]
 ----
@@ -117,7 +115,7 @@ client
   });
 ----
 
-您也可以创建 `PreparedStatement` 并自主地管理它的生命周期。
+You can create a `PreparedStatement` and manage the lifecycle by yourself.
 
 [source,java]
 ----
@@ -142,10 +140,9 @@ sqlConnection
 ----
 
 ifndef::batching-unsupported[]
-[[_batches]]
-== 批处理
+== Batches
 
-您可以在预查询中执行批处理操作
+You can execute prepared batch
 
 [source,java]
 ----

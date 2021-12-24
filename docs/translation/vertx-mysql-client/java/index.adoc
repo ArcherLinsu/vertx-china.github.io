@@ -1,54 +1,53 @@
-= 响应式 MySQL 客户端
+= Reactive MySQL Client
 :PREPARED_PARAMS: `?`
 
-响应式 MySQL 客户端具有简单易懂的 API，专注于可扩展性和低开销。
+The Reactive MySQL Client is a client for MySQL with a straightforward API focusing on
+scalability and low overhead.
 
-*特性*
+*Features*
 
-* 事件驱动
-* 轻量级
-* 内置连接池
-* 预处理查询缓存
-* 支持游标
-* 流式行处理
+* Event driven
+* Lightweight
+* Built-in connection pooling
+* Prepared queries caching
+* Cursor support
+* Row streaming
 * RxJava API
-* 支持内存直接映射到对象，避免了不必要的复制
-* 完整的数据类型支持
-* 支持存储过程
-* 支持 TLS/SSL
-* MySQL 实用程序命令支持
-* 支持 MySQL 和 MariaDB
-* 丰富的字符排序（collation）和字符集支持
-* Unix 域套接字
+* Direct memory to object without unnecessary copies
+* Complete data type support
+* Stored Procedures support
+* TLS/SSL support
+* MySQL utilities commands support
+* Working with MySQL and MariaDB
+* Rich collation and charset support
+* Unix domain socket
 
-[[_usage]]
-== 使用方法
+== Usage
 
-使用响应式 MySQL 客户端，需要将以下依赖项添加到项目构建工具的 _依赖_ 配置中：
+To use the Reactive MySQL Client add the following dependency to the _dependencies_ section of your build descriptor:
 
-* Maven (在您的 `pom.xml`):
+* Maven (in your `pom.xml`):
 
 [source,xml]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mysql-client</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 ----
-* Gradle (在您的 `build.gradle` 文件中):
+* Gradle (in your `build.gradle` file):
 
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mysql-client:4.2.3'
+ compile 'io.vertx:vertx-mysql-client:4.1.7'
 }
 ----
 
-[[_getting_started]]
-== 开始
+== Getting started
 
-以下是最简单的连接，查询和断开连接方法
+Here is the simplest way to connect, query and disconnect
 
 [source,java]
 ----
@@ -59,14 +58,14 @@ MySQLConnectOptions connectOptions = new MySQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 连接池选项
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
 
-// 创建客户端池
+// Create the client pool
 MySQLPool client = MySQLPool.pool(connectOptions, poolOptions);
 
-// 一个简单的查询
+// A simple query
 client
   .query("SELECT * FROM users WHERE id='julien'")
   .execute(ar -> {
@@ -77,15 +76,14 @@ client
     System.out.println("Failure: " + ar.cause().getMessage());
   }
 
-  // 现在关闭客户端池
+  // Now close the pool
   client.close();
 });
 ----
 
-[[_connecting_to_mysql]]
-== 连接到 MySQL
+== Connecting to MySQL
 
-大多数时间，您将使用连接池连接到 MySQL：
+Most of the time you will use a pool to connect to MySQL:
 
 [source,java]
 ----
@@ -96,18 +94,18 @@ MySQLConnectOptions connectOptions = new MySQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 连接池选项
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
 
-// 创建带连接池的客户端
+// Create the pooled client
 MySQLPool client = MySQLPool.pool(connectOptions, poolOptions);
 ----
 
-带连接池的客户端使用连接池，任何操作都将借用连接池中的连接来执行该操作，
-并将连接释放回连接池中。
+The pooled client uses a connection pool and any operation will borrow a connection from the pool
+to execute the operation and release it to the pool.
 
-如果您使用 Vert.x 运行，您可以将 Vertx 实例传递给它：
+If you are running with Vert.x you can pass it your Vertx instance:
 
 [source,java]
 ----
@@ -118,24 +116,24 @@ MySQLConnectOptions connectOptions = new MySQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 连接池选项
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
-// 创建带连接池的客户端
+// Create the pooled client
 MySQLPool client = MySQLPool.pool(vertx, connectOptions, poolOptions);
 ----
 
-当您不再需要连接池时，您需要释放它：
+You need to release the pool when you don't need it anymore:
 
 [source,java]
 ----
 pool.close();
 ----
 
-当您需要在同一连接上执行多个操作时，您需要使用
-`link:../../apidocs/io/vertx/mysqlclient/MySQLConnection.html[connection]` 客户端 。
+When you need to execute several operations on the same connection, you need to use a client
+`link:../../apidocs/io/vertx/mysqlclient/MySQLConnection.html[connection]`.
 
-您可以轻松地从连接池中获取一个：
+You can easily get one from the pool:
 
 [source,java]
 ----
@@ -146,18 +144,18 @@ MySQLConnectOptions connectOptions = new MySQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 连接池选项
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
 
-// 创建带连接池的客户端
+// Create the pooled client
 MySQLPool client = MySQLPool.pool(vertx, connectOptions, poolOptions);
 
-// 从连接池获得连接
+// Get a connection from the pool
 client.getConnection().compose(conn -> {
   System.out.println("Got a connection from the pool");
 
-  // 所有操作都在同一连接上执行
+  // All operations execute on the same connection
   return conn
     .query("SELECT * FROM users WHERE id='julien'")
     .execute()
@@ -165,7 +163,7 @@ client.getConnection().compose(conn -> {
       .query("SELECT * FROM users WHERE id='emad'")
       .execute())
     .onComplete(ar -> {
-      // 释放连接池的连接
+      // Release the connection to the pool
       conn.close();
     });
 }).onComplete(ar -> {
@@ -178,21 +176,15 @@ client.getConnection().compose(conn -> {
 });
 ----
 
-连接完成后，您必须关闭它以释放到连接池中，以便可以重复使用。
+Once you are done with the connection you must close it to release it to the pool, so it can be reused.
 
-[[_pool_sharing]]
-== 可共享的连接池
+=== Unix Domain Socket
 
-include::pool_sharing.adoc[]
+Sometimes for simplicity, security or performance reasons, it is required to connect via a https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_socket[Unix Domain Socket].
 
-[[_unix_domain_socket]]
-=== Unix 域套接字
+Since the JVM does not support domain sockets, first you must add native transport extensions to your project.
 
-有时为了简单，安全或性能原因，需要通过 https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_socket[Unix 域套接字] 进行连接。
-
-由于 JVM 不支持域套接字，因此首先必须向项目添加本地传输（native transport）扩展。
-
-* Maven (在您的 `pom.xml`):
+* Maven (in your `pom.xml`):
 
 [source,xml]
 ----
@@ -203,7 +195,7 @@ include::pool_sharing.adoc[]
  <classifier>linux-x86_64</classifier>
 </dependency>
 ----
-* Gradle (在您的 `build.gradle` 文件中):
+* Gradle (in your `build.gradle` file):
 
 [source,groovy]
 ----
@@ -212,11 +204,11 @@ dependencies {
 }
 ----
 
-NOTE: ARM64 的原生 `epoll` 支持也可以与分类器（classifier） `linux-aarch64` 一起添加。
+NOTE: The native `epoll` support for ARM64 can also be added with the classifier `linux-aarch64`.
 
-NOTE: 如果您的团队中有 Mac 用户，在 `osx-x86_64` 上添加 `netty-transport-native-kqueue` 分类器（classifier）。
+NOTE: If there are Mac users in your team, add `netty-transport-native-kqueue` with the classifier `osx-x86_64`.
 
-然后通过 `link:../../apidocs/io/vertx/mysqlclient/MySQLConnectOptions.html#setHost-java.lang.String-[MySQLConnectOptions#setHost]` 设置域套接字的路径：
+Then set the path to the domain socket in `link:../../apidocs/io/vertx/mysqlclient/MySQLConnectOptions.html#setHost-java.lang.String-[MySQLConnectOptions#setHost]`:
 
 [source,java]
 ----
@@ -224,30 +216,28 @@ MySQLConnectOptions connectOptions = new MySQLConnectOptions()
   .setHost("/var/run/mysqld/mysqld.sock")
   .setDatabase("the-db");
 
-// 连接池选项
+// Pool options
 PoolOptions poolOptions = new PoolOptions()
   .setMaxSize(5);
 
-// 创建带连接池的客户端
+// Create the pooled client
 MySQLPool client = MySQLPool.pool(connectOptions, poolOptions);
 
-// 使用vertx实例创建带连接池的客户端
-// 确保vertx实例已启用native transports
+// Create the pooled client with a vertx instance
+// Make sure the vertx instance has enabled native transports
 // vertxOptions.setPreferNativeTransport(true);
 MySQLPool client2 = MySQLPool.pool(vertx, connectOptions, poolOptions);
 ----
 
-有关 native transport 的详细信息，请参阅 https://vertx.io/docs/vertx-core/java/#_native_transports[Vert.x 文档] 。
+More information about native transports can be found in the [Vert.x documentation](https://vertx.io/docs/vertx-core/java/#_native_transports).
 
-[[_configuration]]
-== 配置
+== Configuration
 
-有几个选项供您配置客户端。
+There are several alternatives for you to configure the client.
 
-[[_data_object]]
-=== 数据对象
+=== Data Object
 
-配置客户端的简单方法就是指定 `MySQLConnectOptions` 数据对象。
+A simple way to configure the client is to specify a `MySQLConnectOptions` data object.
 
 [source,java]
 ----
@@ -258,102 +248,98 @@ MySQLConnectOptions connectOptions = new MySQLConnectOptions()
   .setUser("user")
   .setPassword("secret");
 
-// 连接池选项
+// Pool Options
 PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 
-// 从数据对象创建连接池
+// Create the pool from the data object
 MySQLPool pool = MySQLPool.pool(vertx, connectOptions, poolOptions);
 
 pool.getConnection(ar -> {
-  // 处理您的连接
+  // Handling your connection
 });
 ----
 
-[[_collations_and_character_sets]]
-==== 字符序（collations）和字符集（character sets）
+==== collations and character sets
 
-响应式 MySQL 客户端支持配置字符序或字符集，并将它们映射到一个相关的 `java.nio.charset.Charset` 。
-您可以为数据库连接指定字符集，例如
+The Reactive MySQL client supports configuring collations or character sets and map them to a correlative `java.nio.charset.Charset`.
+For example, you can specify charset for a connection like
 
 [source,java]
 ----
 MySQLConnectOptions connectOptions = new MySQLConnectOptions();
 
-// 将连接的字符集设置为utf8而不是默认的字符集utf8mb4
+// set connection character set to utf8 instead of the default charset utf8mb4
 connectOptions.setCharset("utf8");
 ----
 
-响应式 MySQL 客户端的默认字符集是 `utf8mb4` 。字符串值，如密码和错误消息等，总是使用 `UTF-8` 字符集解码。
+The Reactive MySQL Client will take `utf8mb4` as the default charset. String values like password and error messages are always decoded in `UTF-8` charset.
 
-`characterEncoding` 选项用于设置字符串（例如查询字符串和参数值）使用的 Java 字符集，默认使用 `UTF-8` 字符集；如果设置为 `null` ，则客户端将使用 Java 的默认字符集。
+`characterEncoding` option is used to determine which Java charset will be used to encode String values such as query string and parameter values, the charset is `UTF-8` by default and if it's set to `null` then the client will use the default Java charset instead.
 
-您还可以为连接指定字符序，例如
+You can also specify collation for a connection like
 
 [source,java]
 ----
 MySQLConnectOptions connectOptions = new MySQLConnectOptions();
 
-// 将连接的字符序设置为 utf8_general_ci 来代替默认字符序 utf8mb4_general_ci
-// 设置字符序将覆盖charset选项
+// set connection collation to utf8_general_ci instead of the default collation utf8mb4_general_ci
+// setting a collation will override the charset option
 connectOptions.setCharset("gbk");
 connectOptions.setCollation("utf8_general_ci");
 ----
 
-请注意，在数据对象上设置字符序将覆盖 *charset* 和 *characterEncoding* 选项。
+Note setting a collation on the data object will override the *charset* and *characterEncoding* option.
 
-您可以执行 SQL `SHOW COLLATION;` 或 `SHOW CHARACTER SET;` 获取服务器支持的字符序和字符集。
+You can execute SQL `SHOW COLLATION;` or `SHOW CHARACTER SET;` to get the supported collations and charsets by the server.
 
-有关 MySQL 字符集和字符序的更多信息，请参阅 https://dev.mysql.com/doc/refman/8.0/en/charset.html[MySQL 参考手册]。
+More information about MySQL charsets and collations can be found in the https://dev.mysql.com/doc/refman/8.0/en/charset.html[MySQL Reference Manual].
 
-[[_connection_attributes]]
-==== 连接属性
+==== connection attributes
 
-还可以使用 `setProperties` 或 `addProperty` 方法配置连接属性。注意 `setProperties` 将覆盖客户端的默认属性。
+You can also configure the connection attributes with the `setProperties` or `addProperty` methods. Note `setProperties` will override the default client properties.
 
 [source,java]
 ----
 MySQLConnectOptions connectOptions = new MySQLConnectOptions();
 
-// 添加连接属性
+// Add a connection attribute
 connectOptions.addProperty("_java_version", "1.8.0_212");
 
-// 覆盖属性
+// Override the attributes
 Map<String, String> attributes = new HashMap<>();
 attributes.put("_client_name", "myapp");
 attributes.put("_client_version", "1.0.0");
 connectOptions.setProperties(attributes);
 ----
 
-有关连接属性的更多信息，请参阅 https://dev.mysql.com/doc/refman/8.0/en/performance-schema-connection-attribute-tables.html[MySQL 参考手册]。
+More information about client connection attributes can be found in the https://dev.mysql.com/doc/refman/8.0/en/performance-schema-connection-attribute-tables.html[MySQL Reference Manual].
 
-[[_useaffectedrows]]
-==== 配置 `useAffectedRows`
+==== useAffectedRows
 
-您可以 `useAffectedRows` 选项以决定是否在连接到服务器时设置标志 `CLIENT_FOUND_ROWS`。如果指定了 `CLIENT_FOUND_ROWS` 标志，则受影响的行计数（返回的）是查找到的行数，而不是受影响的行数。
+You can configure the `useAffectedRows` option to decide whether to set `CLIENT_FOUND_ROWS` flag when connecting to the server. If the `CLIENT_FOUND_ROWS` flag is specified then the affected rows count is the numeric value of rows found rather than affected.
 
-更多有关信息，请参阅 https://dev.mysql.com/doc/refman/8.0/en/mysql-affected-rows.html[MySQL 参考手册]
+More information about this can be found in the https://dev.mysql.com/doc/refman/8.0/en/mysql-affected-rows.html[MySQL Reference Manual]
 
-[[_connection_uri]]
-=== 连接 URI
+=== connection URI
 
-除了使用 `MySQLConnectOptions` 数据对象进行配置外，我们还为您提供了另外一种使用连接URI进行配置的方法：
+Apart from configuring with a `MySQLConnectOptions` data object, We also provide you an alternative way to connect when you want to configure with a connection URI:
 
 [source,java]
 ----
 String connectionUri = "mysql://dbuser:secretpassword@database.server.com:3211/mydb";
 
-// 从连接URI创建连接池
+// Create the pool from the connection URI
 MySQLPool pool = MySQLPool.pool(connectionUri);
 
-// 从连接URI创建连接
+// Create the connection from the connection URI
 MySQLConnection.connect(vertx, connectionUri, res -> {
-  // 处理您的连接
+  // Handling your connection
 });
 ----
 
-有关连接字符串格式的有关更多信息，请参阅 https://dev.mysql.com/doc/refman/8.0/en/connecting-using-uri-or-key-value-pairs.html#connecting-using-uri[MySQL 参考手册]。
+More information about connection string formats can be found in the https://dev.mysql.com/doc/refman/8.0/en/connecting-using-uri-or-key-value-pairs.html#connecting-using-uri[MySQL Reference Manual].
 
-目前，客户端支持以下的连接 uri 参数关键字（不区分大小写）：
+Currently, the client supports the following parameter keywords in connection uri (keys are case-insensitive):
 
 * host
 * port
@@ -363,10 +349,9 @@ MySQLConnection.connect(vertx, connectionUri, res -> {
 * socket
 * useAffectedRows
 
-[[_connect_retries]]
-== 连接重试
+== Connect retries
 
-您可以将客户端配置为在连接无法建立时重试。
+You can configure the client to retry when a connection fails to be established.
 
 [source,java]
 ----
@@ -377,10 +362,9 @@ options
 
 include::queries.adoc[leveloffset=1]
 
-[[_mysql_last_insert_id]]
 == MySQL LAST_INSERT_ID
 
-往表中插入一条记录后，可以获得自增值。
+You can get the auto incremented value if you insert a record into the table.
 
 [source,java]
 ----
@@ -397,7 +381,7 @@ client
   });
 ----
 
-更多有关信息，请参阅 https://dev.mysql.com/doc/refman/8.0/en/getting-unique-id.html[如何获取最近一条插入记录的唯一ID]。
+More information can be found in https://dev.mysql.com/doc/refman/8.0/en/getting-unique-id.html[How to Get the Unique ID for the Last Inserted Row].
 
 include::connections.adoc[]
 
@@ -405,15 +389,13 @@ include::transactions.adoc[]
 
 include::cursor.adoc[]
 
-[[_tracing_queries]]
-== 追踪查询
+== Tracing queries
 
 include::tracing.adoc[]
 
-[[_mysql_type_mapping]]
-== MySQL 类型映射
+== MySQL type mapping
 
-当前客户端支持以下 MySQL 类型
+Currently the client supports the following MySQL types
 
 * BOOL,BOOLEAN (`java.lang.Byte`)
 * TINYINT (`java.lang.Byte`)
@@ -455,35 +437,34 @@ include::tracing.adoc[]
 * JSON (`io.vertx.core.json.JsonObject`, `io.vertx.core.json.JsonArray`, `Number`, `Boolean`, `String`, `io.vertx.sqlclient.Tuple#JSON_NULL`)
 * GEOMETRY(`io.vertx.mysqlclient.data.spatial.*`)
 
-元组解码在存储值时使用上述类型
+Tuple decoding uses the above types when storing values
 
-请注意：在Java中，没有无符号数字值的具体表示形式，因此客户端会将无符号值转换为相关的Java类型。
+Note: In Java there is no specific representations for unsigned numeric values, so this client will convert an unsigned value to the correlated Java type.
 
-[[_implicit_type_conversion]]
-=== 隐式类型转换
+=== Implicit type conversion
 
-当执行预处理语句时，响应式 MySQL 客户端支持隐式类型转换。
-假设您的表中有一个 `TIME` 列，下面的两个示例都是有效的。
+The Reactive MySQL Client supports implicit type conversions when executing a prepared statement.
+Suppose you have a `TIME` column in your table, the two examples below will both work here.
 
 [source,java]
 ----
 client
   .preparedQuery("SELECT * FROM students WHERE updated_time = ?")
   .execute(Tuple.of(LocalTime.of(19, 10, 25)), ar -> {
-  // 处理结果
+  // handle the results
 });
-// 这个也适用于隐式类型转换
+// this will also work with implicit type conversion
 client
   .preparedQuery("SELECT * FROM students WHERE updated_time = ?")
   .execute(Tuple.of("19:10:25"), ar -> {
-  // 处理结果
+  // handle the results
 });
 ----
 
-MySQL 数据类型编码是根据参数值推断的。下面是具体的类型映射：
+The MySQL data type for encoding will be inferred from the parameter values and here is the type mapping
 
 |===
-|参数值 | MySQL 类型编码
+|Parameter value type |encoding MySQL type
 
 |null
 |MYSQL_TYPE_NULL
@@ -531,12 +512,11 @@ MySQL 数据类型编码是根据参数值推断的。下面是具体的类型�
 |MYSQL_TYPE_STRING
 |===
 
-[[_handling_boolean]]
-=== 处理布尔值
+=== Handling BOOLEAN
 
-在 MySQL 中 `BOOLEAN` 和 `BOOL` 数据类型是 `TINYINT(1)` 的同义词。零值视为 false，非零值视为 true。
-`BOOLEAN` 数据类型值以 `java.lang.Byte` 类型存储在 `Row` 或 `Tuple` 中，调用 `Row#getValue` 可以获取到 `java.lang.Byte` 类型的值，
-也可以调用 `Row#getBoolean` 获取 `java.lang.Boolean` 类型的值。
+In MySQL `BOOLEAN` and `BOOL` data types are synonyms for `TINYINT(1)`. A value of zero is considered false, non-zero values are considered true.
+A `BOOLEAN` data type value is stored in `Row` or `Tuple` as `java.lang.Byte` type, you can call `Row#getValue` to retrieve it as a `java.lang.Byte` value,
+or you can call `Row#getBoolean` to retrieve it as `java.lang.Boolean` value.
 
 [source,java]
 ----
@@ -556,7 +536,7 @@ client
 });
 ----
 
-当您想要使用一个 `BOOLEAN` 参数值执行预处理语句时，只要简单地在参数列表中添加  `java.lang.Boolean` 值即可。
+When you want to execute a prepared statement with a param of a `BOOLEAN` value, you can simply add the `java.lang.Boolean` value to the params list.
 
 [source,java]
 ----
@@ -571,17 +551,16 @@ client
 });
 ----
 
-[[_handling_json]]
-=== 处理 JSON
+=== Handling JSON
 
-MySQL `JSON` 数据类型由以下Java类型表示：
+MySQL `JSON` data type is represented by the following Java types:
 
 - `String`
 - `Number`
 - `Boolean`
 - `io.vertx.core.json.JsonObject`
 - `io.vertx.core.json.JsonArray`
-- `io.vertx.sqlclient.Tuple#JSON_NULL` 表示 JSON null 字面量
+- `io.vertx.sqlclient.Tuple#JSON_NULL` for representing the JSON null literal
 
 [source,java]
 ----
@@ -590,47 +569,43 @@ Tuple tuple = Tuple.of(
   new JsonObject().put("foo", "bar"),
   3);
 
-// 获取 json
-Object value = tuple.getValue(0); // 期望得到 JSON_NULL
+// Retrieving json
+Object value = tuple.getValue(0); // Expect JSON_NULL
 
 //
-value = tuple.get(JsonObject.class, 1); // 期望得到 JSON object
+value = tuple.get(JsonObject.class, 1); // Expect JSON object
 
 //
-value = tuple.get(Integer.class, 2); // 期望得到 3
-value = tuple.getInteger(2); // 期望得到 3
+value = tuple.get(Integer.class, 2); // Expect 3
+value = tuple.getInteger(2); // Expect 3
 ----
 
-[[_handling_bit]]
-=== 处理 BIT
-`BIT` 是 `java.lang.Long` 类型的映射, 但是Java没有无符号数值的概念, 因此，如果您要插入或更新一条记录为 `BIT(64)` 的最大值 , 可以将参数设置为 `-1L` 。
+=== Handling BIT
+The `BIT` data type is mapped to `java.lang.Long` type, but Java has no notion of unsigned numeric values, so if you want to insert or update a record with the max value of `BIT(64)`, you can do some tricks setting the parameter to `-1L`.
 
-[[_handling_time]]
-=== 处理 TIME
+=== Handling TIME
 
-MySQL `TIME` 数据类型可用于表示一天中的时间或范围为 `-838:59:59` 到 `838:59:59` 的时间间隔。在响应式MySQL客户端， `TIME` 数据类型自然的被映射为 `java.time.Duration`，您也可以调用 `Row#getLocalTime` 获取到 `java.time.LocalTime` 类型的值。
+MySQL `TIME` data type can be used to represent either time of a day or a time interval which ranges from `-838:59:59` to `838:59:59`. In Reactive MySQL client the `TIME` data type is mapped to `java.time.Duration` natively, but you can also retrieve it as a `java.time.LocalTime` via `Row#getLocalTime` accessor.
 
-[[_handling_numeric]]
-=== 处理 NUMERIC
+=== Handling NUMERIC
 
-`link:../../apidocs/io/vertx/sqlclient/data/Numeric.html[Numeric]` Java类型用于表示MySQL的 `NUMERIC` 类型。
+The `link:../../apidocs/io/vertx/sqlclient/data/Numeric.html[Numeric]` Java type is used to represent the MySQL `NUMERIC` type.
 
 [source,java]
 ----
 Numeric numeric = row.get(Numeric.class, 0);
 if (numeric.isNaN()) {
-  // 处理 NaN
+  // Handle NaN
 } else {
   BigDecimal value = numeric.bigDecimalValue();
 }
 ----
 
-[[_handling_enum]]
-=== 处理 ENUM
+=== Handling ENUM
 
-MySQL支持ENUM数据类型，客户端将这些类型检索为String数据类型。
+MySQL supports ENUM data type and the client retrieves these types as String data type.
 
-您可以像这样将Java枚举编码为String：
+You can encode Java enums as String like this:
 
 [source,java]
 ----
@@ -641,7 +616,7 @@ client
   });
 ----
 
-您可以将 ENUM 类型的列读取为 Java 的枚举，如以下代码：
+You can retrieve the ENUM column as Java enums like this:
 
 [source,java]
 ----
@@ -658,12 +633,11 @@ client
 });
 ----
 
-[[_handling_geometry]]
-=== 处理 GEOMETRY
+=== Handling GEOMETRY
 
-MYSQL 还支持 `GEOMETRY`  数据类型，下面是一些示例展示您可以使用 Well-Known Text（WKT）格式或 Well-Known Binary（WKB）格式处理几何数据，数据被解码为MySQL TEXT 或 BLOB 数据类型。有很多很棒的第三方库可以处理这种格式的数据。
+MYSQL `GEOMETRY` data type is also supported, Here are some examples showing that you can handle the geometry data in Well-Known Text (WKT) format or Well-Known Binary (WKB) format, the data are decoded as MySQL TEXT OR BLOB data type. There are many great third-party libraries for handling data in this format.
 
-您可以以 WKT 格式获取空间数据：
+You can fetch spatial data in WKT format:
 
 [source,java]
 ----
@@ -671,7 +645,7 @@ client
   .query("SELECT ST_AsText(g) FROM geom;")
   .execute(ar -> {
   if (ar.succeeded()) {
-    // 以WKT格式获取空间数据
+    // Fetch the spatial data in WKT format
     RowSet<Row> result = ar.result();
     for (Row row : result) {
       String wktString = row.getString(0);
@@ -682,7 +656,7 @@ client
 });
 ----
 
-或者，您可以以WKB格式获取空间数据：
+Or you can fetch spatial data in WKB format:
 
 [source,java]
 ----
@@ -690,7 +664,7 @@ client
   .query("SELECT ST_AsBinary(g) FROM geom;")
   .execute(ar -> {
   if (ar.succeeded()) {
-    // 以WKB格式获取空间数据
+    // Fetch the spatial data in WKB format
     RowSet<Row> result = ar.result();
     for (Row row : result) {
       Buffer wkbValue = row.getBuffer(0);
@@ -701,9 +675,9 @@ client
 });
 ----
 
-在响应式 MySQL 客户端中，我们还提供了一种处理几何数据类型的简单方法。
+We also provide you a simple way to handle the geometry data type in Reactive MySQL Client.
 
-您可以将几何数据作为Vert.x数据对象检索：
+You can retrieve the geometry data as Vert.x Data Object:
 
 [source,java]
 ----
@@ -711,7 +685,7 @@ client
   .query("SELECT g FROM geom;")
   .execute(ar -> {
   if (ar.succeeded()) {
-    // 以Vert.x数据对象获取空间数据
+    // Fetch the spatial data as a Vert.x Data Object
     RowSet<Row> result = ar.result();
     for (Row row : result) {
       Point point = row.get(Point.class, 0);
@@ -724,12 +698,12 @@ client
 });
 ----
 
-您也可以将WKB描述用作预处理语句参数。
+You can also take it as a prepared statement parameter in a WKB representation.
 
 [source,java]
 ----
 Point point = new Point(0, 1.5, 1.5);
-// 以 WKB 描述发送
+// Send as a WKB representation
 client
   .preparedQuery("INSERT INTO geom VALUES (ST_GeomFromWKB(?))")
   .execute(Tuple.of(point), ar -> {
@@ -741,10 +715,9 @@ client
 });
 ----
 
-[[_collector_queries]]
-== 集合类查询
+== Collector queries
 
-您可以将查询API与Java集合类结合使用：
+You can use Java collectors with the query API:
 
 [source,java]
 ----
@@ -752,12 +725,12 @@ Collector<Row, ?, Map<Long, String>> collector = Collectors.toMap(
   row -> row.getLong("id"),
   row -> row.getString("last_name"));
 
-// 运行查询使用集合类
+// Run the query with the collector
 client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
     if (ar.succeeded()) {
       SqlResult<Map<Long, String>> result = ar.result();
 
-      // 获取用集合类创建的map
+      // Get the map created by the collector
       Map<Long, String> map = result.value();
       System.out.println("Got " + map);
     } else {
@@ -766,11 +739,11 @@ client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
   });
 ----
 
-集合类处理不能保留 `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]`
-的引用，因为只有一个 Row 对象用于处理整个集合。
+The collector processing must not keep a reference on the `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` as
+there is a single row used for processing the entire set.
 
-Java `Collectors` 提供了许多有趣的预定义集合类，例如，
-您可以直接用 Row 中的集合轻松拼接成一个字符串：
+The Java `Collectors` provides many interesting predefined collectors, for example you can
+create easily create a string directly from the row set:
 
 [source,java]
 ----
@@ -779,12 +752,12 @@ Collector<Row, ?, String> collector = Collectors.mapping(
   Collectors.joining(",", "(", ")")
 );
 
-// 运行查询使用集合类
+// Run the query with the collector
 client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
     if (ar.succeeded()) {
       SqlResult<String> result = ar.result();
 
-      // 获取用集合类创建的String
+      // Get the string created by the collector
       String list = result.value();
       System.out.println("Got " + list);
     } else {
@@ -793,10 +766,9 @@ client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
   });
 ----
 
-[[_mysql_stored_procedure]]
-== MySQL 存储过程
+== MySQL Stored Procedure
 
-您可以在查询中运行存储过程。结果将按照 https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_command_phase_sp.html[MySQL 协议] 从服务器获取，无需任何魔法。
+You can run stored procedures in queries. The result will be retrieved from the server following the https://dev.mysql.com/doc/dev/mysql-server/8.0.12/page_protocol_command_phase_sp.html[MySQL protocol] without any magic here.
 
 [source,java]
 ----
@@ -807,12 +779,12 @@ client.query("CREATE PROCEDURE multi() BEGIN\n" +
   "  INSERT INTO ins VALUES (2);\n" +
   "END;").execute(ar1 -> {
   if (ar1.succeeded()) {
-    // 创建存储过程成功
+    // create stored procedure success
     client
       .query("CALL multi();")
       .execute(ar2 -> {
       if (ar2.succeeded()) {
-        // 处理结果
+        // handle the result
         RowSet<Row> result1 = ar2.result();
         Row row1 = result1.iterator().next();
         System.out.println("First result: " + row1.getInteger(0));
@@ -833,22 +805,19 @@ client.query("CREATE PROCEDURE multi() BEGIN\n" +
 });
 ----
 
-Note: 目前尚不支持绑定OUT参数的预处理语句。
+Note: Prepared statements binding OUT parameters is not supported for now.
 
-[[_mysql_local_infile]]
-== MySQL 导入本地文件
+== MySQL LOCAL INFILE
 
-该客户端支持处理 LOCAL INFILE 请求, 如果要将数据从本地文件加载到服务器，则可以使用语句
-`LOAD DATA LOCAL INFILE '<filename>' INTO TABLE <table>;`。 更多有关信息，请参阅 https://dev.mysql.com/doc/refman/8.0/en/load-data.html[MySQL 参考手册].
+This client supports for handling the LOCAL INFILE Request, if you want to load data from a local file into the server, you can use query
+`LOAD DATA LOCAL INFILE '<filename>' INTO TABLE <table>;`. More information can be found in the https://dev.mysql.com/doc/refman/8.0/en/load-data.html[MySQL Reference Manual].
 
-[[_authentication]]
-== 认证
+== Authentication
 
-[[_default_authentication_plugin]]
-=== 默认身份验证插件
+=== Default authentication plugin
 
-该客户端支持指定在连接开始时使用缺省的身份验证插件。
-当前支持以下插件：
+This client supports for specifying the default authentication plugin to use at the connection start.
+Currently the following plugins are supported:
 
 - mysql_native_password
 - caching_sha2_password
@@ -862,15 +831,14 @@ MySQLConnectOptions options = new MySQLConnectOptions()
   .setDatabase("the-db")
   .setUser("user")
   .setPassword("secret")
-  .setAuthenticationPlugin(MySQLAuthenticationPlugin.MYSQL_NATIVE_PASSWORD); // 设定默认身份验证插件
+  .setAuthenticationPlugin(MySQLAuthenticationPlugin.MYSQL_NATIVE_PASSWORD); // set the default authentication plugin
 ----
 
-[[_new_authentication_method_introduced_in_mysql_8]]
-=== MySQL 8 中引入的新身份验证方法
+=== New authentication method introduced in MySQL 8
 
-MySQL 8.0 引入了一种名为 `caching_sha2_password` 的身份验证方法，它是默认的身份验证方法。
-为了使用此新的身份验证方法连接到服务器，您需要使用安全连接（例如 启用 TLS/SSL）或使用 RSA 密钥对交换加密密码，以避免密码泄漏。RSA 密钥对在通信过程中会自动交换，但服务器 RSA 公钥可能会在这个过程中被黑客攻击，因为它通过不安全的连接传输。
-因此，如果您使用不安全的连接，并且希望避免暴露服务器 RSA 公钥的风险，可以这样设置服务器 RSA 公钥：
+MySQL 8.0 introduces a new authentication method named `caching_sha2_password` and it's the default one to authenticate.
+In order to connect to the server using this new authentication method, you need either use a secure connection(i.e. enable TLS/SSL) or exchange the encrypted password using an RSA key pair to avoid leaks of password. The RSA key pair is automatically exchanged during the communication, but the server RSA public key may be hacked during the process since it's transferred on a insecure connection.
+So if you're on a insecure connection and want to avoid the risk of exposing the server RSA public key, you can set the server RSA public key like this:
 
 [source,java]
 ----
@@ -880,7 +848,7 @@ MySQLConnectOptions options1 = new MySQLConnectOptions()
   .setDatabase("the-db")
   .setUser("user")
   .setPassword("secret")
-  .setServerRsaPublicKeyPath("tls/files/public_key.pem"); // 配置公钥路径
+  .setServerRsaPublicKeyPath("tls/files/public_key.pem"); // configure with path of the public key
 
 MySQLConnectOptions options2 = new MySQLConnectOptions()
   .setPort(3306)
@@ -896,18 +864,18 @@ MySQLConnectOptions options2 = new MySQLConnectOptions()
     "0fUbgGLWWLOossKrbUP5HWko1ghLPIbfmU6o890oj1ZWQewj1Rs9Er92/UDj/JXx\n" +
     "7ha1P+ZOgPBlV037KDQMS6cUh9vTablEHsMLhDZanymXzzjBkL+wH/b9cdL16LkQ\n" +
     "5QIDAQAB\n" +
-    "-----END PUBLIC KEY-----\n")); // 配置公钥缓冲
+    "-----END PUBLIC KEY-----\n")); // configure with buffer of the public key
 ----
 
-有关 `caching_sha2_password` 身份验证方法的更多信息，请参见 https://dev.mysql.com/doc/refman/8.0/en/caching-sha2-pluggable-authentication.html[MySQL 参考手册].
+More information about the `caching_sha2_password` authentication method can be found in the https://dev.mysql.com/doc/refman/8.0/en/caching-sha2-pluggable-authentication.html[MySQL Reference Manual].
 
-[[_using_ssltls]]
-== 使用 SSL/TLS
+== Using SSL/TLS
 
-配置客户端使用SSL连接, 您可以像 Vert.x `NetClient` 一样配置
-`link:../../apidocs/io/vertx/mysqlclient/MySQLConnectOptions.html[MySQLConnectOptions]` 。
-响应式 MySQL 客户端 支持所有 https://dev.mysql.com/doc/refman/8.0/en/connection-options.html#option_general_ssl-mode[SSL 模式] ，而且您能够配置 `sslmode`. 客户端默认设置为 `DISABLED` SSL 模式。
-`ssl` 参数仅作为设置 `sslmode` 的快捷方式存在。`setSsl(true)` 等价于 `setSslMode(VERIFY_CA)` ， `setSsl(false)` 等价于 `setSslMode(DISABLED)`
+To configure the client to use SSL connection, you can configure the `link:../../apidocs/io/vertx/mysqlclient/MySQLConnectOptions.html[MySQLConnectOptions]`
+like a Vert.x `NetClient`.
+All https://dev.mysql.com/doc/refman/8.0/en/connection-options.html#option_general_ssl-mode[SSL modes] are supported and you are able to configure `sslmode`. The client is in `DISABLED` SSL mode by default.
+`ssl` parameter is kept as a mere shortcut for setting `sslmode`. `setSsl(true)` is equivalent to `setSslMode(VERIFY_CA)` and `setSsl(false)` is equivalent to `setSslMode(DISABLED)`.
+
 [source,java]
 ----
 MySQLConnectOptions options = new MySQLConnectOptions()
@@ -921,25 +889,23 @@ MySQLConnectOptions options = new MySQLConnectOptions()
 
 MySQLConnection.connect(vertx, options, res -> {
   if (res.succeeded()) {
-    // 用SSL连接
+    // Connected with SSL
   } else {
     System.out.println("Could not connect " + res.cause());
   }
 });
 ----
 
-更多详细信息，请参阅 http://vertx.io/docs/vertx-core/java/#ssl[Vert.x 文档].
+More information can be found in the http://vertx.io/docs/vertx-core/java/#ssl[Vert.x documentation].
 
-[[_mysql_utility_command]]
-== MySQL 实用程序命令
+== MySQL utility command
 
-有时您希望使用 MySQL 实用程序命令，我们为此提供支持。
-有关更多信息，请参阅 https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_command_phase_utility.html[MySQL 实用程序命令].
+Sometimes you want to use MySQL utility commands and we provide support for this.
+More information can be found in the https://dev.mysql.com/doc/dev/mysql-server/8.0.12/page_protocol_command_phase_utility.html[MySQL utility commands].
 
-[[_com_ping]]
 === COM_PING
 
-您可以使用 `COM_PING` 命令检查服务器是否处于活动状态。如果服务器响应 PING，将通知处理程序，否则将永远不会调用处理程序。
+You can use `COM_PING` command to check if the server is alive. The handler will be notified if the server responds to the PING, otherwise the handler will never be called.
 
 [source,java]
 ----
@@ -948,10 +914,9 @@ connection.ping(ar -> {
 });
 ----
 
-[[_com_reset_connection]]
 === COM_RESET_CONNECTION
 
-您可以使用 `COM_RESET_CONNECTION` 命令重置会话状态，这将重置连接状态，如：
+You can reset the session state with `COM_RESET_CONNECTION` command, this will reset the connection state like:
 - user variables
 - temporary tables
 - prepared statements
@@ -967,10 +932,9 @@ connection.resetConnection(ar -> {
 });
 ----
 
-[[_com_change_user]]
 === COM_CHANGE_USER
 
-您可以更改当前连接的用户，这将执行re-authentication并重置连接状态，如 `COM_RESET_CONNECTION` 。
+You can change the user of the current connection, this will perform a re-authentication and reset the connection state like `COM_RESET_CONNECTION`.
 
 [source,java]
 ----
@@ -987,10 +951,9 @@ connection.changeUser(authenticationOptions, ar -> {
 });
 ----
 
-[[_com_init_db]]
 === COM_INIT_DB
 
-您可以使用 `COM_INIT_DB` 命令更改连接的默认schema。
+You can use `COM_INIT_DB` command to change the default schema of the connection.
 
 [source,java]
 ----
@@ -1003,9 +966,9 @@ connection.specifySchema("newschema", ar -> {
 });
 ----
 
-[[_com_statistics]]
 === COM_STATISTICS
-您可以使用 `COM_STATISTICS` 命令获取某些内部状态变量的可读字符串。
+
+You can use `COM_STATISTICS` command to get a human readable string of some internal status variables in MySQL server.
 
 [source,java]
 ----
@@ -1018,10 +981,9 @@ connection.getInternalStatistics(ar -> {
 });
 ----
 
-[[_com_debug]]
 === COM_DEBUG
 
-您可以使用 `COM_DEBUG` 命令将调试信息转储到MySQL服务器的STDOUT。
+You can use `COM_DEBUG` command to dump debug info to the MySQL server's STDOUT.
 
 [source,java]
 ----
@@ -1034,12 +996,11 @@ connection.debug(ar -> {
 });
 ----
 
-[[_com_set_option]]
 === COM_SET_OPTION
 
-您可以使用 `COM_SET_OPTION` 命令设置当前连接的选项。目前只能设置 `CLIENT_MULTI_STATEMENTS`。
+You can use `COM_SET_OPTION` command to set options for the current connection. Currently only `CLIENT_MULTI_STATEMENTS` can be set.
 
-例如，您可以使用此命令禁用 `CLIENT_MULTI_STATEMENTS` 。
+For example, you can disable `CLIENT_MULTI_STATEMENTS` with this command.
 
 [source,java]
 ----
@@ -1052,8 +1013,7 @@ connection.setOption(MySQLSetOption.MYSQL_OPTION_MULTI_STATEMENTS_OFF, ar -> {
 });
 ----
 
-[[_mysql_and_mariadb_version_support_matrix]]
-== MySQL 和 MariaDB 版本支持情况
+== MySQL and MariaDB version support matrix
 
 [cols="^,^,^,^", options="header"]
 |====
@@ -1061,7 +1021,7 @@ connection.setOption(MySQLSetOption.MYSQL_OPTION_MULTI_STATEMENTS_OFF, ar -> {
 2+| MySQL
 2+| MariaDB
 
-| 版本 | 是否支持 | 版本 | 是否支持
+| Version | Supported | Version | Supported
 
 |`5.5`
 |&#10004;
@@ -1085,44 +1045,39 @@ connection.setOption(MySQLSetOption.MYSQL_OPTION_MULTI_STATEMENTS_OFF, ar -> {
 
 |====
 
-已知问题：
+Known issues:
 
-- 重置连接实用程序命令在 MySQL 5.5、5.6 和 MariaDB 10.1 中不可用
-- MariaDB 10.2 和 10.3 不支持更改用户实用程序命令
+- Reset connection utility command does not work in MySQL 5.5, 5.6 and MariaDB 10.1
+- Change user utility command is not supported with MariaDB 10.2 and 10.3
 
-[[_pitfalls_good_practices]]
-== 陷阱和最佳实践
+== Pitfalls & Good Practices
 
-以下是使用响应式 MySQL 客户端时避免常见陷阱的一些最佳实践。
+Here are some good practices for you to avoid common pitfalls when using the Reactive MySQL Client.
 
-[[_prepared_statement_count_limit]]
-=== 预处理语句的计数限制
+=== prepared statement count limit
 
-有时您可能会遇到臭名昭著的错误 `Can't create more than max_prepared_stmt_count statements (current value: 16382)` ，这是因为服务器已达到预处理语句的总数限制。
+Sometimes you might meet the notorious error `Can't create more than max_prepared_stmt_count statements (current value: 16382)`, this is because the server has reached the limit of total number of prepared statement.
 
-您可以调整服务器系统变量  `max_prepared_stmt_count` ，但它具有上限值，因此您无法以这种方式摆脱错误。
+You can adjust the server system variable `max_prepared_stmt_count` but it has an upper bound value so you can't get rid of the error in this way.
 
-缓解这种情况的最佳方法是启用预处理语句缓存，因此可以重用具有相同 SQL 字符串的预处理语句，并且客户端不必为每个请求创建全新的预处理语句。
-执行语句后，预处理语句将自动关闭。
-这样，虽然无法完全消除错误，但达到极限的机会可以大大减少。
+The best way to alleviate this is enabling prepared statement caching, so the prepared statements with the same SQL string could be reused and the client does not have to create a brand new prepared statement for every request.
+The prepared statement will be automatically closed after the statement is executed.
+In this way the chances of reaching the limit could be greatly reduced though it could not be totally eliminated.
 
-还可以通过接口 `SqlConnection#prepare` 创建 `PreparedStatement` 对象来手动管理预处理语句的生命周期，以便可以选择何时释放语句句柄，甚至使用 https://dev.mysql.com/doc/refman/8.0/en/sql-prepared-statements.html[SQL syntax prepared statement].
+You can also manage the lifecycle of prepared statements manually by creating a `PreparedStatement` object via `SqlConnection#prepare` interface so that you can choose when to deallocate the statement handle, or even use the https://dev.mysql.com/doc/refman/8.0/en/sql-prepared-statements.html[SQL syntax prepared statement].
 
-[[_demystifying_prepared_batch]]
-=== 揭开批量预处理神秘面纱
+=== demystifying prepared batch
 
-当您要将数据批量插入到数据库中时，您可以使用 `PreparedQuery#executeBatch` ，它提供了一个简单的 API 来处理此问题。
-请记住，MySQL 原生不支持批处理协议，因此 API 只是语法糖，一个接一个执行预处理语句，这意味着比执行一个预处理语句插入多条带有值列表的记录，需要更多的网络往返耗时。
+There is time when you want to batch insert data into the database, you can use `PreparedQuery#executeBatch` which provides a simple API to handle this.
+Keep in mind that MySQL does not natively support batching protocol so the API is only a sugar by executing the prepared statement one after another, which means more network round trips are required comparing to inserting multiple rows by executing one prepared statement with a list of values.
 
-[[_tricky_date_time_data_types]]
-=== 棘手的日期和时间数据类型
+=== tricky DATE & TIME data types
 
-处理 MYSQL 日期和时间数据类型（尤其是时区）是棘手的，因此响应式 MySQL 客户端不会为这些值进行魔法转换。
+Handling MYSQL DATE and TIME data types especially with time zones is tricky therefore the Reactive MySQL Client does no magic transformation for those values.
 
-* MySQL DATETIME 数据类型不包含时区信息，因此无论当前会话中的时区是什么，您获取的内容都与您设置的内容相同
-* MySQL TIMESTAMP 数据类型包含时区信息，因此当您设置或获取值时，服务器总是通过当前会话中设置的时区来转换该值。
+* MySQL DATETIME data type does not contain time zone info, so what you get is identical to what you set no matter what time zone is in the current session.
+* MySQL TIMESTAMP data type contains time zone info, so when you set or get the value it's always transformed by the server with the timezone set in the current session.
 
-[[_advanced_pool_configuration]]
-== 高级连接池配置
+== Advanced pool configuration
 
 include::pool_config.adoc[]

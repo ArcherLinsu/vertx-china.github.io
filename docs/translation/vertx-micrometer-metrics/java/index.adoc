@@ -1,38 +1,34 @@
-= Vert.x Micrometer 指标监控
+= Vert.x Micrometer Metrics
 
-这个项目是 Vert.x Metrics Service Provider Interface (SPI) 的一个实现。
-它使用 link:http://micrometer.io/[Micrometer] 来管理运行指标并向后端报告。
+This project is an implementation of the Vert.x Metrics Service Provider Interface (SPI).
+It uses link:http://micrometer.io/[Micrometer] for managing metrics and reporting to several backends.
 
-[[_features]]
-== 特性
+== Features
 
-* Vert.x core 组件监控：TCP/HTTP 客户端和服务端、 `link:../../apidocs/io/vertx/core/datagram/DatagramSocket.html[DatagramSocket]` 、
-`link:../../apidocs/io/vertx/core/eventbus/EventBus.html[EventBus]` 和各类 pool
-* 用户通过Micrometer定义的监控指标
-* 向所有 Micrometer 支持的后端发送报告
-* 内置可选项： https://www.influxdata.com/[InfluxDB] 、 https://prometheus.io/[Prometheus] 、 JMX 报告。
+* Vert.x core tools monitoring: TCP/HTTP client and servers, `link:../../apidocs/io/vertx/core/datagram/DatagramSocket.html[DatagramSocket]`
+, `link:../../apidocs/io/vertx/core/eventbus/EventBus.html[EventBus]` and pools
+* User defined metrics through Micrometer
+* Reporting to any backend supported by Micrometer
+* Built-in options for https://www.influxdata.com/[InfluxDB], https://prometheus.io/[Prometheus] and JMX reporting.
 
-[[_influxdb]]
 == InfluxDB
 
-[[_prerequisites]]
-=== 预先准备
+=== Prerequisites
 
-按照 https://docs.influxdata.com/influxdb/latest/introduction/getting_started/[说明文档启动并运行 InfluxDb] 。
+Follow the https://docs.influxdata.com/influxdb/latest/introduction/getting_started/[instructions to get InfluxDb up and running].
 
-[[_getting_started]]
-=== 开始
+=== Getting started
 
-必须要在classpath下添加 _vertx-micrometer-metrics_ 和 _micrometer-registry-influx_ 模块。
+The modules _vertx-micrometer-metrics_ and _micrometer-registry-influx_ must be present in the classpath.
 
-Maven 用户应在 pom 文件中添加如下依赖：
+Maven users should add this to their project POM file:
 
 [source,xml,subs="+attributes"]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -41,18 +37,17 @@ Maven 用户应在 pom 文件中添加如下依赖：
 </dependency>
 ----
 
-Gradle 用户，添加如下依赖：
+And Gradle users, to their build file:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.2.3'
+compile 'io.vertx:vertx-micrometer-metrics:4.1.7'
 compile 'io.micrometer:micrometer-registry-influx:${micrometer.version}'
 ----
 
-[[_configuration_examples]]
-=== 配置示例
+=== Configuration examples
 
-Vert.x 默认情况下不开启 SPI 的实现。您必须在 Vert.x options 中启用。
+Vert.x does not enable SPI implementations by default. You must enable metric collection in the Vert.x options.
 
 [source,java]
 ----
@@ -62,8 +57,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_using_a_specific_uri_and_database_name]]
-==== 使用指定的URI和数据库名
+==== Using a specific URI and database name
 
 [source,java]
 ----
@@ -75,8 +69,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_with_autentication]]
-==== 认证
+==== With authentication
 
 [source,java]
 ----
@@ -88,28 +81,25 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_prometheus]]
 == Prometheus
 
-[[_prerequisites0]]
-=== 预先准备
+=== Prerequisites
 
-按照 https://prometheus.io/docs/prometheus/latest/getting_started/[手册启动并运行Prometheus] 。
+Follow the https://prometheus.io/docs/prometheus/latest/getting_started/[instructions to get Prometheus up and running].
 
-[[_getting_started0]]
-=== 开始
+=== Getting started
 
-必须在classpath中添加 _vertx-micrometer-metrics_ 和 _micrometer-registry-prometheus_ 模块。
-您也许需要 _vertx-web_ 来开放监控指标。
+The modules _vertx-micrometer-metrics_ and _micrometer-registry-prometheus_ must be present in the classpath.
+You may also probably need _vertx-web_, to expose the metrics.
 
-Maven用户在pom文件中添加如下依赖：
+Maven users should add this to their project POM file:
 
 [source,xml,subs="+attributes"]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -118,18 +108,17 @@ Maven用户在pom文件中添加如下依赖：
 </dependency>
 ----
 
-Gradle 用户，添加如下依赖：
+And Gradle users, to their build file:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.2.3'
+compile 'io.vertx:vertx-micrometer-metrics:4.1.7'
 compile 'io.micrometer:micrometer-registry-prometheus:${micrometer.version}'
 ----
 
-[[_configuration_examples0]]
-=== 配置示例
+=== Configuration examples
 
-Vert.x 默认情况下不开启 SPI 的实现。您必须在 Vert.x options 中将其启用。
+Vert.x does not enable SPI implementations by default. You must enable metric collection in the Vert.x options
 
 [source,java]
 ----
@@ -139,8 +128,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_using_an_embedded_http_server_with_custom_endpoint]]
-==== 将嵌入式HTTP服务器与自定义终端（custom endpoint）一起使用
+==== Using an embedded HTTP server with custom endpoint
 
 [source,java]
 ----
@@ -153,10 +141,9 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-如果没有指定默认服务终端，那么默认为  _/metrics_ 。
+If the embedded server endpoint is not specified, it defaults to _/metrics_.
 
-[[_binding_metrics_to_an_existing_vert_x_web_router]]
-==== 将指标绑定到已存在的Web路由器
+==== Binding metrics to an existing Vert.x Web router
 
 [source,java]
 ----
@@ -165,7 +152,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setPrometheusOptions(new VertxPrometheusOptions().setEnabled(true))
     .setEnabled(true)));
 
-// 稍后，创建路由器
+// Later on, creating a router
 Router router = Router.router(vertx);
 router.route("/metrics").handler(PrometheusScrapingHandler.create());
 vertx.createHttpServer().requestHandler(router).listen(8080);
@@ -173,19 +160,18 @@ vertx.createHttpServer().requestHandler(router).listen(8080);
 
 == JMX
 
-[[_getting_started1]]
-=== 开始
+=== Getting started
 
-必须要在classpath中添加 _vertx-micrometer-metrics_ 和 _micrometer-registry-jmx_ 。
+The modules _vertx-micrometer-metrics_ and _micrometer-registry-jmx_ must be present in the classpath.
 
-Maven用户在pom文件中添加如下依赖：
+Maven users should add this to their project POM file:
 
 [source,xml,subs="+attributes"]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -194,18 +180,17 @@ Maven用户在pom文件中添加如下依赖：
 </dependency>
 ----
 
-Gradle 用户，添加如下依赖：
+And Gradle users, to their build file:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.2.3'
+compile 'io.vertx:vertx-micrometer-metrics:4.1.7'
 compile 'io.micrometer:micrometer-registry-jmx:${micrometer.version}'
 ----
 
-[[_configuration_examples1]]
-=== 配置示例
+=== Configuration examples
 
-Vert.x默认情况下不开启SPI的实现。您必须在Vert.x options中启用它。
+Vert.x does not enable SPI implementations by default. You must enable metric collection in the Vert.x options
 
 [source,java]
 ----
@@ -215,11 +200,10 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_with_step_and_domain]]
-==== 添加 step 和 domain
+==== With step and domain
 
-在Micrometer中， `step` 是指报告周期，以秒为单位。 `domain` 是
-MBeans被注册域名之下的JMX域名。
+In Micrometer, `step` refers to the reporting period, in seconds. `domain` is the JMX domain under which
+MBeans are registered.
 
 [source,java]
 ----
@@ -231,19 +215,16 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_other_backends_or_combinations]]
-== 其他后端或其组合
+== Other backends or combinations
 
-即使Vert.x并不对所有的Micrometer支持的后台提供实现，但是
-创建Micrometer注册信息并将其传入Vert.x依然是可能的。
+Even if not all backends supported by Micrometer are implemented in Vert.x options, it is still possible
+to create any Micrometer registry and pass it to Vert.x.
 
 The list of available backends includes Graphite, Ganglia, Atlas, link:http://micrometer.io/docs[etc].
 It also enables the link:http://micrometer.io/docs/concepts#_composite_registries[Micrometer Composite Registry]
 in order to report the same metrics to multiple backends.
-可用的后端包括 Graphite、Ganglia、Atlas link:http://micrometer.io/docs[等等] 。
-它也允许 link:http://micrometer.io/docs/concepts#_composite_registries[Micrometer 组合注册] 从而可以向多个后端报告同一项指标。
 
-在以下例子中，指标同时向 JMX 和 Graphite报告：
+In this example, metrics are reported both for JMX and Graphite:
 
 [source,java]
 ----
@@ -257,18 +238,16 @@ Vertx vertx = Vertx.vertx(new VertxOptions()
     .setEnabled(true)));
 ----
 
-[[_advanced_usage]]
-== 高级用法
+== Advanced usage
 
-请查阅 `link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html[MicrometerMetricsOptions]` 以获取更多的options信息。
+Please refer to `link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html[MicrometerMetricsOptions]` for an exhaustive list of options.
 
-[[_averages_and_quantiles_in_prometheus]]
-=== Prometheus 中的平均值和分位数
+=== Averages and quantiles in Prometheus
 
-默认情况下，当使用Prometheus注册信息时，指标的直方图不会包括平均值和分位数的分析。
+By default, when using the Prometheus registry, histogram-kind metrics will not contain averages or quantile stats.
 
-平均值并非开箱即用，他们通常是用 `promql` link:https://prometheus.io/docs/practices/histograms/#count-and-sum-of-observations[在查询时计算出来] 的。
-例如，Http客户端在过去5分钟内平均响应时间：
+Averages don't come out of the box but they are typically link:https://prometheus.io/docs/practices/histograms/#count-and-sum-of-observations[computed at query time],
+with `promql`. Example, for HTTP client response time average during the last 5 minutes:
 
 [source]
 ----
@@ -277,8 +256,8 @@ Vertx vertx = Vertx.vertx(new VertxOptions()
  rate(vertx_http_client_response_time_seconds_count[5m])
 ----
 
-要计算分位数，则有两个方案可选择。第一种，激活全局分位数分析，
-并让 Prometheus 的 `histogram_quantile` 函数可以使用分位数：
+To compute quantiles, there are two options available. The first is to activate quantile stats globally
+and make them usable for Prometheus function `histogram_quantile`:
 
 [source,java]
 ----
@@ -289,17 +268,17 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-然后，例如用 `promql` 查询HTTP client响应时间在最近5分钟内百分之九十九的分位点：
+And then, for example the `promql` query for the HTTP client response time, 99th percentile over the last 5 minutes:
 [source]
 ----
  histogram_quantile(0.99, sum(rate(vertx_http_client_response_time_seconds_bucket[5m])) by (le))
 ----
 
-这个方案的优点是可以在 `promql` 中跨维度聚合使用。
-坏处是它为了统计数据而创建了大量的时间序列。
+The advantage of this option is that it can be leveraged in `promql`, aggregable across dimensions.
+The downside is that it creates a lot of timeseries for stats under the hood.
 
-第二个方案是创建分析限制，不许跨维度聚合。
-这就需要直接访问 Micrometer / Prometheus 注册信息：
+The second option is to create limited stats, non-aggregable across dimensions.
+It requires to access directly the Micrometer / Prometheus registry:
 
 [source,java]
 ----
@@ -316,35 +295,33 @@ registry.config().meterFilter(
     });
 ----
 
-也可以从以下链接见到更多的直方图和百分比：
+See also, more on histograms and percentiles:
 
 * from link:https://micrometer.io/docs/concepts#_histograms_and_percentiles[Micrometer doc]
 * from link:https://prometheus.io/docs/prometheus/latest/querying/functions/#histogram_quantile[Prometheus doc]
 
-另外，您可以下载一些 link:https://github.com/vert-x3/vertx-examples/tree/master/micrometer-metrics-examples[完整工作示例] 。
-其中有少量安装 Prometheus和在Grafana中创建视图仪表盘的说明。
+Furthermore, you can check some link:https://github.com/vert-x3/vertx-examples/tree/master/micrometer-metrics-examples[full working examples].
+They come along with few instructions to setup with Prometheus and view dashboards in Grafana.
 
-[[_disable_some_metric_domains]]
-=== 禁用一些指标域
+=== Disable some metric domains
 
-可以使用 `link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html#disabledMetricsCategories[disabledMetricsCategories]` 来
-限制对Vert.x模块的监控。
+Restricting the Vert.x modules being monitored can be done using
+`link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html#disabledMetricsCategories[disabledMetricsCategories]`.
 
-完整的域列表详见 `link:../../apidocs/io/vertx/micrometer/MetricsDomain.html[MetricsDomain]` 。
+For a full list of domains, see `link:../../apidocs/io/vertx/micrometer/MetricsDomain.html[MetricsDomain]`
 
-[[_use_defined_metrics]]
-=== 用户定义的指标
+=== User-defined metrics
 
-Micrometer 注册信息可以被访问，以便于创建新的指标或者抓去已存在的。
-默认使用一个唯一的注册信息，并共享于JVM中的Vert.x实例。
+The Micrometer registries are accessible, in order to create new metrics or fetch the existing ones.
+By default, an unique registry is used and will be shared across the Vert.x instances of the JVM:
 
 [source,java]
 ----
 MeterRegistry registry = BackendRegistries.getDefaultNow();
 ----
 
-通过在options中给出注册信息名称的方式，可以给每个Vert.x实例分配注册信息。
-然后可以分别获取：
+It is also possible to have separate registries per Vertx instance, by giving a registry name in metrics options.
+Then it can be retrieved specifically:
 
 [source,java]
 ----
@@ -358,7 +335,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
 MeterRegistry registry = BackendRegistries.getNow("my registry");
 ----
 
-做为示例，这里有一个自定义定时器来追踪代码块的执行时间，且经常被调用：
+As an example, here is a custom timer that will track the execution time of a piece of code that is regularly called:
 
 [source,java]
 ----
@@ -375,13 +352,13 @@ vertx.setPeriodic(1000, l -> {
 });
 ----
 
-更多示例关于Micrometer注册信息文档以及如何创建指标，详见 link:http://micrometer.io/docs/concepts#_registry[Micrometer doc] 。
+For more examples, documentation about the Micrometer registry and how to create metrics, check
+link:http://micrometer.io/docs/concepts#_registry[Micrometer doc].
 
-[[_reusing_an_existing_registry]]
-=== 复用一个已存在的 registry
+=== Reusing an existing registry
 
-您可以复用一个现存的 registry （或从Prometheus java客户端获取 `CollectorRegistry` ），
-在 Vert.x metrics options 中注入它：
+It is possible to reuse an existing Micrometer registry (or `CollectorRegistry` from the Prometheus Java client),
+and inject it into the Vert.x metrics options:
 
 [source,java]
 ----
@@ -401,11 +378,10 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_jvm_or_other_instrumentations]]
-=== JVM 或者其他平台
+=== JVM or other instrumentations
 
-因为已经提供了对Micrometer registry的原始访问方式，所以可以直接使用 Micrometer API 。
-例如，监控JVM：
+Since plain access to Micrometer registries is provided, it is possible to leverage the Micrometer API.
+For instance, to instrument the JVM:
 
 [source,java]
 ----
@@ -418,15 +394,14 @@ new ProcessorMetrics().bindTo(registry);
 new JvmThreadMetrics().bindTo(registry);
 ----
 
-_详见 link:http://micrometer.io/docs/ref/jvm[Micrometer 文档]。_
+_From link:http://micrometer.io/docs/ref/jvm[Micrometer documentation]._
 
-[[_metric_names]]
-=== 指标名称
+=== Metric names
 
-每一个Vert.x提供的指标都可以通过options重命名，
-用 `link:../../apidocs/io/vertx/micrometer/MetricsNaming.html[MetricsNaming]` 和 `link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html#setMetricsNaming-io.vertx.micrometer.MetricsNaming-[setMetricsNaming]` 即可。
-在 Vert.x 4 中，默认指标名称出现了变化，目的在于更好的适应于后端约定，
-但是依旧可以用 Vert.x 3.x 的指标名称，以求兼容：
+Each metric that Vert.x provides can be renamed through the metrics options, using
+`link:../../apidocs/io/vertx/micrometer/MetricsNaming.html[MetricsNaming]` and `link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html#setMetricsNaming-io.vertx.micrometer.MetricsNaming-[setMetricsNaming]`.
+The default metric names were changed in Vert.x 4 to better align with backend conventions, but it is
+still possible to retrieve the names used in Vert.x 3.x for compatibility:
 
 [source,java]
 ----
@@ -437,15 +412,14 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-[[_labels_and_matchers]]
-=== Labels 和 matchers
+=== Labels and matchers
 
-Vert.x Micrometer Metrics 定义了一系列label（又称为 tag 或 field），用于对某一指标提供维度。
-例如，和事件总线消息相关的指标有 _address_ label，
-它允许对一个事件总线地址查询时间序列，或者对比每个地址的时间序列，
-或者做各种API允许的聚合操作。
+Vert.x Micrometer Metrics defines a set of labels (aka tags or fields) that are used to provide dimensionality
+to a metric. For instance, metrics related to event bus messages have an _address_ label, which allows then to query
+timeseries for a specific event bus address, or compare timeseries per address, or perform any kind of aggregation
+that the query API allows.
 
-当设置指标option的时候，您可以指定您想要开启的label：
+While setting up metrics options, you can specify which labels you want to enable or not:
 
 [source,java]
 ----
@@ -456,23 +430,22 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-完整的label列表详见： `link:../../apidocs/io/vertx/micrometer/Label.html[Label]` 。
+The full list of labels is detailed here: `link:../../apidocs/io/vertx/micrometer/Label.html[Label]`.
 
-WARNING: 启用label可能导致由大量值对象引起的后台问题以及性能问题。
-所以必须谨慎使用它。
-大体上，如果可能的label值是有界值，那么启用label是一个比较好的做法。
+WARNING: Enabling labels may result in a high cardinality in values, which can cause troubles on the metrics backend and affect performances.
+So it must be used with care.
+In general, it is fine to enable labels when the set of possible values is bounded.
 
-正因如此，默认开启的label被限制为已知的有界值。
+For that reason, labels enabled by default are restricted to the ones with known bounded values.
 
-除了启用/禁用，您也可以对label做更多的操作。这有两种方式可以做到：
+It is possible to interact with labels further than just enabling/disabling. There are two ways for that:
 
-[[_using_matchers]]
-==== 使用 matcher
+==== Using Matchers
 
-`link:../../apidocs/io/vertx/micrometer/Match.html[Match]` 对象可以通过字符串
-直接匹配或者正则匹配（前者更高效）的方式来过滤或者重命名label值
+`link:../../apidocs/io/vertx/micrometer/Match.html[Match]`  objects can be used to filter or rename some label value
+by matching it with either an exact string or a regular expression (the former being more efficient).
 
-以下为一个仅用 _local=localhost:8080_ 的label来限制Http服务指标的示例：
+Here is an example to restrict HTTP server metrics to those with label _local=localhost:8080_ only:
 
 [source,java]
 ----
@@ -487,19 +460,18 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-当Match中指定了 _alias_ ，它就会被用来做重命名而不是过滤。
+When an _alias_ is specified in the Match, it will be used to rename value instead of filtering.
 
-Matcher 对于通过配置来控制label尤为管用，
-它们要通过 `link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html[MicrometerMetricsOptions]` 来设置。
+Matchers are especially useful to control labelling through configuration as they are set via
+`link:../../apidocs/io/vertx/micrometer/MicrometerMetricsOptions.html[MicrometerMetricsOptions]`.
 
-[[_using_micrometer_s_meterfilter]]
-==== 使用 Micrometer 的 MeterFilter
+==== Using Micrometer's MeterFilter
 
-Micrometer 的 link:http://micrometer.io/docs/concepts#_meter_filters[MeterFilter API] 可以被直接获取，以便定义规则（rule）和标签（label）。
-相比于Matcher，它提供了更多操作标签的特性，但是不能从配置中定义它。
-所以，这两者各有优劣。
+Micrometer's link:http://micrometer.io/docs/concepts#_meter_filters[MeterFilter API] can be accessed directly in order to define rules on labels.
+Compared to Matchers, it offers more features in manipulating the labels, but cannot be defined from configuration.
+So both have their advantages.
 
-以下为一个示例，使用正则表达式作为通用格式来替换HTTP请求中实际的 `path` 标签：
+Here is an example to replace the actual `path` label of HTTP requests with a generic form using regex:
 
 [source,java]
 ----
@@ -516,37 +488,15 @@ registry.config().meterFilter(
   }, ""));
 ----
 
-NOTE: Matchers 在底层使用的是 MeterFilters。
+NOTE: Matchers use MeterFilters under the hood.
 
-[[_custom_tags_provider]]
-=== 自定义标签提供器
+=== Snapshots
 
-您可以自定义一个函数来给 HTTP 服务器指标生成额外的标签 (或 labels) 。
-这个函数接收一个 `link:../../apidocs/io/vertx/core/spi/observability/HttpRequest.html[HttpRequest]` 对象作为参数，并返回一个
-装有 `link:../../apidocs/io/micrometer/core/instrument/Tag.html[Tag]` 类型对象的 Iterable 接口实现类.
+A `link:../../apidocs/io/vertx/micrometer/MetricsService.html[MetricsService]` can be created out of a `link:../../apidocs/io/vertx/core/metrics/Measured.html[Measured]` object
+in order to take a snapshot of its related metrics and measurements.
+The snapshot is returned as a `link:../../apidocs/io/vertx/core/json/JsonObject.html[JsonObject]`.
 
-以下是一个例子，展示了如何将 _x-user_ 头部转化为自定义的 label _user_ ：
-
-[source,java]
-----
-Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
-  new MicrometerMetricsOptions()
-    .setPrometheusOptions(new VertxPrometheusOptions().setEnabled(true))
-    .setRequestsTagsProvider(req -> {
-      String user = req.headers().get("x-user");
-      return Collections.singletonList(Tag.of("user", user));
-    })
-    .setEnabled(true)));
-----
-
-[[_snapshots]]
-=== 快照
-
-创建一个 `link:../../apidocs/io/vertx/micrometer/MetricsService.html[MetricsService]` 可以用 `link:../../apidocs/io/vertx/core/metrics/Measured.html[Measured]` 对象，
-这样便于对相关指标和度量做出一个快照。
-这个快照以 `link:../../apidocs/io/vertx/core/json/JsonObject.html[JsonObject]` 形式返回。
-
-一个所熟知的 _Measured_ 对象便是 `link:../../apidocs/io/vertx/core/Vertx.html[Vertx]` ：
+A well known _Measured_ object is simply `link:../../apidocs/io/vertx/core/Vertx.html[Vertx]`:
 
 [source,java]
 ----
@@ -555,8 +505,8 @@ JsonObject metrics = metricsService.getMetricsSnapshot();
 System.out.println(metrics);
 ----
 
-其他组件，例如 `link:../../apidocs/io/vertx/core/eventbus/EventBus.html[EventBus]` 或 `link:../../apidocs/io/vertx/core/http/HttpServer.html[HttpServer]`
-是可测量的：
+Other components, such as an `link:../../apidocs/io/vertx/core/eventbus/EventBus.html[EventBus]` or a `link:../../apidocs/io/vertx/core/http/HttpServer.html[HttpServer]` are
+measurable:
 
 [source,java]
 ----
@@ -566,7 +516,7 @@ JsonObject metrics = metricsService.getMetricsSnapshot();
 System.out.println(metrics);
 ----
 
-最终，可以按照基本名称来过滤返回的指标：
+Finally it is possible to filter the returned metrics from their base names:
 
 [source,java]
 ----
@@ -576,43 +526,42 @@ JsonObject metrics = metricsService.getMetricsSnapshot("vertx.http");
 System.out.println(metrics);
 ----
 
-[[_vert_x_core_tools_metrics]]
-== Vert.x core tools 指标
+== Vert.x core tools metrics
 
-本节列举了所有由Vert.x core tools生成的指标。
+This section lists all the metrics generated by monitoring the Vert.x core tools.
 
-NOTE: 指标后台可能存在不同的约定或规则来命名指标
-以下是Vert.x 4 中默认的名称，他们以下划线做分隔符。
-实际的名称可能基于指标后台而发生变化。
+NOTE: The metric backends may have different conventions or rules for naming metrics.
+The names described below are the default ones used in Vert.x 4, using underscore separators.
+The actual names may vary depending on the metrics backend.
 
 === Net Client
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_net_client_bytes_read`
 |`local`, `remote`
 |Counter
-|从远程服务接收到的字节数。
+|Number of bytes received from the remote host.
 
 |`vertx_net_client_bytes_written`
 |`local`, `remote`
 |Counter
-|发送到远程服务的字节数。
+|Number of bytes sent to the remote host.
 
 |`vertx_net_client_active_connections`
 |`local`, `remote`
 |Gauge
-|当前正处于打开状态的连接数。
+|Number of connections to the remote host currently opened.
 
 |`vertx_net_client_errors`
 |`local`, `remote`, `class`
 |Counter
-|错误数。
+|Number of errors.
 
 |===
 
@@ -620,75 +569,75 @@ NOTE: 指标后台可能存在不同的约定或规则来命名指标
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_http_client_bytes_read`
 |`local`, `remote`
 |Counter
-|从远程服务接收到的字节数。
+|Number of bytes received from the remote host.
 
 |`vertx_http_client_bytes_written`
 |`local`, `remote`
 |Counter
-|发送到远程服务的字节数。
+|Number of bytes sent to the remote host.
 
 |`vertx_http_client_active_connections`
 |`local`, `remote`
 |Gauge
-|当前正处于打开状态的连接数。
+|Number of connections to the remote host currently opened.
 
 |`vertx_http_client_errors`
 |`local`, `remote`, `class`
 |Counter
-|错误数。
+|Number of errors.
 
 |`vertx_http_client_queue_time_seconds`
 |`local`, `remote`
 |Timer
-|被执行之前，在队列中花费的时间，秒为单位。
+|Time spent in queue before being processed, in seconds.
 
 |`vertx_http_client_queue_pending`
 |`local`, `remote`
 |Gauge
-|队列中挂起状态的元素数量。
+|Number of pending elements in queue.
 
-|`vertx_http_client_active_requests`
+|`vertx_http_client_ active_requests`
 |`local`, `remote`, `path`, `method`
 |Gauge
-|当前正在执行且正等待响应的请求数量。
+|Number of requests being processed, waiting for a response.
 
 |`vertx_http_client_requests_total`
 |`local`, `remote`, `path`, `method`
 |Counter
-|已发送的请求数。
+|Number of requests sent.
 
 |`vertx_http_client_request_bytes`
 |`local`, `remote`, `path`, `method`
 |Summary
-|请求的大小（字节数）。
+|Size in bytes of the requests.
 
 |`vertx_http_client_response_time_seconds`
 |`local`, `remote`, `path`, `method`, `code`
 |Timer
-|响应时间（秒）。
+|Response time in seconds.
 
 |`vertx_http_client_responses_total`
 |`local`, `remote`, `path`, `method`, `code`
 |Counter
-|接收到的响应数量。
+|Number of received responses.
 
 |`vertx_http_client_response_bytes`
 |`local`, `remote`, `path`, `method`, `code`
 |Summary
-|响应的大小（字节数）
+|Size in bytes of the responses.
 
 |`vertx_http_client_active_ws_connections`
 |`local`, `remote`
 |Gauge
-|当前打开状态的websocket数量。
+|Number of websockets currently opened.
 
 |===
 
@@ -696,30 +645,30 @@ NOTE: 指标后台可能存在不同的约定或规则来命名指标
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_net_server_bytes_read`
 |`local`, `remote`
 |Counter
-|Net Server收到的字节数。
+|Number of bytes received by the Net Server.
 
 |`vertx_net_server_bytes_written`
 |`local`, `remote`
 |Counter
-|Net Server发送的字节数。
+|Number of bytes sent by the Net Server.
 
 |`vertx_net_server_active_connections`
 |`local`, `remote`
 |Gauge
-|Net Server 开启的连接数。
+|Number of opened connections to the Net Server.
 
 |`vertx_net_server_errors`
 |`local`, `remote`, `class`
 |Counter
-|错误数。
+|Number of errors.
 
 |===
 
@@ -727,65 +676,65 @@ NOTE: 指标后台可能存在不同的约定或规则来命名指标
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_http_server_bytes_read`
 |`local`, `remote`
 |Counter
-|HTTP Server接收的字节数。
+|Number of bytes received by the HTTP Server.
 
 |`vertx_http_server_bytes_written`
 |`local`, `remote`
 |Counter
-|HTTP Server发送的字节数。
+|Number of bytes sent by the HTTP Server.
 
 |`vertx_http_server_active_connections`
 |`local`, `remote`
 |Gauge
-|HTTP Server开启的连接数。
+|Number of opened connections to the HTTP Server.
 
 |`vertx_http_server_errors`
 |`local`, `remote`, `class`
 |Counter
-|错误数。
+|Number of errors.
 
 |`vertx_http_server_active_requests`
 |`local`, `remote`, `path`, `method`
 |Gauge
-|当前正在执行状态的请求数。
+|Number of requests being processed.
 
 |`vertx_http_server_requests_total`
 |`local`, `remote`, `path`, `method`, `code`, `route`
 |Counter
-|执行完毕的请求数。
+|Number of processed requests.
 
 |`vertx_http_server_request_resets_total`
 |`local`, `remote`, `path`, `method`
 |Counter
-|被重置的请求数。
+|Number of request resets.
 
 |`vertx_http_server_request_bytes`
 |`local`, `remote`, `path`, `method`
 |Summary
-|请求大小（字节）。
+|Size in bytes of the requests.
 
 |`vertx_http_server_response_time_seconds`
 |`local`, `remote`, `path`, `method`, `code`, `route`
 |Timer
-|请求执行的时间（秒）。
+|Request processing time in seconds.
 
 |`vertx_http_server_response_bytes`
 |`local`, `remote`, `path`, `method`, `code`, `route`
 |Summary
-|响应大小（字节）。
+|Size in bytes of the responses.
 
 |`vertx_http_client_active_ws_connections`
 |`local`, `remote`
 |Gauge
-|当前开启状态的websocket。
+|Number of websockets currently opened.
 
 |===
 
@@ -793,25 +742,25 @@ NOTE: 指标后台可能存在不同的约定或规则来命名指标
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_datagram_bytes_read`
 |`local`
 |Summary
-| 于 `<host>:<port>` 上接收到的字节总数。
+|Total number of bytes received on the `<host>:<port>` listening address.
 
 |`vertx_datagram_bytes_written`
 |(none)
 |Summary
-|发送到远程的字节总数。
+|Total number of bytes sent to the remote host.
 
 |`vertx_datagram_errors`
 |`class`
 |Counter
-|错误总数。
+|Total number of errors.
 
 |===
 
@@ -819,160 +768,158 @@ NOTE: 指标后台可能存在不同的约定或规则来命名指标
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_eventbus_bytes_read`
 |`address`
 |Summary
-|从事件总线集群读取消息时接收到的总字节数。
+|Total number of bytes received while reading messages from event bus cluster peers.
 
 |`vertx_eventbus_bytes_written`
 |`address`
 |Summary
-|向事件总线集群发送消息的总字节数。
+|Total number of bytes sent while sending messages to event bus cluster peers.
 
 |`vertx_eventbus_handlers`
 |`address`
 |Gauge
-|正在使用中的事件总线处理器数量。
+|Number of event bus handlers in use.
 
 |`vertx_eventbus_pending`
 |`address`,`side` (local/remote)
 |Gauge
-|还未被执行的消息数。 `N` 个处理器被注册在同一个地址时，向此地址广播一个消息的话，
-这个值则是 `N` 。
+|Number of messages not processed yet. One message published will count for `N` pending if `N` handlers
+are registered to the corresponding address.
 
 |`vertx_eventbus_processed`
 |`address`,`side` (local/remote)
 |Counter
-|已执行完毕的消息数。
+|Number of processed messages.
 
 |`vertx_eventbus_published`
 |`address`,`side` (local/remote)
 |Counter
-|消息广播数（广播/订阅）。
+|Number of messages published (publish / subscribe).
 
 |`vertx_eventbus_discarded`
 |`address`,`side` (local/remote)
 |Counter
-|被丢弃的消息数（例如，处理器未注册时被挂起的消息或消息溢出）。
+|Number of discarded messages (e.g. still pending messages while handler is unregistered, or overflowing messages).
 
 |`vertx_eventbus_sent`
 |`address`,`side` (local/remote)
 |Counter
-|发送的消息数（点对点）。
+|Number of messages sent (point-to-point).
 
 |`vertx_eventbus_received`
 |`address`,`side` (local/remote)
 |Counter
-|接收的消息数。
+|Number of messages received.
 
 |`vertx_eventbus_delivered`
 |`address`,`side` (local/remote)
 |Counter
-|已发送到处理器的消息数。
+|Number of messages delivered to handlers.
 
 |`vertx_eventbus_reply_failures`
 |`address`,`failure`
 |Counter
-|回复失败的消息数。
+|Number of message reply failures.
 
 |===
 
-[[_vert_x_pool_metrics]]
-== Vert.x pool 指标
+== Vert.x pool metrics
 
-本章列举出了所有监控 Vert.x pool 而生成的指标。
+This section lists all the metrics generated by monitoring Vert.x pools.
 
-当前支持两个类型：
+There are two types currently supported:
 
-* _worker_ （见 `link:../../apidocs/io/vertx/core/WorkerExecutor.html[WorkerExecutor]` ）
-* _datasource_ （用 Vert.x JDBC client 创建）
+* _worker_ (see `link:../../apidocs/io/vertx/core/WorkerExecutor.html[WorkerExecutor]`)
+* _datasource_ (created with Vert.x JDBC client)
 
-NOTE: Vert.x 前期创建两个worker pools，即 _worker-thread_ 和 _internal-blocking_ 。
+NOTE: Vert.x creates two worker pools upfront, _worker-thread_ and _internal-blocking_.
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_pool_queue_time_seconds`
 |`pool_type`,`pool_name`
 |Timer
-|被执行之前，在队列中花费的时间（秒）。
+|Time spent in queue before being processed, in seconds.
 
 |`vertx_pool_queue_pending`
 |`pool_type`,`pool_name`
 |Gauge
-|队列中挂起状态的元素数。
+|Number of pending elements in queue.
 
 |`vertx_pool_usage`
 |`pool_type`,`pool_name`
 |Timer
-|使用资源的时间（例如，worker pools 的执行时间）。
+|Time using a resource (i.e. processing time for worker pools).
 
 |`vertx_pool_in_use`
 |`pool_type`,`pool_name`
 |Gauge
-|被占用的资源数。
+|Number of resources used.
 
 |`vertx_pool_completed`
 |`pool_type`,`pool_name`
 |Counter
-|此资源下的已完成的元素数（例如，worker pool已执行完毕的任务数）。
+|Number of elements done with the resource (i.e. total number of tasks executed for worker pools).
 
 |`vertx_pool_ratio`
 |`pool_type`,`pool_name`
 |Gauge
-|（仅在pool指定最大值的情况下才存在）。
+|Pool usage ratio, only present if maximum pool size could be determined.
 
 |===
 
-[[_other_clients]]
-== 其他客户端
+== Other clients
 
-除了核心的HTTP 客户端 / Net 客户端以外，Vert.x客户端可以实现一组标准的客户端指标。例如，SQL client。
+Vert.x clients, other than the core HTTP / Net clients, may implement a standard set of client metrics. This is the case, for instance, of the SQL client.
 
-这些客户端指标以 "客户端类型" 标识符命名，下表中以 `$TYPE` 代替。
-例如， 对于SQL客户端来讲， `vertx_$TYPE_queue_pending` 就是 `vertx_sql_queue_pending` 。
+Such client metrics are named after a "client type" identifier, displayed as `$TYPE` in the table below.
+For instance, `vertx_$TYPE_queue_pending` is `vertx_sql_queue_pending` for the SQL client.
 
-`namespace` 标签的意义，由客户端的实现来描述。
+The meaning of the `namespace` label is left to the discretion of the client implementation.
 
 [cols="35,20,10,35", options="header"]
 |===
-|指标名称
-|标签
-|类型
-|描述
+|Metric name
+|Labels
+|Type
+|Description
 
 |`vertx_$TYPE_queue_pending`
 |`remote`, `namespace`
 |Gauge
-|队列中挂起状态的元素数。
+|Number of pending elements in queue.
 
 |`vertx_$TYPE_queue_time_seconds`
 |`remote`, `namespace`
 |Timer
-|被执行之前，在队列中花费的时间（秒）。
+|Time spent in queue before being processed, in seconds.
 
 |`vertx_$TYPE_processing_pending`
 |`remote`, `namespace`
 |Gauge
-|正在执行的元素数。
+|Number of elements being processed.
 
 |`vertx_$TYPE_processing_time_seconds`
 |`remote`, `namespace`
 |Timer
-|从开始发送请求到响应结束的执行时间（秒）。
+|Processing time, from request start to response end, in seconds.
 
 |`vertx_$TYPE_resets_total`
 |`remote`, `namespace`
 |Counter
-|重置数。
+|Total number of resets.
 
 |===

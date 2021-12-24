@@ -1,62 +1,61 @@
-= Vert.x Core 文档手册
+= Vert.x Core Manual
 :toc: left
 
-Vert.x 的核心 Java API 被我们称为 *Vert.x Core*
+At the heart of Vert.x is a set of Java APIs that we call *Vert.x Core*
 
-https://github.com/eclipse/vert.x[Github仓库].
+https://github.com/eclipse/vert.x[Repository].
 
-Vert.x Core 提供了下列功能：
+Vert.x core provides functionality for things like:
 
-* 编写 TCP 客户端和服务端
-* 编写支持 WebSocket 的 HTTP 客户端和服务端
-* 事件总线
-* 共享数据 —— 本地的Map和分布式集群Map
-* 周期性、延迟性动作
-* 部署和撤销 Verticle 实例
-* 数据报套接字
-* DNS客户端
-* 文件系统访问
-* 高可用性
-* 本地传输
-* 集群
+* Writing TCP clients and servers
+* Writing HTTP clients and servers including support for WebSockets
+* The Event bus
+* Shared data - local maps and clustered distributed maps
+* Periodic and delayed actions
+* Deploying and undeploying Verticles
+* Datagram Sockets
+* DNS client
+* File system access
+* High availability
+* Native transports
+* Clustering
 
-Vert.x Core 中的功能相当底层，不包含诸如数据库访问、授权或高层 Web 应用的功能。
-您可以在 *Vert.x ext* （扩展包）（译者注：Vert.x的扩展包是Vert.x的子项目集合，类似 link:../../vertx-web/java/[Web]、 link:../../vertx-web-client/java/[Web Client]、 link:../../#databases[Databases]等）中找到这些功能。
+The functionality in core is fairly low level - you won't find stuff like database access, authorisation or high level
+web functionality here - that kind of stuff you'll find in *Vert.x ext* (extensions).
 
-*Vert.x Core* 小巧而轻便，您可以只使用您需要的部分，
-它可整体嵌入现存应用中。
-Vert.x没有强制要求使用特定的方式构造应用。
+Vert.x core is small and lightweight. You just use the parts you want. It's also entirely embeddable in your
+existing applications - we don't force you to structure your applications in a special way just so you can use
+Vert.x.
 
-Vert.x 也支持在其他语言中使用Vert.x Core，
-而且在使用诸如 JavaScript 或 Ruby 等语言编写Vert.x代码时，无需直接调用 Java的API；毕竟不同的语言有不同的代码风格，
-若强行让 Ruby 开发人员遵循 Java 的代码风格会很怪异，
-所以我们根据 Java API 自动生成了适应不同语言代码风格的 API。
+You can use core from any of the other languages that Vert.x supports. But here's a cool bit - we don't force
+you to use the Java API directly from, say, JavaScript or Ruby - after all, different languages have different conventions
+and idioms, and it would be odd to force Java idioms on Ruby developers (for example).
+Instead, we automatically generate an *idiomatic* equivalent of the core Java APIs for each language.
 
-从现在开始，我们将仅使用 *core* 以指代 Vert.x core 。
+From now on we'll just use the word *core* to refer to Vert.x core.
 
 include::override/dependencies.adoc[]
 
-接下来讨论 Vert.x Core 的概念和特性。
+Let's discuss the different concepts and features in core.
 
 include::override/in-the-beginning.adoc[]
 
-[[_are_you_fluent]]
-== 是流式的吗？
+== Are you fluent?
 
-您也许注意到前边的例子里使用了一个 *流式（Fluent）* 的API。
+You may have noticed that in the previous examples a *fluent* API was used.
 
-一个流式的API表示将多个方法的调用链在一起。例如：
+A fluent API is where multiple methods calls can be chained together. For example:
 
 [source,java]
 ----
 request.response().putHeader("Content-Type", "text/plain").end("some text");
 ----
 
-这是贯穿 Vert.x API 中的一个通用模式，所以请适应这种代码风格。
+This is a common pattern throughout Vert.x APIs, so get used to it.
 
-流式调用可以让代码更为简洁。
-当然，Vert.x并 *不强制* 您用这种方式书写代码，如果您更倾向于用以下非流式编码，
-您可以忽略它：
+Chaining calls like this allows you to write code that's a little bit less verbose. Of course, if you don't
+like the fluent approach *we don't force you* to do it that way, you can happily ignore it if you prefer and write
+your code like this:
 
 [source,java]
 ----
@@ -66,162 +65,158 @@ response.write("some text");
 response.end();
 ----
 
-[[_dont_call_us_well_call_you]]
 == Don't call us, we'll call you.
 
-Vert.x 的 API 大部分都是 _事件驱动_ 的。这意味着当您感兴趣的事情发生时，
-会以事件的形式发送给您。
+The Vert.x APIs are largely _event driven_. This means that when things happen in Vert.x that you are interested in,
+Vert.x will call you by sending you events.
 
-以下是一些事件的例子：
+Some example events are:
 
-* 触发一个计时器
-* Socket 收到了一些数据
-* 从磁盘中读取了一些数据
-* 发生了一个异常
-* HTTP 服务器收到了一个请求
+* a timer has fired
+* some data has arrived on a socket,
+* some data has been read from disk
+* an exception has occurred
+* an HTTP server has received a request
 
-Vert.x API调用您提供的 _处理器_ 来处理事件。
-例如每隔一秒发送一个事件的计时器：
+You handle events by providing _handlers_ to the Vert.x APIs. For example to receive a timer event every second you
+would do:
 
 [source,java]
 ----
 vertx.setPeriodic(1000, id -> {
-  // 这个处理器将会每隔一秒被调用一次
+  // This handler will get called every second
   System.out.println("timer fired!");
 });
 ----
 
-又比如收到一个 HTTP 请求：
+Or to receive an HTTP request:
 
 [source,java]
 ----
 server.requestHandler(request -> {
-  // 服务器每次收到一个HTTP请求时这个处理器将被调用
+  // This handler will be called every time an HTTP request is received at the server
   request.response().end("hello world!");
 });
 ----
 
-稍后当Vert.x有事件要传给您的处理器时，它会 *异步地* 调用这个处理器。
+Some time later when Vert.x has an event to pass to your handler Vert.x will call it *asynchronously*.
 
-由此，下面会引入Vert.x中一些重要的概念。
+This leads us to some important concepts in Vert.x:
 
-[[_dont_block_me]]
-== 不要阻塞我！
+== Don't block me!
 
-Vert.x中的几乎所有API都不会阻塞调用线程，除了个别特例（如以 "Sync" 结尾的某些文件系统操作）。
+With very few exceptions (i.e. some file system operations ending in 'Sync'), none of the APIs in Vert.x block the calling thread.
 
-可以立即提供结果的API会立即返回，否则您需要提供一个处理器（`Handler`）
-来接收稍后回调的事件。
+If a result can be provided immediately, it will be returned immediately, otherwise you will usually provide a handler
+to receive events some time later.
 
-因为Vert.x API不会阻塞线程，
-所以通过Vert.x您可以只使用少量的线程来处理大量的并发。
+Because none of the Vert.x APIs block threads that means you can use Vert.x to handle a lot of concurrency using
+just a small number of threads.
 
-当使用传统的阻塞式API做以下操作时，调用线程可能会被阻塞：
+With a conventional blocking API the calling thread might block when:
 
-* 从 Socket 中读取数据
-* 写数据到磁盘
-* 发送消息给接收者并等待回复
-* 其他很多情况
+* Reading data from a socket
+* Writing data to disk
+* Sending a message to a recipient and waiting for a reply.
+* ... Many other situations
 
-在上述情况下，线程在等待处理结果时它不能做任何事，此时这些线程并无实际用处。
+In all the above cases, when your thread is waiting for a result it can't do anything else - it's effectively useless.
 
-这意味着如果使用阻塞式API处理大量并发，
-需要大量线程来防止应用程序停止运转。
+This means that if you want a lot of concurrency using blocking APIs then you need a lot of threads to prevent your
+application grinding to a halt.
 
-而这些线程使用的内存（例如它们的栈）和线程上下文切换开销很可观。
+Threads have overhead in terms of the memory they require (e.g. for their stack) and in context switching.
 
-这意味着，阻塞式的方式对于现代应用程序所需要的并发级别来说是难于扩展的。
+For the levels of concurrency required in many modern applications, a blocking approach just doesn't scale.
 
-[[_reactor_and_multi_reactor]]
-== Reactor 模式和 Multi-Reactor 模式
+== Reactor and Multi-Reactor
 
-我们前边提过 Vert.x 的 API 都是事件驱动的，当有事件时 Vert.x 会将事件传给处理器来处理。
+We mentioned before that Vert.x APIs are event driven - Vert.x passes events to handlers when they are available.
 
-在多数情况下，Vert.x使用被称为 *Event Loop* 的线程来调用您的处理器。
+In most cases Vert.x calls your handlers using a thread called an *event loop*.
 
-由于Vert.x或应用程序的代码块中没有阻塞代码，**Event Loop**
-可以在事件到达时快速地分发到不同的处理器中。
+As nothing in Vert.x or your application blocks, the event loop can merrily run around delivering events to different handlers in succession
+as they arrive.
 
-由于没有阻塞代码，Event Loop 可在短时间内分发大量的事件。
-例如，一个单独的 *Event Loop* 可以非常迅速地处理数千个 HTTP 请求。
+Because nothing blocks, an event loop can potentially deliver huge amounts of events in a short amount of time.
+For example a single event loop can handle many thousands of HTTP requests very quickly.
 
-我们称之为 https://en.wikipedia.org/wiki/Reactor_pattern[Reactor 模式]（译者注：Reactor Pattern 翻译成了 https://zh.wikipedia.org/wiki/%E5%8F%8D%E5%BA%94%E5%99%A8%E6%A8%A1%E5%BC%8F[反应器模式]）。
+We call this the http://en.wikipedia.org/wiki/Reactor_pattern[Reactor Pattern].
 
-您之前也许听说过它，例如 Node.js 实现了这种模式。
+You may have heard of this before - for example Node.js implements this pattern.
 
-在一个标准的Reactor实现中，有 *一个独立的 Event Loop* 会循环执行，
-处理所有到达的事件并传递给处理器处理。
+In a standard reactor implementation there is a *single event loop* thread which runs around in a loop delivering all
+events to all handlers as they arrive.
 
-单一线程的问题在于它在任意时刻只能运行在一个核上，
-如果您希望单线程反应器应用（如您的 Node.js 应用）扩展到多核服务器上，
-则需要启动并且管理多个不同的进程。
+The trouble with a single thread is it can only run on a single core at any one time, so if you want your single threaded
+reactor application (e.g. your Node.js application) to scale over your multi-core server you have to start up and
+manage many different processes.
 
-Vert.x的工作方式有所不同。每个 `Vertx` 实例维护的是 *多个Event Loop 线程*。
-默认情况下，我们会根据机器上可用的核数量来设置 Event Loop 的数量，您亦可自行设置。
+Vert.x works differently here. Instead of a single event loop, each Vertx instance maintains *several event loops*.
+By default we choose the number based on the number of available cores on the machine, but this can be overridden.
 
-这意味着 Vertx 进程能够在您的服务器上扩展，与 Node.js 不同。
+This means a single Vertx process can scale across your server, unlike Node.js.
 
-我们将这种模式称为 *Multi-Reactor 模式*（多反应器模式），区别于单线程的 Reactor 模式（反应器模式）。
+We call this pattern the *Multi-Reactor Pattern* to distinguish it from the single threaded reactor pattern.
 
-NOTE: 即使一个 `Vertx` 实例维护了多个 Event Loop，任何一个特定的处理器永远不会被并发执行。
-大部分情况下（除了 <<worker_verticles, Worker Verticle>> 以外）
-它们总是在同一个 Event Loop 线程中被调用。
+NOTE: Even though a Vertx instance maintains multiple event loops, any particular handler will never be executed
+concurrently, and in most cases (with the exception of <<worker_verticles, worker verticles>>) will always be called
+using the *exact same event loop*.
 
 [[golden_rule]]
-== 黄金法则：不要阻塞Event Loop
+== The Golden Rule - Don't Block the Event Loop
 
-尽管Vert.x 的 API 都是非阻塞式的，且不会阻塞 Event Loop，
-但是用户编写的处理器中可能会阻塞 Event Loop。
+We already know that the Vert.x APIs are non blocking and won't block the event loop, but that's not much help if
+you block the event loop *yourself* in a handler.
 
-如果这样做，该 Event Loop 在被阻塞时就不能做任何事情；如果您阻塞了 `Vertx`
-实例中的所有Event Loop，那么您的应用就会完全停止！
+If you do that, then that event loop will not be able to do anything else while it's blocked. If you block all of the
+event loops in Vertx instance then your application will grind to a complete halt!
 
-所以不要这样做！*这是一个警告!*
+So don't do it! *You have been warned*.
 
-这些阻塞做法包括：
+Examples of blocking include:
 
-* +Thead.sleep()+
-* 等待一个锁
-* 等待一个互斥信号或监视器（例如同步的代码块）
-* 执行一个长时间数据库操作并等待其结果
-* 执行一个复杂的计算，占用了可感知的时长
-* 在循环语句中长时间逗留
+* +Thread.sleep()+
+* Waiting on a lock
+* Waiting on a mutex or monitor (e.g. synchronized section)
+* Doing a long lived database operation and waiting for a result
+* Doing a complex calculation that takes some significant time.
+* Spinning in a loop
 
-如果上述任何一种情况停止了 Event Loop 并占用了 **显著执行时间** ，
-那您应该去面壁（译者注：原文此处为 Naughy Step，英国父母会在家里选择一个角落作为小孩罚站或静坐的地方，被称为 naughty corner 或 naughty step），等待下一步的指示。
+If any of the above stop the event loop from doing anything else for a *significant amount of time* then you should
+go immediately to the naughty step, and await further instructions.
 
-所以，什么是 *显著执行时间* ？
+So... what is a *significant amount of time*?
 
-您要等多久？它取决于您的应用程序和所需的并发数量。
+How long is a piece of string? It really depends on your application and the amount of concurrency you require.
 
-如果您只有单个 Event Loop，而且您希望每秒处理10000个 HTTP 请求，
-很明显的是每一个请求处理时间不可以超过0.1毫秒，所以您不能阻塞任何过多（大于0.1毫秒）的时间。
+If you have a single event loop, and you want to handle 10000 http requests per second, then it's clear that each request
+can't take more than 0.1 ms to process, so you can't block for any more time than that.
 
-*这个数学题并不难，将留给读者作为练习。*
+*The maths is not hard and shall be left as an exercise for the reader.*
 
-如果您的应用程序没有响应，可能这是一个迹象，表明您在某个地方阻塞了Event Loop。
-为了帮助您诊断类似问题，若 Vert.x 检测到 Event Loop 有一段时间没有响应，将会自动记录这种警告。
-若您在日志中看到类似警告，那么您需要检查您的代码。比如：
+If your application is not responsive it might be a sign that you are blocking an event loop somewhere. To help
+you diagnose such issues, Vert.x will automatically log warnings if it detects an event loop hasn't returned for
+some time. If you see warnings like these in your logs, then you should investigate.
 
 ----
 Thread vertx-eventloop-thread-3 has been blocked for 20458 ms
 ----
 
-Vert.x 还将提供堆栈跟踪，以精确定位发生阻塞的位置。
+Vert.x will also provide stack traces to pinpoint exactly where the blocking is occurring.
 
-如果想关闭这些警告或更改设置，您可以在创建 `Vertx` 对象之前在
-`link:../../apidocs/io/vertx/core/VertxOptions.html[VertxOptions]` 中完成此操作。
+If you want to turn off these warnings or change the settings, you can do that in the
+`link:../../apidocs/io/vertx/core/VertxOptions.html[VertxOptions]` object before creating the Vertx object.
 
-[[_future_results]]
-== Future的异步结果
+== Future results
 
-Vert.x 4使用future承载异步结果。
+Vert.x 4 use futures to represent asynchronous results.
 
-异步的方法会返回一个 `link:../../apidocs/io/vertx/core/Future.html[Future]` 对象，其包含
-_成功_ 或 _失败_ 的异步结果。
+Any asynchronous method returns a `link:../../apidocs/io/vertx/core/Future.html[Future]` object for the result of the call:
+a _success_ or a _failure_.
 
-我们不能直接操作future的异步结果，而应该设置future的handler；
-当future执行完毕，结果可用时，会调用handler进行处理。
+You cannot interact directly with the result of a future, instead you need to set a handler that will be called when the future
+completes and the result is available, like any other kind of event.
 
 [source,java]
 ----
@@ -239,17 +234,16 @@ future.onComplete((AsyncResult<FileProps> ar) -> {
 });
 ----
 
-NOTE: Vert.x 3的API只提供了回调模式；为了减少从Vert.x 3迁移到Vert.x 4的工作量，Vert.x 4为每个异步方法都保留了回调版本。
-如上面样例代码的 `props` 方法，提供了带回调参数的版本
-`link:../../apidocs/io/vertx/core/file/FileSystem.html#props-java.lang.String-io.vertx.core.Handler-[props]`
+NOTE: Vert.x 3 provides a callback-only model. To allow an easy migration to Vert.x 4 we decided that each asynchronous method
+has also a callback version. The `props` method above has also a version `link:../../apidocs/io/vertx/core/file/FileSystem.html#props-java.lang.String-io.vertx.core.Handler-[props]`
+with a callback as method argument.
 
-[[_future_composition]]
-== Future组合
+== Future composition
 
-`link:../../apidocs/io/vertx/core/Future.html#compose-java.util.function.Function-[compose]` 方法作用于顺序组合 future：
+`link:../../apidocs/io/vertx/core/Future.html#compose-java.util.function.Function-[compose]` can be used for chaining futures:
 
-- 若当前future成功，执行 `compose` 方法指定的方法，该方法返回新的future；当返回的新future完成时，future组合成功；
-- 若当前future失败，则future组合失败。
+- when the current future succeeds, apply the given function, that returns a future. When this returned future completes, the composition succeeds.
+- when the current future fails, the composition fails
 
 [source,java]
 ----
@@ -258,35 +252,34 @@ FileSystem fs = vertx.fileSystem();
 Future<Void> future = fs
   .createFile("/foo")
   .compose(v -> {
-    // createFile文件创建完成后执行
+    // When the file is created (fut1), execute this:
     return fs.writeFile("/foo", Buffer.buffer());
   })
   .compose(v -> {
-    // writeFile文件写入完成后执行
+    // When the file is written (fut2), execute this:
     return fs.move("/foo", "/bar");
   });
 ----
 
-这里例子中，有三个操作被串起来了：
+In this example, 3 operations are chained together:
 
-1. 一个文件被创建（`createFile`）
-2. 一些东西被写入到文件（`writeFile`）
-3. 文件被移走（`move`）
+1. a file is created
+2. data is written in this file
+3. the file is moved
 
-如果这三个步骤全部成功，则最终的 `Future`（`future`）会是成功的；
-其中任何一步失败，则最终 `Future` 就是失败的。
+When these 3 steps are successful, the final future (`future`) will succeed. However, if one
+of the steps fails, the final future will fail.
 
-除了上述方法， `link:../../apidocs/io/vertx/core/Future.html[Future]` 还提供了更多方法：`map`，`recover`，`otherwise`，以及 `flatMap` （等同 `compose` 方法）。
+Beyond this, `link:../../apidocs/io/vertx/core/Future.html[Future]` offers more: `map`, `recover`, `otherwise` and even a `flatMap` which is an alias of `compose`
 
-[[_future_coordination]]
-== Future协作
+== Future coordination
 
-Vert.x 中的 `link:../../apidocs/io/vertx/core/Future.html[futures]` 支持协调多个Future，
-支持并发组合（并行执行多个异步调用）和顺序组合
-（依次执行异步调用）。
+Coordination of multiple futures can be achieved with Vert.x `link:../../apidocs/io/vertx/core/Future.html[futures]`. It
+supports concurrent composition (run several async operations in parallel) and sequential composition
+(chain async operations).
 
-`link:../../apidocs/io/vertx/core/CompositeFuture.html#all-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.all]` 方法接受多个 `Future` 对象作为参数（最多6个，或者传入 `List`）。
-当所有的 `Future` 都成功完成，该方法将返回一个 _成功的_ `Future`；当任一个 `Future` 执行失败，则返回一个 _失败的_ `Future`：
+`link:../../apidocs/io/vertx/core/CompositeFuture.html#all-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.all]` takes several futures arguments (up to 6) and returns a future that is
+_succeeded_ when all the futures are _succeeded_ and _failed_ when at least one of the futures is failed:
 
 [source,java]
 ----
@@ -296,78 +289,77 @@ Future<NetServer> netServerFuture = netServer.listen();
 
 CompositeFuture.all(httpServerFuture, netServerFuture).onComplete(ar -> {
   if (ar.succeeded()) {
-    // 所有服务器启动完成
+    // All servers started
   } else {
-    // 有一个服务器启动失败
+    // At least one server failed
   }
 });
 ----
 
-所有被合并的 `Future` 中的操作同时运行。当组合的处理操作完成时，该方法返回的 `Future` 上绑定的处理器（`link:../../apidocs/io/vertx/core/Handler.html[Handler]`）会被调用。
-只要有一个操作失败（其中的某一个 `Future` 的状态被标记成失败），
-则返回的 `Future` 会被标记为失败。如果所有的操作都成功，
-则返回的 `Future` 将会成功完成。
+The operations run concurrently, the `link:../../apidocs/io/vertx/core/Handler.html[Handler]` attached to the returned future is invoked upon
+completion of the composition. When one of the operation fails (one of the passed future is marked as a failure),
+the resulting future is marked as failed too. When all the operations succeed, the resulting future is completed
+with a success.
 
-您可以传入一个 `Future` 列表（可能为空）：
+Alternatively, you can pass a list (potentially empty) of futures:
 
 [source,java]
 ----
 CompositeFuture.all(Arrays.asList(future1, future2, future3));
 ----
 
-`all` 方法的合并会 _等待_ 所有的 Future 成功执行（或任一失败），
-而 `any` 方法的合并会 _等待_ 第一个成功执行的Future。`link:../../apidocs/io/vertx/core/CompositeFuture.html#any-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.any]` 方法接受多个 `Future`
-作为参数（最多6个，或传入 `List`）。当任意一个 `Future` 成功得到结果，则该 `Future` 成功；
-当所有的 `Future` 都执行失败，则该 `Future` 失败。
+While the `all` composition _waits_ until all futures are successful (or one fails), the `any` composition
+_waits_ for the first succeeded future. `link:../../apidocs/io/vertx/core/CompositeFuture.html#any-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.any]` takes several futures
+arguments (up to 6) and returns a future that is succeeded when one of the futures is, and failed when
+all the futures are failed:
 
 [source,java]
 ----
 CompositeFuture.any(future1, future2).onComplete(ar -> {
   if (ar.succeeded()) {
-    // 至少一个成功
+    // At least one is succeeded
   } else {
-    // 所有的都失败
+    // All failed
   }
 });
 ----
 
-它也可使用 `Future` 列表传参：
+A list of futures can be used also:
 
 [source,java]
 ----
 CompositeFuture.any(Arrays.asList(f1, f2, f3));
 ----
 
-`join` 方法的合并会 _等待_ 所有的 `Future` 完成，无论成败。
-`link:../../apidocs/io/vertx/core/CompositeFuture.html#join-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.join]` 方法接受多个 `Future` 作为参数（最多6个），并将结果归并成一个 `Future` 。
-当全部 `Future` 成功执行完成，得到的 `Future` 是成功状态的；当至少一个 `Future` 执行失败时，
-得到的 `Future` 是失败状态的。
+The `join` composition _waits_ until all futures are completed, either with a success or a failure.
+`link:../../apidocs/io/vertx/core/CompositeFuture.html#join-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.join]` takes several futures arguments (up to 6) and returns a future that is
+succeeded when all the futures are succeeded, and failed when all the futures are completed and at least one of
+them is failed:
 
 [source,java]
 ----
 CompositeFuture.join(future1, future2, future3).onComplete(ar -> {
   if (ar.succeeded()) {
-    // 所有都成功
+    // All succeeded
   } else {
-    // 全部完成（无论成功还是失败），且至少一个失败
+    // All completed and at least one failed
   }
 });
 ----
 
-它也可使用 `Future` 列表传参：
+A list of futures can be used also:
 
 [source,java]
 ----
 CompositeFuture.join(Arrays.asList(future1, future2, future3));
 ----
 
-[[_completionstage_interoperability]]
-=== 兼容CompletionStage
+=== CompletionStage interoperability
 
-JDK的 `CompletionStage` 接口用于组合异步操作，
-Vert.x的 `Future` API可兼容 `CompletionStage` 。
+The Vert.x `Future` API offers compatibility _from_ and _to_ `CompletionStage` which is the JDK interface for composable
+asynchronous operations.
 
-我们可以用 `link:../../apidocs/io/vertx/core/Future.html#toCompletionStage--[toCompletionStage]` 方法将Vert.x的 `Future` 对象转为 `CompletionStage` 对象，如：
+We can go from a Vert.x `Future` to a `CompletionStage` using the `link:../../apidocs/io/vertx/core/Future.html#toCompletionStage--[toCompletionStage]` method, as in:
 
 [source,java]
 ----
@@ -382,16 +374,16 @@ future.toCompletionStage().whenComplete((ip, err) -> {
 });
 ----
 
-相应地，可使用 `link:../../apidocs/io/vertx/core/Future.html#fromCompletionStage-java.util.concurrent.CompletionStage-[Future.fromCompletionStage]` 方法将 `CompletionStage` 对象转为Vert.x的 `Future` 对象。
-`Future.fromCompletionStage` 有两个重载方法：
+We can conversely go from a `CompletionStage` to Vert.x `Future` using `link:../../apidocs/io/vertx/core/Future.html#fromCompletionStage-java.util.concurrent.CompletionStage-[Future.fromCompletionStage]`.
+There are 2 variants:
 
-. 第一个重载方法只接收一个 `CompletionStage` 参数，会在执行 `CompletionStage` 实例的线程中调用 `Future` 的方法；
-. 第二个重载方法额外多接收一个 `link:../../apidocs/io/vertx/core/Context.html[Context]` 参数，会在Vert.x的Context中调用 `Future` 的方法。
+. the first variant takes just a `CompletionStage` and calls the `Future` methods from the thread that resolves the `CompletionStage` instance, and
+. the second variant takes an extra `link:../../apidocs/io/vertx/core/Context.html[Context]` parameter to call the `Future` methods on a Vert.x context.
 
-IMPORTANT: 由于Vert.x的 `Future` 通常会与Vert.x的代码、库以及客户端等一起使用，为了与Vert.x的线程模型更好地配合，
-大部分场景下应使用 `Future.fromCompletionStage(CompletionStage, Context)` 方法。
+IMPORTANT: In most cases the variant with a `CompletionStage` and a `Context` is the one you will want to use to respect the Vert.x threading model,
+since Vert.x `Future` are more likely to be used with Vert.x code, libraries and clients.
 
-下面的例子展示了如何将 `CompletionStage` 对象转为Vert.x的 `Future` 对象，这里选择使用Vert.x的Context执行:
+Here is an example of going from a `CompletionStage` to a Vert.x `Future` and dispatching on a context:
 
 [source,java]
 ----
@@ -409,67 +401,64 @@ Future.fromCompletionStage(completionStage, vertx.getOrCreateContext())
   });
 ----
 
-[[_verticles]]
 == Verticles
 
-Vert.x 通过开箱即用的方式提供了一个简单便捷的、可扩展的、类似 https://en.wikipedia.org/wiki/Actor_model[Actor Model] 的部署和并发模型机制。
-您可以用此模型机制来保管您自己的代码组件。
+Vert.x comes with a simple, scalable, _actor-like_ deployment and concurrency model out of the box that
+you can use to save you writing your own.
 
-*这个模型是可选的，Vert.x
-并不强制使用这种方式创建应用程序。*
+*This model is entirely optional and Vert.x does not force you to create your applications in this way if you don't
+want to.*.
 
-这个模型并不是严格的 Actor 模式实现，但它确实有相似之处，
-特别是在并发、扩展性和部署等方面。
+The model does not claim to be a strict actor-model implementation, but it does share similarities especially
+with respect to concurrency, scaling and deployment.
 
-使用该模型，需要将应用代码编写成多个 *Verticle*。
+To use this model, you write your code as set of *verticles*.
 
-Verticle 是由 Vert.x 部署和运行的代码块。默认情况一个 Vert.x 实例维护了N个 Event Loop
-线程（默认情况下N = CPU核数 x 2）。Verticle 实例可使用任意 Vert.x 支持的编程语言编写，
-而且一个简单的应用程序也可以包含多种语言编写的 Verticle。
+Verticles are chunks of code that get deployed and run by Vert.x. A Vert.x instance maintains N event loop threads
+(where N by default is core*2) by default. Verticles can be written in any of the languages that Vert.x supports
+and a single application can include verticles written in multiple languages.
 
-您可以将 Verticle 想成 http://en.wikipedia.org/wiki/Actor_model[Actor Model] 中的 Actor。
+You can think of a verticle as a bit like an actor in the http://en.wikipedia.org/wiki/Actor_model[Actor Model].
 
-一个应用程序通常是由在同一个 Vert.x 实例中同时运行的许多 Verticle 实例组合而成。
-不同的 Verticle 实例通过向 <<event_bus, Event Bus>> 上发送消息来相互通信。
+An application would typically be composed of many verticle instances running in the same Vert.x instance at the same
+time. The different verticle instances communicate with each other by sending messages on the <<event_bus, event bus>>.
 
 include::override/verticles.adoc[]
 
-[[_verticle_types]]
-=== Verticle 种类
+=== Verticle Types
 
-这儿有两种 Verticle：
+There are two different types of verticles:
 
-Standard Verticles:: 这是最常用的一类 Verticle —— 它们永远运行在 Event Loop 线程上。
-更多讨论详见稍后的章节。
-Worker Verticles:: 这类 Verticle 会运行在 Worker Pool 中的线程上。
-一个实例绝对不会被多个线程同时执行。
+Standard Verticles:: These are the most common and useful type - they are always executed using an event loop thread.
+We'll discuss this more in the next section.
+Worker Verticles:: These run using a thread from the worker pool. An instance is never executed concurrently by more
+than one thread.
 
-[[_standard_verticles]]
 === Standard verticles
 
-当 Standard Verticle 被创建时，它会被分派给一个 Event Loop 线程，并在这个 Event Loop 中执行它的 `start` 方法。
-当您在一个 Event Loop 上调用了 Core API 中的方法并传入了处理器时，Vert.x
-将保证用与调用该方法时相同的 Event Loop 来执行这些处理器。
+Standard verticles are assigned an event loop thread when they are created and the +start+ method is called with that
+event loop. When you call any other methods that takes a handler on a core API from an event loop then Vert.x
+will guarantee that those handlers, when called, will be executed on the same event loop.
 
-这意味着我们可以保证您的 Verticle 实例中 *所有的代码都是在相同Event Loop中执行*
-（只要您不创建自己的线程来调用它！）
+This means we can guarantee that all the code in your verticle instance is always executed on the same event loop (as
+long as you don't create your own threads and call it!).
 
-同样意味着您可以将您的应用中的所有代码用单线程方式编写，让 Vert.x
-去考虑线程和扩展问题。您不用再考虑 synchronized 和 volatile 的问题，
-也可以避免传统的多线程应用经常会遇到的竞态条件和死锁的问题。
+This means you can write all the code in your application as single threaded and let Vert.x worry about the threading
+and scaling. No more worrying about +synchronized+ and +volatile+ any more, and you also avoid many other cases of race conditions
+and deadlock so prevalent when doing hand-rolled 'traditional' multi-threaded application development.
 
 [[worker_verticles]]
 === Worker verticles
 
-Worker Verticle 和 Standard Verticle 很像，但它并不是由一个 Event Loop 来执行，
-而是由 Vert.x 中的 Worker Pool 中的线程执行。
+A worker verticle is just like a standard verticle but it's executed using a thread from the Vert.x worker thread pool,
+rather than using an event loop.
 
-Worker Verticle 设计用于调用阻塞式代码，它不会阻塞任何 Event Loop。
+Worker verticles are designed for calling blocking code, as they won't block any event loops.
 
-如果您不想使用 Worker Verticle 来运行阻塞式代码，
-您还可以在一个Event Loop中直接使用 <<blocking_code, 内联阻塞式代码>>
+If you don't want to use a worker verticle to run blocking code, you can also run <<blocking_code, inline blocking code>>
+directly while on an event loop.
 
-您需要通过 `link:../../apidocs/io/vertx/core/DeploymentOptions.html#setWorker-boolean-[setWorker]` 方法来将 Verticle 部署成一个 Worker Verticle：
+If you want to deploy a verticle as a worker verticle you do that with `link:../../apidocs/io/vertx/core/DeploymentOptions.html#setWorker-boolean-[setWorker]`.
 
 [source,java]
 ----
@@ -477,16 +466,15 @@ DeploymentOptions options = new DeploymentOptions().setWorker(true);
 vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 ----
 
-在 Vert.x 中，Worker Verticle 实例绝对不会同时被多个线程执行，
-但它可以在不同时间由不同线程执行。
+Worker verticle instances are never executed concurrently by Vert.x by more than one thread, but can executed by
+different threads at different times.
 
-[[_deploying_verticles_programmatically]]
-=== 编程方式部署Verticle
+=== Deploying verticles programmatically
 
-部署Verticle可以使用任意一个 `link:../../apidocs/io/vertx/core/Vertx.html#deployVerticle-io.vertx.core.Verticle-[deployVerticle]` 方法，
-并传入一个 Verticle名称或Verticle 实例。
+You can deploy a verticle using one of the `link:../../apidocs/io/vertx/core/Vertx.html#deployVerticle-io.vertx.core.Verticle-[deployVerticle]` method, specifying a verticle
+name or you can pass in a verticle instance you have already created yourself.
 
-NOTE: 通过 Verticle *实例* 来部署 Verticle 仅限Java语言。
+NOTE: Deploying Verticle *instances* is Java only.
 
 [source,java]
 ----
@@ -494,67 +482,60 @@ Verticle myVerticle = new MyVerticle();
 vertx.deployVerticle(myVerticle);
 ----
 
-您同样可以指定 Verticle 的 *名称* 来部署它。
+You can also deploy verticles by specifying the verticle *name*.
 
-这个 Verticle 的名称会用于查找实例化 Verticle的特定
-`link:../../apidocs/io/vertx/core/spi/VerticleFactory.html[VerticleFactory]`。
+The verticle name is used to look up the specific `link:../../apidocs/io/vertx/core/spi/VerticleFactory.html[VerticleFactory]` that will be used to
+instantiate the actual verticle instance(s).
 
-不同的 Verticle Factory 可用于实例化不同语言的 Verticle，也可用于其他目的，
-例如加载服务、运行时从Maven中获取Verticle实例等。
+Different verticle factories are available for instantiating verticles in different languages and for various other
+reasons such as loading services and getting verticles from Maven at run-time.
 
-因此可以部署任何使用Vert.x支持的语言编写的Verticle。
+This allows you to deploy verticles written in any language from any other language that Vert.x supports.
 
-下面的例子展示了如何部署多个不同语言编写的 Verticle ：
+Here's an example of deploying some different types of verticles:
 
 [source,java]
 ----
 vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle");
 
-// 部署JavaScript的Verticle
+// Deploy a JavaScript verticle
 vertx.deployVerticle("verticles/myverticle.js");
 
-// 部署Ruby的Verticle
+// Deploy a Ruby verticle verticle
 vertx.deployVerticle("verticles/my_verticle.rb");
 ----
 
-[[_rules_for_mapping_a_verticle_name_to_a_verticle_factory]]
-=== Verticle名称到Factory的映射规则
+=== Rules for mapping a verticle name to a verticle factory
 
-使用名称部署Verticle时，会通过名称来选择一个用于实例化 Verticle
-的 Verticle Factory。
+When deploying verticle(s) using a name, the name is used to select the actual verticle factory that will instantiate
+the verticle(s).
 
-Verticle 名称可以增加一个以冒号结尾的前缀，这个前缀用于查找Factory，如：
+Verticle names can have a prefix - which is a string followed by a colon, which if present will be used to look-up the factory, e.g.
 
-----
-js:foo.js // 使用JavaScript的Factory
-groovy:com.mycompany.SomeGroovyCompiledVerticle // 用Groovy的Factory
-service:com.mycompany:myorderservice // 用Service的Factory
-----
+js:foo.js // Use the JavaScript verticle factory
+groovy:com.mycompany.SomeGroovyCompiledVerticle // Use the Groovy verticle factory
+service:com.mycompany:myorderservice // Uses the service verticle factory
 
-如果不指定前缀，Vert.x将根据Verticle名称的后缀来查找对应Factory，如：
+If no prefix is present, Vert.x will look for a suffix and use that to lookup the factory, e.g.
 
-----
-foo.js // 将使用JavaScript的Factory
-SomeScript.groovy // 将使用Groovy的Factory
-----
+foo.js // Will also use the JavaScript verticle factory
+SomeScript.groovy // Will use the Groovy verticle factory
 
-若前缀后缀都没指定，Vert.x将假定Verticle名称是一个Java 全限定类名（FQCN），
-并尝试实例化它。
+If no prefix or suffix is present, Vert.x will assume it's a Java fully qualified class name (FQCN) and try
+and instantiate that.
 
-[[_how_are_verticle_factories_located]]
-=== 如何定位Verticle Factory？
+=== How are Verticle Factories located?
 
-大部分Verticle Factory会从 classpath 中加载，并在 Vert.x 启动时注册。
+Most Verticle factories are loaded from the classpath and registered at Vert.x startup.
 
-您同样可以使用编程的方式去注册或注销Verticle Factory：通过 `link:../../apidocs/io/vertx/core/Vertx.html#registerVerticleFactory-io.vertx.core.spi.VerticleFactory-[registerVerticleFactory]` 方法和
-`link:../../apidocs/io/vertx/core/Vertx.html#unregisterVerticleFactory-io.vertx.core.spi.VerticleFactory-[unregisterVerticleFactory]` 方法。
+You can also programmatically register and unregister verticle factories using `link:../../apidocs/io/vertx/core/Vertx.html#registerVerticleFactory-io.vertx.core.spi.VerticleFactory-[registerVerticleFactory]`
+and `link:../../apidocs/io/vertx/core/Vertx.html#unregisterVerticleFactory-io.vertx.core.spi.VerticleFactory-[unregisterVerticleFactory]` if you wish.
 
-[[_waiting_for_deployment_to_complete]]
-=== 等待部署完成
+=== Waiting for deployment to complete
 
-Verticle是异步部署的，换而言之，可能在 `deploy` 方法调用返回后一段时间才会完成部署。
+Verticle deployment is asynchronous and may complete some time after the call to deploy has returned.
 
-如果您想要在部署完成时收到通知，则可以指定一个完成处理器：
+If you want to be notified when deployment is complete you can deploy specifying a completion handler:
 
 [source,java]
 ----
@@ -567,16 +548,15 @@ vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", res -> {
 });
 ----
 
-如果部署成功，这个完成处理器的结果中将会包含部署ID的字符串。
+The completion handler will be passed a result containing the deployment ID string, if deployment succeeded.
 
-这个部署ID可以用于撤销部署。
+This deployment ID can be used later if you want to undeploy the deployment.
 
-[[_undeploying_verticle_deployments]]
-=== 撤销Verticle
+=== Undeploying verticle deployments
 
-我们可以通过 `link:../../apidocs/io/vertx/core/Vertx.html#undeploy-java.lang.String-[undeploy]` 方法来撤销部署好的 Verticle。
+Deployments can be undeployed with `link:../../apidocs/io/vertx/core/Vertx.html#undeploy-java.lang.String-[undeploy]`.
 
-撤销操作也是异步的，因此若您想要在撤销完成后收到通知，则可以指定另一个完成处理器：
+Un-deployment is itself asynchronous so if you want to be notified when un-deployment is complete you can deploy specifying a completion handler:
 
 [source,java]
 ----
@@ -589,11 +569,10 @@ vertx.undeploy(deploymentID, res -> {
 });
 ----
 
-[[_specifying_number_of_verticle_instances]]
-=== 设置 Verticle 实例数量
+=== Specifying number of verticle instances
 
-使用名称部署 Verticle 时，可以指定需要部署的 Verticle
-实例的数量。
+When deploying a verticle using a verticle name, you can specify the number of verticle instances that you
+want to deploy:
 
 [source,java]
 ----
@@ -601,98 +580,92 @@ DeploymentOptions options = new DeploymentOptions().setInstances(16);
 vertx.deployVerticle("com.mycompany.MyOrderProcessorVerticle", options);
 ----
 
-这个功能对于跨多核扩展时很有用。例如，您有一个带Web服务的Verticle需要部署在多核的机器上，
-您可以部署多个实例来利用所有的核。
+This is useful for scaling easily across multiple cores. For example you might have a web-server verticle to deploy
+and multiple cores on your machine, so you want to deploy multiple instances to utilise all the cores.
 
 include::override/verticle-configuration.adoc[]
 
-[[_high_availability]]
-=== 高可用性
+=== High Availability
 
-Verticle可以启用高可用方式（HA）部署。在这种方式下，当其中一个部署在
-Vert.x 实例中的 Verticle 突然挂掉，这个 Verticle 可以在集群环境中的另一个 Vert.x 实例中重新部署。
+Verticles can be deployed with High Availability (HA) enabled. In that context, when a verticle is deployed on
+a vert.x instance that dies abruptly, the verticle is redeployed on another vert.x instance from the cluster.
 
-若要启用高可用方式运行一个 Verticle，仅需要追加 `-ha` 参数：
+To run an verticle with the high availability enabled, just append the `-ha` switch:
 
 [source]
 ----
 vertx run my-verticle.js -ha
 ----
 
-当启用高可用方式时，不需要追加 `-cluster` 参数。
+When enabling high availability, no need to add `-cluster`.
 
-关于高可用的功能和配置的更多细节可参考
-<<_high_availability_and_fail_over, 高可用和故障转移>>
+More details about the high availability feature and configuration in the <<High Availability and Fail-Over>>
+ section.
 
 
-[[_running_verticles_from_the_command_line]]
-=== 从命令行运行Verticle
+=== Running Verticles from the command line
 
-您可以在 Maven 或 Gradle 项目中以正常方式添加 Vert.x
-Core 为依赖，在项目中直接使用 Vert.x。
+You can use Vert.x directly in your Maven or Gradle projects in the normal way by adding a dependency to the Vert.x
+core library and hacking from there.
 
-您也可以从命令行直接运行 Vert.x 的 Verticle。
+However you can also run Vert.x verticles directly from the command line if you wish.
 
-为此，您需要下载并安装 Vert.x 的发行版，并且将安装的 `bin` 目录添加到您的
-`PATH` 环境变量中，并确保您的 `PATH` 中设置了 Java 的 JDK 环境。
+To do this you need to download and install a Vert.x distribution, and add the `bin` directory of the installation
+to your `PATH` environment variable. Also make sure you have a Java 8 JDK on your `PATH`.
 
-Vert.x 支持从 8 到 17 的 Java 版本。
+NOTE: The JDK is required to support on the fly compilation of Java code.
 
-NOTE: 在 `PATH` 设置 JDK 是为了支持 Java 代码的运行时编译（on the fly compilation）。
-
-现在您可以使用 `vertx run` 命令运行 Verticle 了，下面是一些例子：
+You can now run verticles by using the `vertx run` command. Here are some examples:
 
 ----
-# 运行JavaScript的Verticle
+# Run a JavaScript verticle
 vertx run my_verticle.js
 
-# 运行Ruby的Verticle
+# Run a Ruby verticle
 vertx run a_n_other_verticle.rb
 
-# 使用集群模式运行Groovy的Verticle
+# Run a Groovy script verticle, clustered
 vertx run FooVerticle.groovy -cluster
 ----
 
-您甚至可以不必编译 Java 源代码，直接运行它：
+You can even run Java source verticles without compiling them first!
 
 ----
 vertx run SomeJavaSourceFile.java
 ----
 
-Vert.x 在运行Java 源代码文件之前将执行运行时编译，
-这对于快速原型制作和演示很有用，而且不需要配置 Maven 或 Gradle 就能跑起来！
+Vert.x will compile the Java source file on the fly before running it. This is really useful for quickly
+prototyping verticles and great for demos. No need to set-up a Maven or Gradle build first to get going!
 
-欲了解有关在命令行执行 `vertx` 可用的各种选项完整信息，
-可以直接在命令行键入 `vertx` 查看帮助。
+For full information on the various options available when executing `vertx` on the command line,
+type `vertx` at the command line.
 
-[[_causing_vert_x_to_exit]]
-=== 退出 Vert.x 环境
+=== Causing Vert.x to exit
 
-Vert.x 实例维护的线程不是守护线程，因此它们会阻止JVM退出。
+Threads maintained by Vert.x instances are not daemon threads so they will prevent the JVM from exiting.
 
-如果您通过嵌入式的方式使用 Vert.x 并且完成了操作，您可以调用 `link:../../apidocs/io/vertx/core/Vertx.html#close--[close]`
-方法关闭它。
+If you are embedding Vert.x and you have finished with it, you can call `link:../../apidocs/io/vertx/core/Vertx.html#close--[close]` to close it
+down.
 
-这将关闭所有内部线程池并关闭其他资源，允许JVM退出。
+This will shut-down all internal thread pools and close other resources, and will allow the JVM to exit.
 
-[[_the_context_object]]
-=== Context 对象
+=== The Context object
 
-当 Vert.x 传递一个事件给处理器或者调用 `link:../../apidocs/io/vertx/core/Verticle.html[Verticle]` 的 start 或 stop 方法时，
-它会关联一个 `Context` 对象来执行。通常来说这个context会是一个
-**event-loop context**，它绑定到了一个特定的 Event Loop 线程上。所以在该context上执行的操作总是
-在同一个 Event Loop 线程中。对于运行内联的阻塞代码的 Worker Verticle 来说，会关联一个
-Worker Context，并且所有的操作运都会运行在 Worker 线程池的线程上。（译者注：每个 `Verticle` 在部署的时候都会被分配一个 `Context`（根据配置不同，可以是Event Loop Context 或者 Worker Context），之后此 `Verticle` 上所有的普通代码都会在此 `Context` 上执行（即对应的 Event Loop 或Worker 线程）。一个 `Context` 对应一个 Event Loop 线程（或 Worker 线程），但一个 Event Loop 可能对应多个 `Context`。）
+When Vert.x provides an event to a handler or calls the start or stop methods of a
+`link:../../apidocs/io/vertx/core/Verticle.html[Verticle]`, the execution is associated with a `Context`. Usually a context is an
+*event-loop context* and is tied to a specific event loop thread. So executions for that context always occur
+on that exact same event loop thread. In the case of worker verticles and running inline blocking code a
+worker context will be associated with the execution which will use a thread from the worker thread pool.
 
-您可以通过 `link:../../apidocs/io/vertx/core/Vertx.html#getOrCreateContext--[getOrCreateContext]` 方法获取 `Context` 实例：
+To retrieve the context, use the `link:../../apidocs/io/vertx/core/Vertx.html#getOrCreateContext--[getOrCreateContext]` method:
 
 [source, java]
 ----
 Context context = vertx.getOrCreateContext();
 ----
 
-若已经有一个context和当前线程关联，那么它直接重用这个context对象，
-如果没有则创建一个新的。您可以检查获取的context的 _类型_ ：
+If the current thread has a context associated with it, it reuses the context object. If not a new instance of
+context is created. You can test the _type_ of context you have retrieved:
 
 [source, java]
 ----
@@ -706,8 +679,8 @@ if (context.isEventLoopContext()) {
 }
 ----
 
-当您获取了这个context对象，您就可以在context中异步执行代码了。换句话说，
-您提交的任务将会在同一个context中运行：
+When you have retrieved the context object, you can run code in this context asynchronously. In other words,
+you submit a task that will be eventually run in the same context, but later:
 
 [source, java]
 ----
@@ -716,9 +689,9 @@ vertx.getOrCreateContext().runOnContext( (v) -> {
 });
 ----
 
-当在同一个context中运行了多个处理函数时，可能需要在它们之间共享数据。
-context对象提供了存储和读取共享数据的方法。举例来说，它允许您将数据传递到
- `link:../../apidocs/io/vertx/core/Context.html#runOnContext-io.vertx.core.Handler-[runOnContext]` 方法运行的某些操作中：
+When several handlers run in the same context, they may want to share data. The context object offers methods to
+store and retrieve data shared in the context. For instance, it lets you pass data to some action run with
+`link:../../apidocs/io/vertx/core/Context.html#runOnContext-io.vertx.core.Handler-[runOnContext]`:
 
 [source, java]
 ----
@@ -729,24 +702,22 @@ context.runOnContext((v) -> {
 });
 ----
 
-您还可以通过 `link:../../apidocs/io/vertx/core/Context.html#config--[config]`
-方法访问 Verticle 的配置信息。查看 <<_passing_configuration_to_a_verticle, 向 Verticle 传入配置>> 章节了解更多配置信息。
+The context object also let you access verticle configuration using the `link:../../apidocs/io/vertx/core/Context.html#config--[config]`
+method. Check the <<Passing configuration to a verticle>> section for more details about this configuration.
 
-[[_executing_periodic_and_delayed_actions]]
-=== 执行周期性/延迟性操作
+=== Executing periodic and delayed actions
 
-在 Vert.x 中，延迟执行或定期执行操作很常见。
+It's very common in Vert.x to want to perform an action after a delay, or periodically.
 
-在 Standard Verticle 中您不能直接让线程休眠以引入延迟，因为它会阻塞 Event Loop 线程。
+In standard verticles you can't just make the thread sleep to introduce a delay, as that will block the event loop thread.
 
-取而代之是使用 Vert.x 定时器。定时器可以是 *一次性* 或 *周期性* 的，两者我们都会讨论到。
+Instead you use Vert.x timers. Timers can be *one-shot* or *periodic*. We'll discuss both
 
-[[_one_shot_timers]]
-==== 一次性计时器
+==== One-shot Timers
 
-一次性计时器会在一定延迟后调用一个 Event Handler，以毫秒为单位计时。
+A one shot timer calls an event handler after a certain delay, expressed in milliseconds.
 
-您可以通过 `link:../../apidocs/io/vertx/core/Vertx.html#setTimer-long-io.vertx.core.Handler-[setTimer]` 方法传递延迟时间和一个处理器来设置计时器的触发。
+To set a timer to fire once you use `link:../../apidocs/io/vertx/core/Vertx.html#setTimer-long-io.vertx.core.Handler-[setTimer]` method passing in the delay and a handler
 
 [source,java]
 ----
@@ -757,24 +728,23 @@ long timerID = vertx.setTimer(1000, id -> {
 System.out.println("First this is printed");
 ----
 
-返回值是一个唯一的计时器id，该id可用于之后取消该计时器，这个计时器id会传入给处理器。
+The return value is a unique timer id which can later be used to cancel the timer. The handler is also passed the timer id.
 
-[[_periodic_timers]]
-==== 周期性计时器
+==== Periodic Timers
 
-您同样可以使用 `link:../../apidocs/io/vertx/core/Vertx.html#setPeriodic-long-io.vertx.core.Handler-[setPeriodic]` 方法设置一个周期性触发的计时器。
+You can also set a timer to fire periodically by using `link:../../apidocs/io/vertx/core/Vertx.html#setPeriodic-long-io.vertx.core.Handler-[setPeriodic]`.
 
-第一次触发之前同样会有一段设置的延时时间。
+There will be an initial delay equal to the period.
 
-`setPeriodic` 方法的返回值也是一个唯一的计时器id，若之后该计时器需要取消则使用该id。
+The return value of `setPeriodic` is a unique timer id (long). This can be later used if the timer needs to be cancelled.
 
-传给处理器的参数也是这个唯一的计时器id。
+The argument passed into the timer event handler is also the unique timer id:
 
-请记住这个计时器将会定期触发。如果您的定时任务会花费大量的时间，则您的计时器事件可能会连续执行,
-甚至发生更坏的情况：重叠。
+Keep in mind that the timer will fire on a periodic basis. If your periodic treatment takes a long amount of time to proceed,
+your timer events could run continuously or even worse : stack up.
 
-这种情况，您应考虑使用 `link:../../apidocs/io/vertx/core/Vertx.html#setTimer-long-io.vertx.core.Handler-[setTimer]` 方法，
-当任务执行完成时设置下一个计时器。
+In this case, you should consider using `link:../../apidocs/io/vertx/core/Vertx.html#setTimer-long-io.vertx.core.Handler-[setTimer]` instead. Once your treatment has
+finished, you can set the next timer.
 
 [source,java]
 ----
@@ -785,29 +755,26 @@ long timerID = vertx.setPeriodic(1000, id -> {
 System.out.println("First this is printed");
 ----
 
-[[_cancelling_timers]]
-==== 取消计时器
+==== Cancelling timers
 
-指定一个计时器id并调用 `link:../../apidocs/io/vertx/core/Vertx.html#cancelTimer-long-[cancelTimer]` 方法来取消一个周期性计时器。如：
+To cancel a periodic timer, call `link:../../apidocs/io/vertx/core/Vertx.html#cancelTimer-long-[cancelTimer]` specifying the timer id. For example:
 
 [source,java]
 ----
 vertx.cancelTimer(timerID);
 ----
 
-[[_automatic_clean_up_in_verticles]]
-==== Verticle 中自动清除定时器
+==== Automatic clean-up in verticles
 
-如果您在 Verticle 中创建了计时器，
-当这个 Verticle 被撤销时这个计时器会被自动关闭。
+If you're creating timers from inside verticles, those timers will be automatically closed
+when the verticle is undeployed.
 
-[[_verticle_worker_pool]]
 === Verticle worker pool
 
-Verticle 使用 Vert.x 中的 Worker Pool 来执行阻塞式行为，例如 `link:../../apidocs/io/vertx/core/Context.html#executeBlocking-io.vertx.core.Handler-boolean-io.vertx.core.Handler-[executeBlocking]` 或
-Worker Verticle。
+Verticles use the Vert.x worker pool for executing blocking actions, i.e `link:../../apidocs/io/vertx/core/Context.html#executeBlocking-io.vertx.core.Handler-boolean-io.vertx.core.Handler-[executeBlocking]` or
+worker verticle.
 
-可以在部署配置项中指定不同的 Worker 线程池：
+A different worker pool can be specified in deployment options:
 
 [source,java]
 ----
@@ -840,44 +807,43 @@ include::streams.adoc[]
 
 include::parsetools.adoc[]
 
-[[_thread_safety]]
-== 线程安全
+== Thread safety
 
-大多数Vert.x 对象可以从不同的线程安全地访问， _然而_
-在相同的上下文中访问它们时，性能才是最优的。
+Most Vert.x objects are safe to access from different threads. _However_ performance is optimised when they are
+accessed from the same context they were created from.
 
-例如，若您部署了一个创建了 `link:../../apidocs/io/vertx/core/net/NetServer.html[NetServer]` 的Verticle，该 `NetServer` 在处理器中提供了
-`link:../../apidocs/io/vertx/core/net/NetSocket.html[NetSocket]` 实例，
-则最好始终从该Verticle的Event Loop中访问Socket 实例。
+For example if you have deployed a verticle which creates a `link:../../apidocs/io/vertx/core/net/NetServer.html[NetServer]` which provides
+`link:../../apidocs/io/vertx/core/net/NetSocket.html[NetSocket]` instances in it's handler, then it's best to always access that socket instance
+from the event loop of the verticle.
 
-如您已经遵守了标准的Vert.x Verticle部署模型，并注意避免在 Verticle 之间分享对象，
-那这种情况您无需考虑。
+If you stick to the standard Vert.x verticle deployment model and avoid sharing objects between verticles then this
+should be the case without you having to think about it.
 
 [[blocking_code]]
-== 运行阻塞式代码
+== Running blocking code
 
-在一个完美的世界中，不存在战争和饥饿，所有的API都将使用异步方式编写，
-兔兔和小羊羔将会在阳光明媚的绿色草地上手牵手地跳舞。
+In a perfect world, there will be no war or hunger, all APIs will be written asynchronously and bunny rabbits will
+skip hand-in-hand with baby lambs across sunny green meadows.
 
-*但是……真实世界并非如此（您最近看新闻了吧？）*
+*But... the real world is not like that. (Have you watched the news lately?)*
 
-事实是很多库含有同步的API（如果不是多数的库的话，尤其JVM生态中的库），这些API中许多方法都是阻塞式的。
-一个很好的例子就是 JDBC API，它本质上是同步的，无论多么努力地去尝试，Vert.x
-都不能像魔法小精灵撒尘变法一样将它转换成异步API。
+Fact is, many, if not most libraries, especially in the JVM ecosystem have synchronous APIs and many of the methods are
+likely to block. A good example is the JDBC API - it's inherently synchronous, and no matter how hard it tries, Vert.x
+cannot sprinkle magic pixie dust on it to make it asynchronous.
 
-我们不会将所有的内容重写成异步方式，所以我们为您提供一种在
-Vert.x 应用中安全调用"传统"阻塞API的方法。
+We're not going to rewrite everything to be asynchronous overnight so we need to provide you a way to use "traditional"
+blocking APIs safely within a Vert.x application.
 
-如之前讨论，您不能在 Event Loop 中直接调用阻塞式操作，因为这样做会阻止 Event Loop
-执行其他有用的任务。那您该怎么做？
+As discussed before, you can't call blocking operations directly from an event loop, as that would prevent it
+from doing any other useful work. So how can you do this?
 
-可以通过调用 `link:../../apidocs/io/vertx/core/Vertx.html#executeBlocking-io.vertx.core.Handler-boolean-io.vertx.core.Handler-[executeBlocking]`
-方法来指定阻塞式代码的执行以及阻塞式代码执行后处理结果的异步回调。
+It's done by calling `link:../../apidocs/io/vertx/core/Vertx.html#executeBlocking-io.vertx.core.Handler-boolean-io.vertx.core.Handler-[executeBlocking]` specifying both the blocking code to execute and a
+result handler to be called back asynchronous when the blocking code has been executed.
 
 [source,java]
 ----
 vertx.executeBlocking(promise -> {
-  // 调用阻塞的、需要消耗显著执行时间的API
+  // Call some blocking API that takes a significant amount of time to return
   String result = someAPI.blockingMethod("hello");
   promise.complete(result);
 }, res -> {
@@ -885,33 +851,33 @@ vertx.executeBlocking(promise -> {
 });
 ----
 
-WARNING: 阻塞式代码应该仅仅在合理的时间内阻塞（例如不超过几秒钟）。
-长时间阻塞的操作或者轮询操作（例如一个线程以阻塞的方式不断的循环轮询事件）都应该避免。
-当一个阻塞的操作持续超过10秒，blocked thread checker将会在控制台上打印一条消息。
-长时间阻塞的操作应该由程序使用一个专用的线程管理，
-他需要能够使用event-bus 或 `link:../../apidocs/io/vertx/core/Context.html#runOnContext-io.vertx.core.Handler-[runOnContext]` 与verticles交互
+WARNING: Blocking code should block for a reasonable amount of time (i.e no more than a few seconds). Long blocking operations
+or polling operations (i.e a thread that spin in a loop polling events in a blocking fashion) are precluded.
+When the blocking operation lasts more than the 10 seconds, a message will be printed on the console by the
+blocked thread checker. Long blocking operations should use a dedicated thread managed by the application,
+which can interact with verticles using the event-bus or `link:../../apidocs/io/vertx/core/Context.html#runOnContext-io.vertx.core.Handler-[runOnContext]`
 
 
-默认情况下，如果 `executeBlocking` 在同一个上下文环境中（如：同一个 Verticle 实例）被调用了多次，
-那么这些不同的 `executeBlocking` 代码块会 _顺序执行_（一个接一个）。
+By default, if executeBlocking is called several times from the same context (e.g. the same verticle instance) then
+the different executeBlocking are executed _serially_ (i.e. one after another).
 
-若您不关心您调用 `link:../../apidocs/io/vertx/core/Vertx.html#executeBlocking-io.vertx.core.Handler-boolean-io.vertx.core.Handler-[executeBlocking]` 的顺序，
-可以将 `ordered` 参数的值设为 `false`。这样任何 `executeBlocking`
-都会在 Worker Pool 中并行执行。
+If you don't care about ordering you can call `link:../../apidocs/io/vertx/core/Vertx.html#executeBlocking-io.vertx.core.Handler-boolean-io.vertx.core.Handler-[executeBlocking]`
+specifying `false` as the argument to `ordered`. In this case any executeBlocking may be executed in parallel
+on the worker pool.
 
-另外一种运行阻塞式代码的方式是使用 <<worker_verticles, worker verticle>>。
+An alternative way to run blocking code is to use a <<worker_verticles, worker verticle>>
 
-一个 Worker Verticle 始终会使用 Worker Pool 中的某个线程来执行。
+A worker verticle is always executed with a thread from the worker pool.
 
-默认情况下，阻塞式代码会在 Vert.x 的 Worker Pool 中执行，通过 `link:../../apidocs/io/vertx/core/VertxOptions.html#setWorkerPoolSize-int-[setWorkerPoolSize]` 配置。
+By default blocking code is executed on the Vert.x worker pool, configured with `link:../../apidocs/io/vertx/core/VertxOptions.html#setWorkerPoolSize-int-[setWorkerPoolSize]`.
 
-可以为不同的用途创建不同的池（pool）：
+Additional pools can be created for different purposes:
 
 [source,java]
 ----
 WorkerExecutor executor = vertx.createSharedWorkerExecutor("my-worker-pool");
 executor.executeBlocking(promise -> {
-  // 调用阻塞的、需要消耗显著执行时间的API
+  // Call some blocking API that takes a significant amount of time to return
   String result = someAPI.blockingMethod("hello");
   promise.complete(result);
 }, res -> {
@@ -919,61 +885,56 @@ executor.executeBlocking(promise -> {
 });
 ----
 
-Worker Executor 在不需要的时候必须被关闭：
+The worker executor must be closed when it's not necessary anymore:
 
 [source,java]
 ----
 executor.close();
 ----
 
-当使用同一个名字创建了许多 worker 时，它们将共享同一个 pool。
-当所有的 worker executor 调用了 `close` 方法被关闭过后，对应的 worker pool 会被销毁。
+When several workers are created with the same name, they will share the same pool. The worker pool is destroyed
+when all the worker executors using it are closed.
 
-如果 Worker Executor 在 Verticle 中创建，那么 Verticle 实例销毁的同时 Vert.x
-将会自动关闭这个 Worker Executor。
+When an executor is created in a Verticle, Vert.x will close it automatically for you when the Verticle
+is undeployed.
 
-Worker Executor 可以在创建的时候配置：
+Worker executors can be configured when created:
 
 [source,java]
 ----
 int poolSize = 10;
 
-// 2分钟
+// 2 minutes
 long maxExecuteTime = 2;
 TimeUnit maxExecuteTimeUnit = TimeUnit.MINUTES;
 
 WorkerExecutor executor = vertx.createSharedWorkerExecutor("my-worker-pool", poolSize, maxExecuteTime, maxExecuteTimeUnit);
 ----
 
-NOTE: 这些配置信息在 worker pool 创建的时候设置。
+NOTE: the configuration is set when the worker pool is created
 
-[[_metrics_spi]]
 == Metrics SPI
 
-默认情况下，Vert.x不会记录任何指标。相反，它提供了一个SPI，其他人可以将它的实现类添加到类路径中。
-指标SPI是一项高级特性，允许实现类可以从Vert.x捕获事件以收集指标。
-有关详细信息，请参阅
-`link:../../apidocs/io/vertx/core/spi/metrics/VertxMetrics.html[API 文档]` 。
+By default Vert.x does not record any metrics. Instead it provides an SPI for others to implement which can be added
+to the classpath. The metrics SPI is an advanced feature which allows implementers to capture events from Vert.x in
+order to gather metrics. For more information on this, please consult the
+`link:../../apidocs/io/vertx/core/spi/metrics/VertxMetrics.html[API Documentation]`.
 
-若使用 `link:../../apidocs/io/vertx/core/metrics/MetricsOptions.html#setFactory-io.vertx.core.spi.VertxMetricsFactory-[setFactory]` 嵌入了Vert.x实例，
-也可以用编程方式指定一个指标工厂。
+You can also specify a metrics factory programmatically if embedding Vert.x using
+`link:../../apidocs/io/vertx/core/metrics/MetricsOptions.html#setFactory-io.vertx.core.spi.VertxMetricsFactory-[setFactory]`.
 
-[[_the_vertx_command_line]]
-== "vertx" 命令行
+== The 'vertx' command line
 
-`vertx` 命令用于在命令行中与 Vert.x 进行交互。主要用于运行 Vert.x Verticle。
-为此，您需要下载并安装Vert.x 发行版，并将安装位置的 `bin` 目录添加
-到 `PATH` 环境变量中，还要确保您的 `PATH` 上已配置了 Java 的 JDK 的路径。
+The `vertx` command is used to interact with Vert.x from the command line. It's main use is to run Vert.x verticles.
+To do this you need to download and install a Vert.x distribution, and add the `bin` directory of the installation
+to your `PATH` environment variable. Also make sure you have a Java 8 JDK on your `PATH`.
 
-Vert.x 支持从 8 到 17 的 Java 版本。
+NOTE: The JDK is required to support on the fly compilation of Java code.
 
-NOTE: `PATH` 中的 JDK 是用于支持 Java 代码的快速编译。
+=== Run verticles
 
-[[_run_verticles]]
-=== 运行 Verticles
-
-您可以使用 `vertx run` 从命令行直接运行 Vert.x 的 Verticle，以下是
-`run` _命令_ 的几个示例：
+You can run raw Vert.x verticles directly from the command line using `vertx run`. Here is a couple of examples of
+the `run` _command_:
 
 [source]
 ----
@@ -986,106 +947,106 @@ vertx run io.vertx.example.MVerticle -cp my-verticle.jar (5)
 
 vertx run MyVerticle.java                                (6)
 ----
-1. 部署一个JavaScript的Verticle
-2. 部署一个Groovy的Verticle
-3. 部署一个Ruby的Verticle
-4. 部署一个已经编译好的Java的Verticle，类的根路径是当前目录
-5. 部署一个已经打包成jar的Verticle，这个jar需要在类路径中
-6. 编译Java源代码并进行部署
+1. Deploys a JavaScript verticle
+2. Deploys a Groovy verticle
+3. Deploys a Ruby verticle
+4. Deploys an already compiled Java verticle. Classpath root is the current directory
+5. Deploys a verticle packaged in a Jar, the jar need to be in the classpath
+6. Compiles the Java source and deploys it
 
-正如您在 Java 中可看到的，该 Verticle 的名称可以是 class 文件的全限定类名，
-也可以指定 Java 源文件，Vert.x 会为您编译它。
+As you can see in the case of Java, the name can either be the fully qualified class name of the verticle, or
+you can specify the Java Source file directly and Vert.x compiles it for you.
 
-您可以在Verticle的名称前添加其他语言名称作为前缀来进行部署。例如：
-若某个Verticle是Groovy编译的类，您可以使用语言前缀 `groovy:` ，让Vert.x 知道它是一个Groovy 类而不是Java 类。
+You can also prefix the verticle with the name of the language implementation to use. For example if the verticle is
+a compiled Groovy class, you prefix it with `groovy:` so that Vert.x knows it's a Groovy class not a Java class.
 
 [source]
 ----
 vertx run groovy:io.vertx.example.MyGroovyVerticle
 ----
 
-`vertx run` 命令可以使用几个可选参数，它们是：
+The `vertx run` command can take a few optional parameters, they are:
 
-* `-options <options>` - 提供Vert.x选项。
-`options` 是一个包含描述Vert.x选项的json文件的名称。该参数是可选的。
-* `-conf <config>` - 提供了Verticle的一些配置，
-`config` 是一个包含描述Verticle配置的JSON文件的名称。该参数是可选的。
-* `-cp <path>` - 搜索Verticle和它使用的其他任何资源的路径，
-默认为 `.`（当前目录）。若您的Verticle引用了其他脚本、类或其他资源
-（例如jar文件），请确保这些资源存在此路径上。该路径可以包含多个路径条目，
-由 `:` （冒号）或 `;` （分号）进行分割——这取决于操作系统。每个路径条目可以是包含脚本的目录的绝对路径或相对路径，
-也可以是jar或zip文件的绝对或相对文件名。
-一个示例路径可能是 `-cp classes:lib/otherscripts:jars/myjar.jar:jars/otherjar.jar` 。
-始终使用路径引用您的Verticle需要的任何资源，**不要** 将它们放在系统类路径上，
-因为这会导致部署的Verticle之间的隔离问题。
-* `-instances <instances>`  - 要实例化的Verticle实例的数目，每个Verticle实例都是严格单线程（运行）的，
-因此为了在可用的cpu核心上扩展您的应用程序，您可能需要部署多个实例。
-若省略，则部署单个实例。
-* `-worker` - 此选项可确定一个Verticle是否为Worker Verticle。
-* `-cluster` -  此选项确定Vert.x实例是否尝试与网络上的其他Vert.x实例形成集群，
-集群Vert.x实例允许Vert.x与其他节点构建一个分布式Event Bus。
-默认为false（非集群模式）。
-* `-cluster-port` - 若指定了 `cluster` 选项，
-则可以确定哪个端口将用于与其他Vert.x实例进行集群通信。默认为 `0` ——这意味着“ _选择一个空闲的随机端口_ ”。
-您通常不需要指定此参数，除非您需要绑定特定端口。
-* `-cluster-host` - 若指定了 `cluster` 选项，则可以确定哪个主机地址将用于与其他Vert.x实例进行集群通信。
-若没有设置，集群的eventbus会尝试绑定到同一个host作为底层集群管理。
-作为最后的手段，
-将会在可用网路接口中选取其中一个。
-* `-cluster-public-port` - 若指定了 `cluster` 选项，则可以确定哪个端口将被公布用于与其他Vert.x实例进行集群通信。
-默认值是 `-1` ，表示与 `cluster-port` 保持一致。
-* `-cluster-public-host` - 若指定了 `cluster` 选项，则可以确定哪个主机地址将被公布用于与其他Vert.x实例进行集群通信。
-如果没有指定，则默认使用 `cluster-host` 的值
-* `-ha` - 若指定，该Verticle将部署为（支持）高可用性（HA）。
-有关详细信息，请参阅相关章节。
-* `-quorum` - 该参数需要和 `-ha` 一起使用，它指定集群中所有 _HA deploymentIDs_
-处于活动状态的最小节点数，默认为0。
-* `-hagroup` - 该参数需要和 `-ha` 一起使用，它指定此节点将加入的HA组。
-集群中可以有多个HA组，节点只会故障转移到同一组中的其他节点。默认为
-`+++__DEFAULT__+++`。
+* `-options <options>` - Provides the Vert.x options.
+`options` is the name of a JSON file that represents the Vert.x options, or a JSON string. This is optional.
+* `-conf <config>` - Provides some configuration to the verticle.
+`config` is the name of a JSON file that represents the configuration for the verticle, or a JSON string. This is optional.
+* `-cp <path>` - The path on which to search for the verticle and any other resources used by the verticle. This
+defaults to `.` (current directory). If your verticle references other scripts, classes or other resources
+(e.g. jar files) then make sure these are on this path. The path can contain multiple path entries separated by
+`:` (colon) or `;` (semi-colon) depending on the operating system. Each path entry can be an absolute or relative
+path to a directory containing scripts, or absolute or relative filenames for jar or zip files. An example path
+might be `-cp classes:lib/otherscripts:jars/myjar.jar:jars/otherjar.jar`. Always use the path to reference any
+resources that your verticle requires. Do **not** put them on the system classpath as this can cause isolation
+issues between deployed verticles.
+* `-instances <instances>`  - The number of instances of the verticle to instantiate. Each verticle instance is
+strictly single threaded so to scale your application across available cores you might want to deploy more than
+one instance. If omitted a single instance will be deployed.
+* `-worker` - This option determines whether the verticle is a worker verticle or not.
+* `-cluster` -  This option determines whether the Vert.x instance will attempt to form a cluster with other Vert.x
+instances on the network. Clustering Vert.x instances allows Vert.x to form a distributed event bus with
+other nodes. Default is `false` (not clustered).
+* `-cluster-port` - If the `cluster` option has also been specified then this determines which port will be bound for
+cluster communication with other Vert.x instances. Default is `0` - which means '_choose a free random port_'. You
+don't usually need to specify this parameter unless you really need to bind to a specific port.
+* `-cluster-host` - If the `cluster` option has also been specified then this determines which host address will be
+bound for cluster communication with other Vert.x instances. If not set, the clustered eventbus tries to bind to the
+same host as the underlying cluster manager. As a last resort, an address will be picked among the available network
+interfaces.
+* `-cluster-public-port` - If the `cluster` option has also been specified then this determines which port will be advertised for
+cluster communication with other Vert.x instances. Default is `-1`, which means same as `cluster-port`.
+* `-cluster-public-host` - If the `cluster` option has also been specified then this determines which host address will be advertised for
+cluster communication with other Vert.x instances. If not specified, Vert.x uses the value of `cluster-host`.
+* `-ha` - if specified the verticle will be deployed as  high availability (HA) deployment. See related section
+for more details
+* `-quorum` - used in conjunction with `-ha`. It specifies the minimum number of nodes in the cluster for any _HA
+deploymentIDs_ to be active. Defaults to 0.
+* `-hagroup` - used in conjunction with `-ha`. It specifies the HA group this node will join. There can be
+multiple HA groups in a cluster. Nodes will only failover to other nodes in the same group. The default value is `
++++__DEFAULT__+++`
 
-您还可以使用下边方式设置系统属性：`-Dkey=value`。
+You can also set system properties using: `-Dkey=value`.
 
-下面有更多的例子：
+Here are some more examples:
 
-使用默认设置运行JavaScript的Verticle：server.js：
+Run a JavaScript verticle server.js with default settings
 [source]
 ----
 vertx run server.js
 ----
 
-运行指定类路径的预编译好的10个Java Verticle实例
+Run 10 instances of a pre-compiled Java verticle specifying classpath
 [source]
 ----
 vertx run com.acme.MyVerticle -cp "classes:lib/myjar.jar" -instances 10
 ----
 
-通过 _源文件_ 运行10个Java Verticle的实例
+Run 10 instances of a Java verticle by source _file_
 [source]
 ----
 vertx run MyVerticle.java -instances 10
 ----
 
-运行20个Ruby语言的Worker Verticle实例
+Run 20 instances of a ruby worker verticle
 [source]
 ----
 vertx run order_worker.rb -instances 20 -worker
 ----
 
-在同一台计算机上运行两个JavaScript Verticle，
-并让它们彼此以及在网络上的其他任何服务器构建一个集群：
+Run two JavaScript verticles on the same machine and let them cluster together with each other and any other servers
+on the network
 [source]
 ----
 vertx run handler.js -cluster
 vertx run sender.js -cluster
 ----
 
-运行一个Ruby Verticle并传入一些配置：
+Run a Ruby verticle passing it some config
 [source]
 ----
 vertx run my_verticle.rb -conf my_verticle.conf
 ----
-其中 `my_verticle.conf` 也许会包含以下配置：
+Where `my_verticle.conf` might contain something like:
 
 [source, json]
 ----
@@ -1095,69 +1056,66 @@ vertx run my_verticle.rb -conf my_verticle.conf
 }
 ----
 
-该配置可通过Core API在Verticle内部可用。
+The config will be available inside the verticle via the core API.
 
-当使用Vert.x的高可用功能时，您可能需要创建一个Vert.x的 _裸_ 实例。
-此实例在启动时不会部署任何Verticle，但如果集群中的另一个节点消失，则会在此节点运行之前消失的实例。
-如需要创建一个 _裸_ 实例，执行以下命令：
+When using the high-availability feature of vert.x you may want to create a _bare_ instance of vert.x. This
+instance does not deploy any verticles when launched, but will receive a verticle if another node of the cluster
+dies. To create a _bare_ instance, launch:
 
 [source]
 ----
 vertx bare
 ----
 
-根据您的集群配置，您可能需要添加 `cluster-host` 和 `cluster-port` 参数。
+Depending on your cluster configuration, you may have to append the `cluster-host` and `cluster-port` parameters.
 
-[[_executing_a_vert_x_application_packaged_as_a_fat_jar]]
-=== 执行打包成 fat-jar 的Vert.x 应用
+=== Executing a Vert.x application packaged as a fat jar
 
-_fat jar_ 是一个嵌入了所有依赖的可执行的jar，这意味着您不必在执行jar的机器上预先安装Vert.x。
-它像任何可执行的Java jar一样可直接执行：
+A _fat jar_ is an executable jar embedding its dependencies. This means you don't have to have Vert.x pre-installed
+on the machine on which you execute the jar. Like any executable Java jar it can be executed with.
 
 [source]
 ----
 java -jar my-application-fat.jar
 ----
 
-对于这点，Vert.x 没什么特别的，您可以使用任何Java应用程序。
+There is nothing really Vert.x specific about this, you could do this with any Java application
 
-您可以创建自己的主类并在 MANIFEST 中指定，但建议您将代码编写成Verticle，
-并使用Vert.x中的  `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` 类 (`io.vertx.core.Launcher`) 作为您的主类。
-这也是使用命令行运行Vert.x时使用的主类，因此允许您指定命令行参数，
-如 `-instances` 以便更轻松地扩展应用程序。
+You can either create your own main class and specify that in the manifest, but it's recommended that you write your
+code as verticles and use the Vert.x `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` class (`io.vertx.core.Launcher`) as your main
+class. This is the same main class used when running Vert.x at the command line and therefore allows you to
+specify command line arguments, such as `-instances` in order to scale your application more easily.
 
-要将您的Verticle全部部署在这个 _fat-jar_ 中时，您必须将下边信息写入 _manifest_ ：
+To deploy your verticle in a _fatjar_ like this you must have a _manifest_ with:
 
-* `Main-Class` 设置为 `io.vertx.core.Launcher`
-* `Main-Verticle` 指定要运行的Main Verticle（Java完全限定类名或脚本文件名）
+* `Main-Class` set to `io.vertx.core.Launcher`
+* `Main-Verticle` specifying the main verticle (fully qualified class name or script file name)
 
-您还可以提供您将传递给 `vertx run` 的常用命令行参数：
+You can also provide the usual command line arguments that you would pass to `vertx run`:
 [source]
 ----
 java -jar my-verticle-fat.jar -cluster -conf myconf.json
 java -jar my-verticle-fat.jar -cluster -conf myconf.json -cp path/to/dir/conf/cluster_xml
 ----
 
-NOTE: 请参阅官方 Vert.x Examples 仓库中的 Maven/Gradle 相应示例来了解如何将应用打包成fat-jar。
+NOTE: Please consult the Maven/Gradle simplest and Maven/Gradle verticle examples in the examples repository for
+examples of building applications as fatjars.
 
-通过 fat jar 运行应用时，默认会执行 `run` 命令。
+A fat jar executes the `run` command, by default.
 
-[[_displaying_version_of_vert_x]]
-=== 显示Vert.x的版本
-
-若想显示Vert.x的版本，只需执行：
+=== Displaying version of Vert.x
+To display the vert.x version, just launch:
 
 [source]
 ----
 vertx version
 ----
 
-[[_other_commands]]
-=== 其他命令
+=== Other commands
 
-除了 `run` 和 `version` 以外，`vertx` 命令行和 `Launcher` 还提供了其他 _命令_ ：
+The `vertx` command line and the `Launcher` also provide other _commands_ in addition to `run` and `version`:
 
-您可以使用下边命令创建一个 `bare` 实例：
+You can create a `bare` instance using:
 
 [source]
 ----
@@ -1166,55 +1124,54 @@ vertx bare
 java -jar my-verticle-fat.jar bare
 ----
 
-您还可以在后台启动应用程序：
+You can also start an application in background using:
 
 [source]
 ----
 java -jar my-verticle-fat.jar start --vertx-id=my-app-name
 ----
 
-若 `my-app-name` 未设置，将生成一个随机的id，并在命令提示符中打印。您可以将 `run`
-选项传递给 `start` 命令：
+If `my-app-name` is not set, a random id will be generated, and printed on the command prompt. You can pass `run`
+options to the `start` command:
 
 [source]
 ----
 java -jar my-verticle-fat.jar start —-vertx-id=my-app-name -cluster
 ----
 
-一旦在后台启动，可以使用 `stop` 命令停止它：
+Once launched in background, you can stop it with the `stop` command:
 
 [source]
 ----
 java -jar my-verticle-fat.jar stop my-app-name
 ----
 
-您还可以使用以下方式列出后台启动的Vert.x应用程序：
+You can also list the vert.x application launched in background using:
 
 [source]
 ----
 java -jar my-verticle-fat.jar list
 ----
 
-`vertx` 工具也可以使用 `start` 、 `stop` 和 `list` 命令，`start` 命令支持以下几个选项：
+The `start`, `stop` and `list` command are also available from the `vertx` tool. The start` command supports a couple of options:
 
-* `vertx-id` ：应用程序ID，若未设置，则使用随机UUID
-* `java-opts` ：Java虚拟机选项，若未设置，则使用 `JAVA_OPTS` 环境变量
-* `redirect-output` ：重定向生成的进程输出和错误流到父进程流
+* `vertx-id` : the application id, uses a random UUID if not set
+* `java-opts` : the Java Virtual Machine options, uses the `JAVA_OPTS` environment variable if not set.
+* `redirect-output` : redirect the spawned process output and error streams to the parent process streams.
 
-若选项值包含空白，则需使用 `""` （双引号）将选项值括起来。
+If option values contain spaces, don't forget to wrap the value between `""` (double-quotes).
 
-由于 `start` 命令产生一个新的进程，传递给JVM的java选项不会被传播，所以您 **必须**
-使用 `java-opts` 来配置JVM（`-X`， `-D`...）。若您使用 `CLASSPATH` 环境变量，
-请确保路径下包含所有需要的jar（vertx-core、您的jar和所有依赖项）。
+As the `start` command spawns a new process, the java options passed to the JVM are not propagated, so you **must**
+use `java-opts` to configure the JVM (`-X`, `-D`...). If you use the `CLASSPATH` environment variable, be sure it
+contains all the required jars (vertx-core, your jars and all the dependencies).
 
-该命令集是可扩展的，请参考 <<_extending_the_vert_x_launcher, 扩展 Vert.x 启动器>> 章节。
+The set of commands is extensible, refer to the <<Extending the vert.x Launcher>> section.
 
-[[_live_redeploy]]
-=== 实时重部署
+=== Live Redeploy
 
-在开发时，可以方便在文件更改时实时重新部署应用程序。`vertx`
-命令行工具和更普遍的 `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` 类提供了这个功能。
-这里有些例子：
+When developing it may be convenient to automatically redeploy your application upon file changes. The `vertx`
+command line tool and more generally the `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` class offers this feature. Here are some
+examples:
 
 [source]
 ----
@@ -1224,37 +1181,37 @@ java io.vertx.core.Launcher run org.acme.MyVerticle --redeploy="**/*.class"  --l
 .Launcher -cp ...
 ----
 
-重新部署的过程执行如下。首先，您的应用程序作为后台应用程序启动
-（使用 `start` 命令）。当发现文件更改时，该进程将停止并重新启动该应用。
-这样可避免泄露。
+The redeployment process is implemented as follows. First your application is launched as a background application
+(with the `start` command). On matching file changes, the process is stopped and the application is restarted.
+This avoids leaks, as the process is restarted.
 
-要启用实时重新部署，请将 `--redeploy` 选项传递给 `run` 命令。`--redeploy` 表示要
-_监视_ 的文件集，这个集合可使用 Ant样式模式（使用 `\**`，`*` 和 `?`），
-您也可以使用逗号（`,`）分隔它们来指定多个集合。文件路径都是相对于当前工作目录。
+To enable the live redeploy, pass the `--redeploy` option to the `run` command. The `--redeploy` indicates the
+set of file to _watch_. This set can use Ant-style patterns (with `\**`, `*` and `?`). You can specify
+several sets by separating them using a comma (`,`). Patterns are relative to the current working directory.
 
-传递给 `run` 命令的参数最终会传递给应用程序，可使用 `--java-opts` 配置JVM虚拟机选项。
-例如，如果想传入一个 `conf` 参数或是系统属性，
-您可以使用 `--java-opts="-conf=my-conf.json -Dkey=value"`。
+Parameters passed to the `run` command are passed to the application. Java Virtual Machine options can be
+configured using `--java-opts`. For instance, to pass the `conf` parameter or a system property, you need to
+use: `--java-opts="-conf=my-conf.json -Dkey=value"`
 
-`--launcher-class` 选项确定应用程序的 _主类_ 启动器。它通常是
-`link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` ，但您也可以使用您自己的 _主类_ 。
+The `--launcher-class` option determine with with _main_ class the application is launcher. It's generally
+`link:../../apidocs/io/vertx/core/Launcher.html[Launcher]`, but you have use you own _main_.
 
-也可以在IDE中使用重部署功能：
+The redeploy feature can be used in your IDE:
 
-* Eclipse - 创建一个 _Run_ 配置，使用 `io.vertx.core.Launcher` 类作为 _主类_ 。在 _Program Arguments_
-区域（ _Arguments_ 选项卡中），写入 `run your-verticle-fully-qualified-name --redeploy=*/*.java
---launcher-class=io.vertx.core.Launcher` ，您还可以添加其他参数。随着 Eclipse
-在保存时增量编译您的文件，重部署工作会顺利进行。
-* IntelliJ - 创建一个 _Run_ 配置（_Application_）,将主类设置为 `io.vertx.core.Launcher`。在
-程序参数中写：`run your-verticle-fully-qualified-name --redeploy=*/*.class
---launcher-class=io.vertx.core.Launcher` 。要触发重新部署，您需要显式 _构造_
-项目或模块（_Build_ -> _Make project_）。
+* Eclipse - create a _Run_ configuration, using the `io.vertx.core.Launcher` class a _main class_. In the _Program
+arguments_ area (in the _Arguments_ tab), write `run your-verticle-fully-qualified-name --redeploy=\**/*.java
+--launcher-class=io.vertx.core.Launcher`. You can also add other parameters. The redeployment works smoothly as
+Eclipse incrementally compiles your files on save.
+* IntelliJ - create a _Run_ configuration (_Application_), set the _Main class_ to `io.vertx.core.Launcher`. In
+the Program arguments write: `run your-verticle-fully-qualified-name --redeploy=\**/*.class
+--launcher-class=io.vertx.core.Launcher`. To trigger the redeployment, you need to _make_ the project or
+the module explicitly (_Build_ menu -> _Make project_).
 
-要调试应用程序，请将运行配置创建为远程应用程序，
-并使用 `--java-opts` 配置调试器。每次重新部署后，请勿忘记重新插入(re-plug)调试器，
-因为它每次都会创建一个新进程。
+To debug your application, create your run configuration as a remote application and configure the debugger
+using `--java-opts`. However, don't forget to re-plug the debugger after every redeployment as a new process is
+created every time.
 
-您还可以在重新部署周期中挂接（hook）构建过程：
+You can also hook your build process in the redeploy cycle:
 
 [source]
 ----
@@ -1262,10 +1219,10 @@ java -jar target/my-fat-jar.jar --redeploy="**/*.java" --on-redeploy="mvn packag
 java -jar build/libs/my-fat-jar.jar --redeploy="src/**/*.java" --on-redeploy='./gradlew shadowJar'
 ----
 
-"on-redeploy"选项指定在应用程序关闭后和重新启动之前调用的命令。
-因此，如果构建工具更新了某些运行时构件，则可以将其挂接。例如，您可以启动 `gulp`
-或 `grunt` 来更新您的资源。如果需要传递参数到您的应用程序中，不要忘记将
-`--java-opts` 添加到命令参数里：
+The "on-redeploy" option specifies a command invoked after the shutdown of the application and before the
+restart. So you can hook your build tool if it updates some runtime artifacts. For instance, you can launch `gulp`
+or `grunt` to update your resources. Don't forget that passing parameters to your application requires the
+`--java-opts` param:
 
 [source]
 ----
@@ -1273,115 +1230,108 @@ java -jar target/my-fat-jar.jar --redeploy="**/*.java" --on-redeploy="mvn packag
 java -jar build/libs/my-fat-jar.jar --redeploy="src/**/*.java" --on-redeploy='./gradlew shadowJar' --java-opts="-Dkey=val"
 ----
 
-重新部署功能还支持以下设置：
+The redeploy feature also supports the following settings:
 
-* `redeploy-scan-period` ：文件系统检查周期（以毫秒为单位），默认为250ms
-* `redeploy-grace-period` ：在2次重新部署之间等待的时间（以毫秒为单位），默认为1000ms
-* `redeploy-termination-period` ：停止应用程序后等待的时间
-（在启动用户命令之前）。这个在Windows上非常有用，因为这个进程并没立即被杀死。
-时间以毫秒为单位，默认0ms
+* `redeploy-scan-period` : the file system check period (in milliseconds), 250ms by default
+* `redeploy-grace-period` : the amount of time (in milliseconds) to wait between 2 re-deployments, 1000ms by default
+* `redeploy-termination-period` : the amount of time to wait after having stopped the application (before
+launching user command). This is useful on Windows, where the process is not killed immediately. The time is given
+in milliseconds. 0 ms by default.
 
-[[_cluster_managers]]
-== 集群管理器
+== Cluster Managers
 
-在 Vert.x 中，集群管理器可用于各种功能，包括：
+In Vert.x a cluster manager is used for various functions including:
 
-* 集群中 Vert.x 节点的发现和分组
-* 维护集群范围中的主题订阅者列表（所以我们可知道哪些节点对哪个Event Bus地址感兴趣）
-* 分布式Map的支持
-* 分布式锁
-* 分布式计数器
+* Discovery and group membership of Vert.x nodes in a cluster
+* Maintaining cluster wide topic subscriber lists (so we know which nodes are interested in which event bus addresses)
+* Distributed Map support
+* Distributed Locks
+* Distributed Counters
 
-集群管理器 _不_ 处理Event Bus节点之间的传输，这由 Vert.x 直接通过TCP连接完成。
+Cluster managers _do not_ handle the event bus inter-node transport, this is done directly by Vert.x with TCP connections.
 
-Vert.x发行版中使用的默认集群管理器是使用的  http://hazelcast.com[Hazelcast] 集群管理器，
-但是它可以简单被替换成其他实现类，因为Vert.x集群管理器可插拔的。
+The default cluster manager used in the Vert.x distributions is one that uses http://hazelcast.com[Hazelcast] but this
+can be easily replaced by a different implementation as Vert.x cluster managers are pluggable.
 
-集群管理器必须实现 `link:../../apidocs/io/vertx/core/spi/cluster/ClusterManager.html[ClusterManager]` 接口，
-Vert.x在运行时使用Java的服务加载器
-https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html[Service Loader]
-功能在类路径中查找 `link:../../apidocs/io/vertx/core/spi/cluster/ClusterManager.html[ClusterManager]` 的实例，从而定位集群管理器。
+A cluster manager must implement the interface `link:../../apidocs/io/vertx/core/spi/cluster/ClusterManager.html[ClusterManager]`. Vert.x locates
+cluster managers at run-time by using the Java
+https://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html[Service Loader] functionality to locate
+instances of `link:../../apidocs/io/vertx/core/spi/cluster/ClusterManager.html[ClusterManager]` on the classpath.
 
-若您在命令行中使用Vert.x并要使用集群，则应确保Vert.x安装路径的 `lib`
-目录包含您的集群管理器的jar包。
+If you are using Vert.x at the command line and you want to use clustering you should make sure the `lib` directory
+of the Vert.x installation contains your cluster manager jar.
 
-若您在 Maven/Gradle 项目使用 Vert.x，则只需将集群管理器 jar 作为依赖添加到您的项目中。
+If you are using Vert.x from a Maven or Gradle project just add the cluster manager jar as a dependency of your project.
 
-您也可以以编程的方式在嵌入Vert.x 时使用
-`link:../../apidocs/io/vertx/core/VertxOptions.html#setClusterManager-io.vertx.core.spi.cluster.ClusterManager-[setClusterManager]` 指定集群管理器。
+You can also specify cluster managers programmatically if embedding Vert.x using
+`link:../../apidocs/io/vertx/core/VertxOptions.html#setClusterManager-io.vertx.core.spi.cluster.ClusterManager-[setClusterManager]`.
 
-[[_logging]]
-== 日志记录
+== Logging
 
-Vert.x使用内置的日志API进行记录日志，并支持各种日志记录后端。
+Vert.x logs using its internal logging API and supports various logging backends.
 
-日志后端选择如下：
+The logging backend is selected as follows:
 
-. 后端由设置的 `vertx.logger-delegate-factory-class-name` 系统属性表示，或者是
-. 当在类路径下存在 `vertx-default-jul-logging.properties` 文件时，则使用JDK logging，或者是
-. 类路径中存在以下实现，按照以下优先顺序进行选择：
+. the backend denoted by the `vertx.logger-delegate-factory-class-name` system property if present or,
+. JDK logging when a `vertx-default-jul-logging.properties` file is in the classpath or,
+. a backend present in the classpath, in the following order of preference:
 .. SLF4J
 .. Log4J
 .. Log4J2
 
-除此之外，Vert.x默认使用JDK日志记录
+Otherwise Vert.x defaults to JDK logging.
 
-[[_configuring_with_the_system_property]]
-=== 通过系统属性配置
+=== Configuring with the system property
 
-设置 系统属性 `vertx.logger-delegate-factory-class-name` 的值为：
+Set the `vertx.logger-delegate-factory-class-name` system property to:
 
-* `io.vertx.core.logging.SLF4JLogDelegateFactory`，则使用SLF4J，
-* `io.vertx.core.logging.Log4j2LogDelegateFactory`，则使用Log4J2，
-* `io.vertx.core.logging.JULLogDelegateFactory`，则使用JDK日志记录
+* `io.vertx.core.logging.SLF4JLogDelegateFactory` for SLF4J or,
+* `io.vertx.core.logging.Log4j2LogDelegateFactory` for Log4J2 or,
+* `io.vertx.core.logging.JULLogDelegateFactory` for JDK logging
 
-[[_automatic_configuration]]
-=== 自动配置
+=== Automatic configuration
 
-当没有设置系统属性 `vertx.logger-delegate-factory-class-name` 的值时，
-Vert.x会尝试查找最合适的日志框架：
+When no `vertx.logger-delegate-factory-class-name` system property is set, Vert.x will try to find
+the most appropriate logger:
 
-* 当类路径下有SLF4J实现类时，则使用SLF4J，例如 `LoggerFactory.getILoggerFactory()` 返回值不是 `NOPLoggerFactory` 实例，
-* 否则，当classpath有Log4j2实现类时，则使用Log4j2
-* 除此之外，使用JUL
+* use SLF4J when available on the classpath with an actual implementation (i.e. `LoggerFactory.getILoggerFactory()` is not an instance of `NOPLoggerFactory`)
+* otherwise use Log4j2 when available on the classpath
+* otherwise use JUL
 
-[[_configuring_jul_logging]]
-=== 配置JUL日志记录
+=== Configuring JUL logging
 
-JUL日志配置文件可以使用普通的JUL方式指定 —— 通过设置系统属性 `java.util.logging.config.file` 的值为您的配置文件。
-更多关于此部分以及JUL配置文件结构的内容，请参阅 `JUL` 日志记录的文档。
+A JUL logging configuration file can be specified in the normal JUL way, by providing a system property named `java.util.logging.config.file` with the value being your configuration file.
+For more information on this and the structure of a JUL config file please consult the JDK logging documentation.
 
-Vert.x还提供了一种更方便的方式指定配置文件，无需设置系统属性。
-您只需在您的类路径中提供名为 `vertx-default-jul-logging.properties` 的JUL配置文件（例如在您的fatjar中），Vert.x将使用该配置文件配置JUL。
+Vert.x also provides a slightly more convenient way to specify a configuration file without having to set a system property.
+Just provide a JUL config file with the name `vertx-default-jul-logging.properties` on your classpath (e.g. inside your fatjar) and Vert.x will use that to configure JUL.
 
 [[netty-logging]]
-=== Netty 日志记录
+=== Netty logging
 
-Netty 并不依赖外部的日志配置（例如，系统属性）。
-相反，它基于 Netty 类可见的日志库实现日志记录配置：
+Netty does not rely on external logging configuration (e.g system properties).
+Instead, it implements a logging configuration based on the logging libraries visible from the Netty classes:
 
-* 使用 `SLF4J` 库，如果它可见，
-* 否则使用 `Log4j` ，如果它可见，
-* 否则使用 `Log4j2` ，如果它可见，
-* 否则使用默认的 `java.util.logging`
+* use `SLF4J` library if it is visible
+* otherwise use `Log4j` if it is visible
+* otherwise use `Log4j2` if it is visible
+* otherwise fallback to `java.util.logging`
 
-NOTE: 你们锐利的眼光可能已经注意到 Vert.x 遵循相同的优先级顺序
+NOTE: The eagle eyes among you might have noticed that Vert.x follows the same order of preference.
 
-使用 `io.netty.util.internal.logging.InternalLoggerFactory` 可以直接强制设置日志实现类。
+The logger implementation can be forced to a specific implementation by setting Netty's internal logger implementation directly on `io.netty.util.internal.logging.InternalLoggerFactory`:
 
 [source,java]
 ----
-// 将日志实现强制设为 Log4j 2
+// Force logging to Log4j 2
 InternalLoggerFactory.setDefaultFactory(Log4J2LoggerFactory.INSTANCE);
 ----
 
-[[_troubleshooting]]
-=== 故障排除
+=== Troubleshooting
 
-[[_slf4j_warning_at_startup]]
-==== SLF4J启动警告
+==== SLF4J warning at startup
 
-若您在启动应用程序时看到以下信息：
+If, when you start your application, you see the following message:
 
 ----
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
@@ -1389,182 +1339,175 @@ SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
 ----
 
-这意味着您的类路径中有 SLF4J-API 却没绑定到具体的实例类中。使用 SLF4J 记录的消息将会丢失。
-您应该添加具体的实现到您的类路径下。参考 https://www.slf4j.org/manual.html#swapping 选择具体实现并配置。
+It means that you have SLF4J-API in your classpath but no actual binding. Messages logged with SLF4J will be dropped.
+You should add a binding to your classpath. Check https://www.slf4j.org/manual.html#swapping to pick a binding and configure it.
 
-请注意，Netty 会寻找 SLF4-API 的 jar，并在默认情况下使用它。
+Be aware that Netty looks for the SLF4-API jar and uses it by default.
 
-[[_connection_reset_by_peer]]
-==== 对等连接重置
+==== Connection reset by peer
 
-若您的日志显示一堆：
+If your logs show a bunch of:
 
 ----
 io.vertx.core.net.impl.ConnectionBase
 SEVERE: java.io.IOException: Connection reset by peer
 ----
 
-这意味着客户端正在重置HTTP连接，而不是关闭它。
-此消息还可能表示您没有读取完整的有效负荷（连接在读取完全之前被切断）。（译者注：通常情况下，这是正常的，无需担心，如果您打开浏览器，按快捷键不停地刷新页面，就能看到该SEVERE日志。）
+It means that the client is resetting the HTTP connection instead of closing it. This message also indicates that you
+may have not consumed the complete payload (the connection was cut before you were able to).
 
 include::override/hostname-resolution.adoc[]
 
-[[_high_availability_and_fail_over]]
-== 高可用与故障转移
+== High Availability and Fail-Over
 
-Vert.x 可以支持 verticle 运行于高可用（HA）模式。这种模式之下，
-如果一个 vert.x 实例所运行的 verticle 突然宕掉，该 verticle 将会被迁移到其他的 vert.x 实例中
-（该 vert.x 实例必须处于同一个集群之中）。
+Vert.x allows you to run your verticles with high availability (HA) support. In that case, when a vert.x
+instance running a verticle dies abruptly, the verticle is migrated to another vertx instance. The vert.x
+instances must be in the same cluster.
 
-[[_automatic_failover]]
-=== 自动故障转移
+=== Automatic failover
 
-当运行 vert.x 时开启了高可用（_HA_）选项，此时如果某个 vert.x 实例中的某个 verticle 运行失败或者宕掉，
-该 verticle 将会被自动重新部署于集群中的另一个 vert.x 实例中。我们把这种机制称为 _verticle故障转移_。
+When vert.x runs with _HA_ enabled, if a vert.x instance where a verticle runs fails or dies, the verticle is
+redeployed automatically on another vert.x instance of the cluster. We call this _verticle fail-over_.
 
-只要在运行 vert.x 的命令行中追加 `-ha` 参数，就可以开启 _高可用_ 模式：
+To run vert.x with the _HA_ enabled, just add the `-ha` flag to the command line:
 
 [source]
 ----
 vertx run my-verticle.js -ha
 ----
 
-要让高可用机制起作用，您需要在集群中开启至少2个 Vert.x 实例，
-现在假设您已经在集群中运行了一个 Vert.x 实例，例如：
+Now for HA to work, you need more than one Vert.x instances in the cluster, so let's say you have another
+Vert.x instance that you have already started, for example:
 
 [source]
 ----
 vertx run my-other-verticle.js -ha
 ----
 
-此时如果运行 `my-verticle.js` 的 Vert.x 实例宕掉了（例如您可以使用 `kill -9` 命令强行杀掉这个进程来模拟此场景），
-运行 `my-other-verticle.js` 的 Vert.x 实例会自动地部署 `my-verticle.js` ，
-此时该 Vert.x 实例同时运行了这两个 verticle （my-other-verticle.js 和 my-verticle.js）。
+If the Vert.x instance that is running `my-verticle.js` now dies (you can test this by killing the process
+with `kill -9`), the Vert.x instance that is running `my-other-verticle.js` will automatic deploy `my-verticle
+.js` so now that Vert.x instance is running both verticles.
 
-NOTE: 如果要使得这种迁移机制起作用，则必须保证第二个 vert.x 实例可以访问到该 verticle 对应的文件
-（在此场景中指的是 `my-verticle.js`）。
+NOTE: the migration is only possible if the second vert.x instance has access to the verticle file (here
+`my-verticle.js`).
 
-IMPORTANT: 请注意，通过正常方式退出的 Vert.x 实例不会触发故障转移操作
-（例如使用 `CTRL-C` 组合键或者 `kill -SIGINT` 命令）。
+IMPORTANT: Please note that cleanly closing a Vert.x instance will not cause failover to occur, e.g. `CTRL-C`
+or `kill -SIGINT`
 
-您也可以启动若干个 Vert.x _裸_ 实例————指的是它们在启动时没有加载任何 verticle，此时，
-它们一样可以对集群中的其他节点起到故障转移的作用。启动一个空白的 Vert.x 实例很简单，只需要执行以下命令：
+You can also start _bare_ Vert.x instances - i.e. instances that are not initially running any verticles, they
+will also failover for nodes in the cluster. To start a bare instance you simply do:
 
 [source]
 ----
 vertx run -ha
 ----
 
-当使用 `-ha` 参数时， 可以不需要再追加 `-cluster` 参数，
-因为高可用模式是假定了您需要运行在集群模式之下的。
+When using the `-ha` switch you do not need to provide the `-cluster` switch, as a cluster is assumed if you
+want HA.
 
-NOTE: 依据您的集群配置选项，您可能还是需要自定义集群管理器
-（默认使用 Hazelcast），以及追加集群主机（`cluster-host`）和集群端口（`cluster-port`）等参数。
+NOTE: depending on your cluster configuration, you may need to customize the cluster manager configuration
+(Hazelcast by default), and/or add the `cluster-host` and `cluster-port` parameters.
 
-[[_ha_groups]]
-=== 高可用组
+=== HA groups
 
-当 Vert.x 实例运行于高可用模式时，您还可以对其进行高可用分组，这里称之为 _高可用组_ 。
-此处的高可用组指的是一个集群之中的节点的一种逻辑分组，被分配了高可用组的节点只会对同一个高可用组之下的其他节点执行故障转移操作。
-如果没有指定高可用组，系统会自动将节点分配到默认的 `+++__DEFAULT__+++` 高可用组。
+When running a Vert.x instance with HA you can also optional specify a _HA group_. A HA group denotes a
+logical group of nodes in the cluster. Only nodes with the same HA group will failover onto one another. If
+you don't specify a HA group the default group `+++__DEFAULT__+++` is used.
 
-在运行 verticle 时可以使用 `-hagroup` 参数指定高可用分组，例如：
+To specify an HA group you use the `-hagroup` switch when running the verticle, e.g.
 
 [source]
 ----
 vertx run my-verticle.js -ha -hagroup my-group
 ----
 
-举个例子：
+Let's look at an example:
 
-在第一个终端里运行：
+In a first terminal:
 
 [source]
 ----
 vertx run my-verticle.js -ha -hagroup g1
 ----
 
-在第二个终端里，我们以同一个高可用组运行另一个 verticle：
+In a second terminal, let's run another verticle using the same group:
 
 [source]
 ----
 vertx run my-other-verticle.js -ha -hagroup g1
 ----
 
-最后，在第三个终端里，我们以不同的高可用组再运行一个其他的 verticle：
+Finally, in a third terminal, launch another verticle using a different group:
 
 [source]
 ----
 vertx run yet-another-verticle.js -ha -hagroup g2
 ----
 
-如果我们杀掉第一个终端里的实例，这里面的 verticle 将会通过故障转移机制迁移到第二个终端里的实例中，
-而不是第三个终端里的实例中，因为第三个终端里的实例被分配了不同的高可用组。
+If we kill the instance in terminal 1, it will fail over to the instance in terminal 2, not the instance in
+terminal 3 as that has a different group.
 
-如果杀掉第三个终端里的实例，则不会发生故障转移操作，
-因为此终端里的 vert.x 实例被分配了不同的高可用组。
+If we kill the instance in terminal 3, it won't get failed over as there is no other vert.x instance in that
+group.
 
-[[_dealing_with_network_partitions_quora]]
-=== 处理网络分区 - Quora
+=== Dealing with network partitions - Quora
 
-高可用实现也支持 `quora` （一种多数派机制）。在分布式系统中， Quorum 是指一种投票机制，在这种投票机制之下，
-某个分布式事务只有获得不少于指定投票数量的票数，才允许执行某个操作。
+The HA implementation also supports quora. A quorum is the minimum number of votes that a distributed
+transaction has to obtain in order to be allowed to perform an operation in a distributed system.
 
-启动 Vert.x 实例的时候，您可以将其设置成在进行高可用（HA）部署之前需要一个 `quorum` 。
-在这个语境之下， `quorum` 指的是集群中某个特定的分组内的节点数量的下限。
-典型的例如您将 `quorum` 的数值设置为 `1 + N/2` （现在以 Q 指代该数值，其中的 N 代表分组中的节点总数），
-那么如果集群中少于 `Q` 个节点的情况下，该高可用（HA）部署将被取消，待到节点数量达到这个 Q 数值的时候，会再次进行部署。
-这种机制可以防止出现网络分区（亦称 _脑裂_）。
+When starting a Vert.x instance you can instruct it that it requires a `quorum` before any HA deployments will
+be deployed. In this context, a quorum is a minimum number of nodes for a particular group in the cluster.
+Typically you chose your quorum size to `Q = 1 + N/2` where `N` is the number of nodes in the group. If there
+are less than `Q` nodes in the cluster the HA deployments will undeploy. They will redeploy again if/when a
+quorum is re-attained. By doing this you can prevent against network partitions, a.k.a. _split brain_.
 
-关于 `quora` 的更多信息请参考 http://en.wikipedia.org/wiki/Quorum_(distributed_computing)[这里] 。
+There is more information on quora http://en.wikipedia.org/wiki/Quorum_(distributed_computing)[here].
 
-要在运行 vert.x 实例的时候启用 `quorum` ，您只需要在命令行中指定 `-quorum` 参数，例如
+To run vert.x instances with a quorum you specify `-quorum` on the command line, e.g.
 
-在第一个终端中执行：
+In a first terminal:
 [source]
 ----
 vertx run my-verticle.js -ha -quorum 3
 ----
 
-此时 Vert.x 实例将会启动，但是并不会部署这个模块，因为现在只有1个节点，
-而不是3个。
+At this point the Vert.x instance will start but not deploy the module (yet) because there is only one node
+in the cluster, not 3.
 
-在第二个终端中执行：
+In a second terminal:
 [source]
 ----
 vertx run my-other-verticle.js -ha -quorum 3
 ----
 
-此时 Vert.x 实例将会启动，但是并不会部署这个模块，因为现在只有2个节点，
-而不是3个。
+At this point the Vert.x instance will start but not deploy the module (yet) because there are only two nodes
+in the cluster, not 3.
 
-在第三个终端中，您可以启动另一个 vert.x 实例：
+In a third console, you can start another instance of vert.x:
 
 [source]
 ----
 vertx run yet-another-verticle.js -ha -quorum 3
 ----
 
-哇！————我们有了3个节点，这正是 `quorum` 的数值。
-此时此刻这些模块将会被自动地部署到所有实例上。
+Yay! - we have three nodes, that's a quorum. At this point the modules will automatically deploy on all
+instances.
 
-如果我们关闭或者强行杀死其中一个节点，那么这些模块将会被自动卸载，
-因为节点数量已经不满足 `quorum` 数值条件。
+If we now close or kill one of the nodes the modules will automatically undeploy on the other nodes, as there
+is no longer a quorum.
 
-Quora 也可以和高可用分组联合使用，此时 quora
-仅在指定的分组中起作用。
+Quora can also be used in conjunction with ha groups. In that case, quora are resolved for each particular
+group.
 
-[[_native_transports]]
-== 本地传输
+== Native transports
 
-在BSD（OSX）和Linux操作系统中运行 Vert.x 的时候，如果条件允许，可以启用 http://netty.io/wiki/native-transports.html[native transports] 这种特性：
+Vert.x can run with http://netty.io/wiki/native-transports.html[native transports] (when available) on BSD (OSX) and Linux:
 
 include::override/configuring-native.adoc[]
 
-[[_native_linux_transport]]
-=== Linux 下的本地传输
+=== Native Linux Transport
 
-您需要在classpath中加入以下依赖：
+You need to add the following dependency in your classpath:
 
 [source,xml]
 ----
@@ -1576,7 +1519,7 @@ include::override/configuring-native.adoc[]
 </dependency>
 ----
 
-Linux下的本地传输可以设置更多的网络选项：
+Native on Linux gives you extra networking options:
 
 * `SO_REUSEPORT`
 * `TCP_QUICKACK`
@@ -1593,10 +1536,9 @@ vertx.createHttpServer(new HttpServerOptions()
 );
 ----
 
-[[_native_bsd_transport]]
-=== BSD 下的本地传输
+=== Native BSD Transport
 
-您需要在classpath中加入以下依赖：
+You need to add the following dependency in your classpath:
 
 [source,xml]
 ----
@@ -1604,13 +1546,13 @@ vertx.createHttpServer(new HttpServerOptions()
  <groupId>io.netty</groupId>
  <artifactId>netty-transport-native-kqueue</artifactId>
  <classifier>osx-x86_64</classifier>
- <!--<version>必须和 Vert.x 所使用的 netty 的版本一致</version>-->
+ <!--<version>Should align with netty version that Vert.x uses</version>-->
 </dependency>
 ----
 
-MacOS 中，Sierra及以上的版本支持这种特性。
+MacOS Sierra and above are supported.
 
-BSD 下的本地传输可以启用以下额外的网络选项：
+Native on BSD gives you extra networking options:
 
 * `SO_REUSEPORT`
 
@@ -1619,62 +1561,61 @@ BSD 下的本地传输可以启用以下额外的网络选项：
 vertx.createHttpServer(new HttpServerOptions().setReusePort(reusePort));
 ----
 
-[[_domain_sockets]]
-=== 域套接字
+=== Domain sockets
 
-通过本地传输，网络服务可以使用域套接字：
+Natives provide domain sockets support for servers:
 
 [source,java]
 ----
 vertx.createNetServer().connectHandler(so -> {
-  // 处理请求
+  // Handle application
 }).listen(SocketAddress.domainSocketAddress("/var/tmp/myservice.sock"));
 ----
 
-http服务示例：
+or for http:
 
 [source,java]
 ----
 vertx.createHttpServer().requestHandler(req -> {
-  // 处理请求
+  // Handle application
 }).listen(SocketAddress.domainSocketAddress("/var/tmp/myservice.sock"), ar -> {
   if (ar.succeeded()) {
-    // 绑定到 socket
+    // Bound to socket
   } else {
     ar.cause().printStackTrace();
   }
 });
 ----
 
-也适用于网络客户端：
+As well as clients:
 
 [source,java]
 ----
 NetClient netClient = vertx.createNetClient();
 
-// 仅在 Linux 和 BSD 中可以使用
+// Only available on BSD and Linux
 SocketAddress addr = SocketAddress.domainSocketAddress("/var/tmp/myservice.sock");
 
-// 连接到服务器
+// Connect to the server
 netClient.connect(addr, ar -> {
   if (ar.succeeded()) {
-    // 连接成功
+    // Connected
   } else {
     ar.cause().printStackTrace();
   }
 });
 ----
 
-http客户端示例：
+or for http:
 
 [source,java]
 ----
 HttpClient httpClient = vertx.createHttpClient();
 
-// 仅在 Linux 和 BSD 中可以使用
+// Only available on BSD and Linux
 SocketAddress addr = SocketAddress.domainSocketAddress("/var/tmp/myservice.sock");
 
-// 向服务器发送请求
+// Send request to the server
 httpClient.request(new RequestOptions()
   .setServer(addr)
   .setHost("localhost")
@@ -1682,64 +1623,57 @@ httpClient.request(new RequestOptions()
   .setURI("/"))
   .onSuccess(request -> {
     request.send().onComplete(response -> {
-      // 处理响应信息
+      // Process response
     });
   });
 ----
 
-[[_security_notes]]
-== 安全提示
+== Security notes
 
-Vert.x 是一套工具集，而不是一种强迫人们使用指定方式行事的框架，对于开发者而言，
-这赋予了你们强大的力量，但也使得你们必须负起不小的责任。
+Vert.x is a toolkit, not an opinionated framework where we force you to do things in a certain way. This gives you
+great power as a developer but with that comes great responsibility.
 
-与任何一种工具集一样，写出不安全的程序是难以避免的，所以您在开发程序时需要时刻小心，
-特别是这个程序是暴露于毫无保护的公共场合（例如互联网）的情况下。
+As with any toolkit, it's possible to write insecure applications, so you should always be careful when developing
+your application especially if it's exposed to the public (e.g. over the internet).
 
-[[_web_applications]]
-=== Web 应用
+=== Web applications
 
-如果要编写一个 web 应用程序，这里强烈建议您使用 Vert.x-Web
-来实现资源服务和文件上传功能，而不是直接使用 Vert.x core 。
+If writing a web application it's highly recommended that you use Vert.x-Web instead of Vert.x core directly for
+serving resources and handling file uploads.
 
-Vert.x-Web 会对请求路径进行规整化，这可以阻止那些不怀好意的人利用精心构建的特殊URL，
-来访问web应用根目录之外的资源的企图。
+Vert.x-Web normalises the path in requests to prevent malicious clients from crafting URLs to access resources
+outside of the web root.
 
-在文件上传方面也是如此， Vert.x-Web 不会完全信赖客户所端提供的文件名，因为客户端有可能精心设置一个特殊的文件名，
-使得上传的文件被保存到磁盘上某个意料之外的位置上。 Vert.x-Web 可以保证上传的文件是被存放到磁盘上确切可知道位置的。
+Similarly for file uploads Vert.x-Web provides functionality for uploading to a known place on disk and does not rely
+on the filename provided by the client in the upload which could be crafted to upload to a different place on disk.
 
-Vert.x core没有这样的检查，您需要自己实现。
+Vert.x core itself does not provide such checks so it would be up to you as a developer to implement them yourself.
 
-[[_clustered_event_bus_traffic]]
-=== 集群模式事件总线流量
+=== Clustered event bus traffic
 
-在网络上使用集群模式的事件总线连接不同的 Vert.x 节点时，总线里的流量是未经加密的，
-因此，若您的 Vert.x 节点处于不可信任的网络之上，则应该避免使用这种方式向这样的 Vert.x 节点发送信息。
+When clustering the event bus between different Vert.x nodes on a network, the traffic is sent un-encrypted across the
+wire, so do not use this if you have confidential data to send and your Vert.x nodes are not on a trusted network.
 
-[[_standard_security_best_practices]]
-=== 安全方面的标准最佳实践
+=== Standard security best practices
 
-任何服务都可能存在潜在的漏洞，无论是使用 Vert.x 还是任何其他工具包来进行编写，
-因此始终应该遵循安全最佳实践，特别是当您的服务面向公众时。
+Any service can have potentially vulnerabilities whether it's written using Vert.x or any other toolkit so always
+follow security best practice, especially if your service is public facing.
 
-例如，您应该始终在DMZ（隔离区）中运行它们，并使用权限受限的用户账户，
-以确保服务被渗透以后只会遭受有限的破坏。
+For example you should always run them in a DMZ and with an user account that has limited rights in order to limit
+the extent of damage in case the service was compromised.
 
-[[_vert_x_command_line_interface_api]]
-== Vert.x 命令行界面（CLI）API
+== Vert.x Command Line Interface API
 
 include::cli.adoc[]
 
-[[_the_vert_x_launcher]]
-== Vert.x 启动器（Launcher）
+== The vert.x Launcher
 
-Vert.x `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` 在 _fat-jar_ 中作为主类，由 `vertx` 命令行程序调用。
-它可执行一组 _命令_ ，如 _run_ 、 _bare_ 和 _start_ 等
+The vert.x `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` is used in _fat jar_ as main class, and by the `vertx` command line
+utility. It executes a set of _commands_ such as _run_, _bare_, _start_...
 
-[[_extending_the_vert_x_launcher]]
-=== 扩展 Vert.x 启动器（Launcher）
+=== Extending the vert.x Launcher
 
-您可以通过实现自己的 `link:../../apidocs/io/vertx/core/spi/launcher/Command.html[Command]` 类来扩展命令集（仅限于Java）：
+You can extend the set of command by implementing your own `link:../../apidocs/io/vertx/core/spi/launcher/Command.html[Command]` (in Java only):
 
 [source, java]
 ----
@@ -1761,7 +1695,7 @@ public class MyCommand extends DefaultCommand {
 }
 ----
 
-您还需要实现一个 `link:../../apidocs/io/vertx/core/spi/launcher/CommandFactory.html[CommandFactory]`：
+You also need an implementation of `link:../../apidocs/io/vertx/core/spi/launcher/CommandFactory.html[CommandFactory]`:
 
 [source, java]
 ----
@@ -1772,18 +1706,18 @@ public class HelloCommandFactory extends DefaultCommandFactory<HelloCommand> {
 }
 ----
 
-然后创建 `src/main/resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory`
-并且添加一行表示工厂类的完全限定名称：
+Then, create the `src/main/resources/META-INF/services/io.vertx.core.spi.launcher.CommandFactory` and add a line
+indicating the fully qualified name of the factory:
 
 ----
 io.vertx.core.launcher.example.HelloCommandFactory
 ----
 
-构建包含命令的jar。确保包含了SPI文件
-(`META-INF/services/io.vertx.core.spi.launcher.CommandFactory`)。
+Builds the jar containing the command. Be sure to includes the SPI file
+(`META-INF/services/io.vertx.core.spi.launcher.CommandFactory`).
 
-然后，将包含该命令的jar放入fat-jar（或包含在其中）的类路径中，或放在Vert.x发行版的 `lib`
-目录中，您将可以执行：
+Then, place the jar containing the command into the classpath of your fat-jar (or include it inside) or in the `lib`
+directory of your vert.x distribution, and you would be able to execute:
 
 [source]
 ----
@@ -1791,57 +1725,53 @@ vertx hello vert.x
 java -jar my-fat-jar.jar hello vert.x
 ----
 
-[[_using_the_launcher_in_fat_jars]]
-=== 在 fat-jar 中使用启动器（Launcher）
+=== Using the Launcher in fat jars
 
-要在 _fat-jar_ 中使用 `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` 类，只需要将 _MANIFEST_ 的 `Main-Class` 设置为
-`io.vertx.core.Launcher`。另外，将 _MANIFEST_ 中 `Main-Verticle` 条目设置为您的Main Verticle的名称。
+To use the `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` class in a _fat-jar_ just set the `Main-Class` of the _MANIFEST_ to
+`io.vertx.core.Launcher`. In addition, set the `Main-Verticle` _MANIFEST_ entry to the name of your main verticle.
 
-默认情况下，它会执行 `run` 命令。但是，您可以通过设置 _MANIFEST_ 的 `Main-Command` 条目来配置默认命令。
-若在没有命令的情况下启动 _fat-jar_ 会使用默认命令。
+By default, it executed the `run` command. However, you can configure the default command by setting the
+`Main-Command` _MANIFEST_ entry. The default command is used if the _fat jar_ is launched without a command.
 
-[[_sub_classing_the_launcher]]
-=== 启动器（Launcher）子类
+=== Sub-classing the Launcher
 
-您还可以创建 `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` 的子类来启动您的应用程序。
-这个类设计得易于扩展。
+You can also create a sub-class of `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` to start your application. The class has been
+designed to be easily extensible.
 
-一个启动器 `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` 的子类可以：
+A `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` sub-class can:
 
-* 在 `link:../../apidocs/io/vertx/core/Launcher.html#beforeStartingVertx-io.vertx.core.VertxOptions-[beforeStartingVertx]` 中自定义 Vert.x 配置
-*  通过重写 `link:../../apidocs/io/vertx/core/Launcher.html#afterStartingVertx-io.vertx.core.Vertx-[afterStartingVertx]`
-来检索由“run”或“bare”命令创建的Vert.x实例
-* 使用
-`link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#getMainVerticle--[getMainVerticle]` 和
-`link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#getDefaultCommand--[getDefaultCommand]` 方法配置默认的Verticle和命令
-* 使用 `link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#register-java.lang.Class-[register]`
-和 `link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#unregister-java.lang.String-[unregister]` 方法添加/删除命令
+* customize the vert.x configuration in `link:../../apidocs/io/vertx/core/Launcher.html#beforeStartingVertx-io.vertx.core.VertxOptions-[beforeStartingVertx]`
+* retrieve the vert.x instance created by the "run" or "bare" command by
+overriding `link:../../apidocs/io/vertx/core/Launcher.html#afterStartingVertx-io.vertx.core.Vertx-[afterStartingVertx]`
+* configure the default verticle and command with
+`link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#getMainVerticle--[getMainVerticle]` and
+`link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#getDefaultCommand--[getDefaultCommand]`
+* add / remove commands using `link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#register-java.lang.Class-[register]`
+and `link:../../apidocs/io/vertx/core/impl/launcher/VertxCommandLauncher.html#unregister-java.lang.String-[unregister]`
 
-[[_launcher_and_exit_code]]
-=== 启动器（Launcher）和退出代码
+=== Launcher and exit code
 
-当您使用 `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` 类作为主类时，它的退出码有以下取值：
+When you use the `link:../../apidocs/io/vertx/core/Launcher.html[Launcher]` class as main class, it uses the following exit code:
 
-* `0` :进程顺利结束，或抛出未捕获的错误；
-* `1` :用于通用错误；
-* `11`:Vert.x无法初始化；
-* `12`:生成的进程无法启动、发现或停止，该错误代码一般由 `start` 和
-`stop` 命令使用；
-* `14`:系统配置不符合系统要求（如找不到 `java` 命令）；
-* `15`:主Verticle不能被部署；
+* `0` if the process ends smoothly, or if an uncaught error is thrown
+* `1` for general purpose error
+* `11` if Vert.x cannot be initialized
+* `12` if a spawn process cannot be started, found or stopped. This error code is used by the `start` and
+`stop` command
+* `14` if the system configuration is not meeting the system requirement (shc as java not found)
+* `15` if the main verticle cannot be deployed
 
-[[_configuring_vert_x_cache]]
-== 配置 Vert.x 缓存
+== Configuring Vert.x cache
 
-当 Vert.x 需要从类路径中读取文件（嵌入在 fat-jar 中，在classpath中jar文件或classpath中其他文件）时，
-它会把文件复制到缓存目录。背后原因很简单：
-从 jar 或从输入流读取文件是阻塞的。所以为了避免每次都付出损耗，
-Vert.x 会将文件复制到其缓存目录中，并随后读取该文件。也可以配置此行为。
+When Vert.x needs to read a file from the classpath (embedded in a fat jar, in a jar form the classpath or a file
+that is on the classpath), it copies it to a cache directory. The reason behind this is simple: reading a file
+from a jar or from an input stream is blocking. So to avoid to pay the price every time, Vert.x copies the file to
+its cache directory and reads it from there every subsequent read. This behavior can be configured.
 
-首先，默认情况下，Vert.x 使用 `$CWD/.vertx` 作为缓存目录，它在此目录创建一个唯一的目录，
-以避免冲突。可以使用 `vertx.cacheDirBase` 系统属性配置该位置。
-如，若当前工作目录不可写（例如在不可变容器中），
-请使用以下命令启动应用程序：
+First, by default, Vert.x uses `$CWD/.vertx` as cache directory. It creates a unique directory inside this one to
+avoid conflicts. This location can be configured by using the `vertx.cacheDirBase` system property. For instance
+if the current working directory is not writable (such as in an immutable container context), launch your
+application with:
 
 [source]
 ----
@@ -1850,16 +1780,15 @@ vertx run my.Verticle -Dvertx.cacheDirBase=/tmp/vertx-cache
 java -jar my-fat.jar vertx.cacheDirBase=/tmp/vertx-cache
 ----
 
-IMPORTANT: 该目录必须是 **可写的** 。
+IMPORTANT: the directory must be **writable**.
 
-当您编辑资源（如HTML、CSS或JavaScript）时，这种缓存机制可能令人讨厌，因为它仅仅提供文件的第一个版本
-（因此，如果您想重新加载页面，不会显示到您的编辑改变）。要避免此情况，
-请使用 `-Dvertx.disableFileCaching=true` 启动应用程序。使用此设置，Vert.x 仍然使用缓存，
-但会始终读取原文件然后刷新在缓存中的版本。
-因此，如果您编辑从类路径提供的文件并刷新浏览器，Vert.x 会从类路径读取它，将其复制到缓存目录并从中提供。
-不要在生产环境使用这个设置，它很有可能影响性能。
+When you are editing resources such as HTML, CSS or JavaScript, this cache mechanism can be annoying as it serves
+only the first version of the file (and so you won't see your edits if you reload your page). To avoid this
+behavior, launch your application with `-Dvertx.disableFileCaching=true`. With this setting, Vert.x still uses
+the cache, but always refresh the version stored in the cache with the original source. So if you edit a file
+served from the classpath and refresh your browser, Vert.x reads it from the classpath, copies it to the cache
+directory and serves it from there. Do not use this setting in production, it can kill your performances.
 
-最后，您可以使用 `-Dvertx.disableFileCPResolving=true` 完全禁用缓存。
-这个设置的副作用是：Vert.x将无法从类路径中读取任何文件（仅从文件系统中读取）。
-使用此设置时要非常小心。
-
+Finally, you can disable completely the cache by using `-Dvertx.disableFileCPResolving=true`. This setting is not
+without consequences. Vert.x would be unable to read any files from the classpath (only from the file system). Be
+very careful when using this settings.

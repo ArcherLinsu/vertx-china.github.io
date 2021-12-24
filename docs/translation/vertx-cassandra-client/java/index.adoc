@@ -1,36 +1,33 @@
-= Vert.x Cassandra 客户端
+= Cassandra Client for Vert.x
 
-Vert.x 客户端可以访问 http://cassandra.apache.org/[Apache Cassandra] 服务。
+A Vert.x client allowing applications to interact with an http://cassandra.apache.org/[Apache Cassandra] service.
 
-[[_getting_started]]
-== 开始
+== Getting started
 
-要使用本模块，请在Maven的pom文件中添加如下 _依赖_ ：
+To use this module, add the following to the _dependencies_ section of your Maven POM file:
 
 [source,xml,subs="+attributes"]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-cassandra-client</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 ----
 
-或者，如果您使用gradle：
+Or, if you use Gradle:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-cassandra-client:4.2.3'
+compile 'io.vertx:vertx-cassandra-client:4.1.7'
 ----
 
-[[_creating_a_client]]
-== 创建客户端
+== Creating a client
 
-[[_client_options]]
-=== 客户端选项
+=== Client options
 
-Cassandra是一个分布式的系统，它可以有很多节点。
-要连接Cassandra，在创建 `link:../../apidocs/io/vertx/cassandra/CassandraClientOptions.html[CassandraClientOptions]` 对象时， 您需要指定集群当中的一些结点的地址
+Cassandra is a distributed system, and it can have many nodes.
+To connect to Cassandra you need to specify the addresses of some cluster nodes when creating a `link:../../apidocs/io/vertx/cassandra/CassandraClientOptions.html[CassandraClientOptions]` object:
 
 [source,java]
 ----
@@ -41,8 +38,8 @@ CassandraClientOptions options = new CassandraClientOptions()
 CassandraClient client = CassandraClient.create(vertx, options);
 ----
 
-默认情况下，Vert.x Cassandra客户端连接的是本地机器的 `9042` 端口，并且不绑定任何 keyspace。但是您可以用以下选项来同时设置 ContactPoint 和 keyspace，
-也可以设置二者之一：
+By default, the Cassandra client for Vert.x connects to the local machine's port `9042` and is not tied to any specific keyspace.
+But you can set either or both of these options:
 
 [source,java]
 ----
@@ -52,12 +49,11 @@ CassandraClientOptions options = new CassandraClientOptions()
 CassandraClient client = CassandraClient.create(vertx, options);
 ----
 
-TIP: `link:../../apidocs/io/vertx/cassandra/CassandraClientOptions.html[CassandraClientOptions]` 提供了一个 `com.datastax.driver.core.Cluster.Builder` 对象用来达到调优的目的。
+TIP: For fine tuning purposes, `link:../../apidocs/io/vertx/cassandra/CassandraClientOptions.html[CassandraClientOptions]` exposes a `com.datastax.driver.core.Cluster.Builder` instance.
 
-[[_shared_clients]]
-=== 共享客户端
+=== Shared clients
 
-如果您部署了多个Verticle实例，或者有多个同时和同一数据库交互的Verticle，我们建议创建一个共享的客户端：
+If you deploy multiple instances of your verticle or have different verticles interacting with the same database, it is recommended to create a shared client:
 
 [source,java]
 ----
@@ -69,38 +65,35 @@ CassandraClientOptions options = new CassandraClientOptions()
 CassandraClient client = CassandraClient.createShared(vertx, "sharedClientName", options);
 ----
 
-相同名称的共享客户端在底层使用的是同一个 `com.datastax.driver.core.Session` 。
+Shared clients with the same name will use a single underlying `com.datastax.driver.core.Session`.
 
-[[_client_lifecycle]]
-=== 客户端生命周期
+=== Client lifecycle
 
-客户端创建之后，直到执行第一个查询前，该客户端不会被连接。
+After the client is created, it is not connected until the first query is executed.
 
-TIP: 如果相同名称的客户端已经存在并已经执行了一次查询，那么新的共享客户端在被创建之后则可以连接。
+TIP: A shared client can be connected after creation if another client with the same name has already executed a query.
 
-在verticle内创建的客户端会在verticle被取消部署的时候停止。
-换句话说，您不需要在vertical的 `stop` 方法中调用 `link:../../apidocs/io/vertx/cassandra/CassandraClient.html#close--[close]` 。
+Clients created inside a verticle are automatically stopped when the verticle is undeployed.
+In other words, you do not need to invoke `link:../../apidocs/io/vertx/cassandra/CassandraClient.html#close--[close]` in the verticle `stop` method.
 
-在其他情况下，您必须手动关闭客户端。
+In all other cases, you must manually close the client.
 
-NOTE: 当一个共享客户端被关闭，如果存在同名客户端仍旧在运行，那么数据库的会话不会被关闭。
+NOTE: When a shared client is closed, the driver dession is not closed if other clients with the same name are still running.
 
-[[_using_the_api]]
-== 使用API
+== Using the API
 
-客户端API由 `link:../../apidocs/io/vertx/cassandra/CassandraClient.html[CassandraClient]` 提供。
+The client API is represented by `link:../../apidocs/io/vertx/cassandra/CassandraClient.html[CassandraClient]`.
 
-[[_querying]]
-=== 查询
+=== Querying
 
-您有3种不同的方式来获取查询结果。
+You can get query results using three different ways.
 
 ==== Streaming
 
-当您需要以迭代的方式来处理查询结果（例如，您想处理结果集中的每一个元素），那么 Streaming API 是再合适不过了。
-特别是处理大量数据记录时，这样是非常高效的。
+The streaming API is most appropriate when you need to consume results iteratively, e.g you want to process each item.
+This is very efficient specially for large amount of rows.
 
-为了给您一些使用这些 API 的灵感和思路，我们建议您参考如下示例：
+In order to give you some inspiration and ideas on how you can use the API, we'd like to you to consider this example:
 
 [source,java]
 ----
@@ -108,25 +101,25 @@ cassandraClient.queryStream("SELECT my_string_col FROM my_keyspace.my_table wher
   if (queryStream.succeeded()) {
     CassandraRowStream stream = queryStream.result();
 
-    // 当队列准备好接收buffer的时候恢复stream
+    // resume stream when queue is ready to accept buffers again
     response.drainHandler(v -> stream.resume());
 
     stream.handler(row -> {
       String value = row.getString("my_string_col");
       response.write(value);
 
-      // 当buffer队列满时，暂停stream
+      // pause row stream when we buffer queue is full
       if (response.writeQueueFull()) {
         stream.pause();
       }
     });
 
-    // 在stream末尾结束请求。
+    // end request when we reached end of the stream
     stream.endHandler(end -> response.end());
 
   } else {
     queryStream.cause().printStackTrace();
-    // 如果无法执行该查询，则响应服务器内部错误。
+    // response with internal server error if we are not able to execute given query
     response
       .setStatusCode(500)
       .end("Unable to execute the query");
@@ -134,12 +127,11 @@ cassandraClient.queryStream("SELECT my_string_col FROM my_keyspace.my_table wher
 });
 ----
 
-在这个示例当中，我们执行查询，并通过HTTP来流式地处理查询结果。
+In the example, we are executing a query, and stream results via HTTP.
 
-[[_bulk_fetching]]
-==== 获取 Bulk
+==== Bulk fetching
 
-这个API应该在您需要同时处理所有结果行的时候来使用。
+This API should be used when you need to process all the rows at the same time.
 
 [source,java]
 ----
@@ -147,7 +139,7 @@ cassandraClient.executeWithFullFetch("SELECT * FROM my_keyspace.my_table where m
   if (executeWithFullFetch.succeeded()) {
     List<Row> rows = executeWithFullFetch.result();
     for (Row row : rows) {
-      // 在此处处理每一行
+      // handle each row here
     }
   } else {
     System.out.println("Unable to execute the query");
@@ -156,18 +148,17 @@ cassandraClient.executeWithFullFetch("SELECT * FROM my_keyspace.my_table where m
 });
 ----
 
-CAUTION: 只能在内存足以容纳整个数据块时获取 bulk 。
+CAUTION: Use bulk fetching only if you can afford to load the full result set in memory.
 
-[[_collector_queries]]
-=== Collector 查询
+=== Collector queries
 
-您可以结合查询API来使用java Collector：
+You can use Java collectors with the query API:
 
 [source,java]
 ----
 cassandraClient.execute("SELECT * FROM users", listCollector, ar -> {
   if (ar.succeeded()) {
-    // 获取collector创建的字符串。
+    // Get the string created by the collector
     String list = ar.result();
     System.out.println("Got " + list);
   } else {
@@ -176,10 +167,9 @@ cassandraClient.execute("SELECT * FROM users", listCollector, ar -> {
 });
 ----
 
-[[_low_level_fetch]]
-==== 低级别获取
+==== Low level fetch
 
-相比于 stream 和bulk fetch，这个 API 更加底层，并对负载提供了更强大控制。
+This API provides greater control over loading at the expense of being a bit lower-level than the streaming and bulk fetching APIs.
 
 [source,java]
 ----
@@ -212,9 +202,9 @@ cassandraClient.execute("SELECT * FROM my_keyspace.my_table where my_key = 'my_v
 
 === Prepared queries
 
-为了安全和高效，对于将被多次使用的查询来讲，使用prepared statement是一个比较好的做法。
+For security and efficiency reasons, it is a good idea to use prepared statements for all the queries you are using more than once.
 
-您可以预备一个查询：
+You can prepare a query:
 
 [source,java]
 ----
@@ -222,7 +212,7 @@ cassandraClient.prepare("SELECT * FROM my_keyspace.my_table where my_key = ? ", 
   if (preparedStatementResult.succeeded()) {
     System.out.println("The query has successfully been prepared");
     PreparedStatement preparedStatement = preparedStatementResult.result();
-    // 现在您可以用这个 PreparedStatement 来执行下一次查询。
+    // now you can use this PreparedStatement object for the next queries
   } else {
     System.out.println("Unable to prepare the query");
     preparedStatementResult.cause().printStackTrace();
@@ -230,32 +220,31 @@ cassandraClient.prepare("SELECT * FROM my_keyspace.my_table where my_key = ? ", 
 });
 ----
 
-然后，在接下来所有的查询中使用 https://docs.datastax.com/en/drivers/java/${datastax.driver.minor.version}/com/datastax/driver/core/PreparedStatement.html[`PreparedStatement`] ：
+And then use the https://docs.datastax.com/en/drivers/java/${datastax.driver.minor.version}/com/datastax/driver/core/PreparedStatement.html[`PreparedStatement`] for all the next queries:
 
 [source,java]
 ----
 cassandraClient.execute(preparedStatement.bind("my_value"), done -> {
   ResultSet results = done.result();
-  // 处理查询结果
+  // handle results here
 });
 
 // Bulk fetching API
 cassandraClient.executeWithFullFetch(preparedStatement.bind("my_value"), done -> {
   List<Row> results = done.result();
-  // 处理查询结果
+  // handle results here
 });
 
 // Streaming API
 cassandraClient.queryStream(preparedStatement.bind("my_value"), done -> {
   CassandraRowStream results = done.result();
-  // 处理查询结果
+  // handle results here
 });
 ----
 
-[[_batching]]
-=== 批处理
+=== Batching
 
-考虑到您可能一次执行多个查询，您可以用 https://docs.datastax.com/en/drivers/java/${datastax.driver.minor.version}/com/datastax/driver/core/BatchStatement.html[`BatchStatement`] 达到批处理效果：
+In case you'd like to execute several queries at once, you can use https://docs.datastax.com/en/drivers/java/${datastax.driver.minor.version}/com/datastax/driver/core/BatchStatement.html[`BatchStatement`] for that:
 
 [source,java]
 ----
@@ -272,32 +261,6 @@ cassandraClient.execute(batchStatement, result -> {
     result.cause().printStackTrace();
   }
 });
-----
-
-[[_tracing_queries]]
-== 追踪查询
-
-当 Vert.x 开启了追踪（tracing）时，Cassandra 客户端也可以追踪执行的查询。
-
-Cassandra 客户端会上报以下的 _客户端_ 跨度（span）：
-
-* `Query` 操作名
-* 标签
-** `peer.address`: 连接 Cassandra 的驱动已知的节点列表，格式类似 `[127_0_0_1:9042,localhost:9042,myhost_mydomain:9042]`
-** `span.kind`: `client`
-** `db.instance`: keyspace 的名称
-** `db.statement`: CQL 的查询语句
-** `db.type`: `cassandra`
-
-默认的追踪策略是 `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#PROPAGATE[PROPAGATE]` ，客户端只会在参与活动跟踪时创建一个跨度。
-
-您可以使用 `link:../../apidocs/io/vertx/cassandra/CassandraClientOptions.html#setTracingPolicy-io.vertx.core.tracing.TracingPolicy-[setTracingPolicy]` 方法来修改客户端的追踪策略。
-例如，您可以设置追踪策略为 `link:../../apidocs/io/vertx/core/tracing/TracingPolicy.html#ALWAYS[ALWAYS]` ，这样 Cassandra 客户端就会一直上报跨度：
-
-[source,java]
-----
-CassandraClientOptions options = new CassandraClientOptions()
-  .setTracingPolicy(TracingPolicy.ALWAYS);
 ----
 
 ifeval::["java" == "java"]

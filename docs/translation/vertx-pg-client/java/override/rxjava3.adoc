@@ -1,11 +1,9 @@
-[[_rxjava_3_api]]
 == RxJava 3 API
 
-客户端提供了原生 API 的响应式版本
-以下示例使用RxJava3
+The client provides an Rxified version of the original API.
+The following examples use RxJava 3.
 
-[[_simple_query]]
-=== 简单的查询示例
+=== Simple query
 
 [source,java]
 ----
@@ -19,11 +17,10 @@ single.subscribe(result -> {
 });
 ----
 
-[[_connection]]
-=== 连接
+=== Connection
 
-简化版的连接API可以让您很容易地使用connection对象，`withConnection`
-方法会从连接池里获取到一条连接：
+The simplified connection API allows to easily use a connection, the `withConnection` method borrows
+a connection from the pool and return it for you:
 
 [source,java]
 ----
@@ -43,11 +40,10 @@ maybe.subscribe(rows -> {
 });
 ----
 
-[[_transaction]]
-=== 事务
+=== Transaction
 
-简化版的事务API可以让您很容易地编写异步事务处理流，`withTransaction`
-方法会为您启动和提交事务：
+The simplified transaction API allows to easily write transactional asynchronous flows, The `withTransaction`
+method start and commit a transaction for you:
 
 [source,java]
 ----
@@ -68,12 +64,11 @@ completable.subscribe(() -> {
 });
 ----
 
-[[_streaming]]
-=== 流式操作
+=== Streaming
 
-RxJava 支持 `Observable` 和 `Flowable` 类型，这些类型可以从 `link:../../apidocs/io/vertx/rxjava3/sqlclient/PreparedQuery.html[PreparedQuery]`
-产生的 `link:../../apidocs/io/vertx/rxjava3/sqlclient/RowStream.html[RowStream]`
-里获取到：
+RxJava supports `Observable` and `Flowable` types, these are exposed using
+the `link:../../apidocs/io/vertx/rxjava3/sqlclient/RowStream.html[RowStream]` that you can get
+from a `link:../../apidocs/io/vertx/rxjava3/sqlclient/PreparedQuery.html[PreparedQuery]`:
 
 [source,java]
 ----
@@ -99,7 +94,7 @@ observable.subscribe(row -> {
 });
 ----
 
-下边是使用 `Flowable` 的例子：
+The same example using `Flowable`:
 
 [source,java]
 ----

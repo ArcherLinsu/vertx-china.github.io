@@ -1,19 +1,17 @@
 == RxJava 3 API
 
-[[_setting_up_with_an_rxified_router]]
-=== 配置 Rxified 路由
+=== Setting up with an Rxified router
 
-若需要在 Rxified `link:../../apidocs/io/vertx/rxjava3/ext/web/Route.html[路由]` 中处理 GraphQL 请求，则请确保已导入了 `link:../../apidocs/io/vertx/rxjava3/ext/web/handler/graphql/GraphQLHandler.html[GraphQLHandler]` 类。
+To handle GraphQL requests on a Rxified `link:../../apidocs/io/vertx/rxjava3/ext/web/Route.html[Route]`, make sure to import the `link:../../apidocs/io/vertx/rxjava3/ext/web/handler/graphql/GraphQLHandler.html[GraphQLHandler]` class.
 
-[[_working_with_vert_x_rxified_apis]]
-=== 使用 Vert.x 的 Rxified API
+=== Working with Vert.x Rxified APIs
 
-GraphQL-Java 期望 DataFetcher 和批量加载器使用 `CompletionStage` 提供异步结果。
+GraphQL-Java expects `CompletionStage` for asynchronous results in data fetchers and batch loaders.
 
-但是若您使用 Vert.x Rxified API （如 https://vertx.io/docs/vertx-web-client/java/#_rxjava_3_api[Web 客户端] 或 https://vertx.io/docs/vertx-cassandra-client/java/#_rxjava_3_api[Cassandra 客户端]），则需要适配 `Single` 和 `Maybe` 对象。
+Therefore, if you work with the Vert.x Rxified APIs (e.g. the https://vertx.io/docs/vertx-web-client/java/#_rxjava_3_api[Web Client] or the https://vertx.io/docs/vertx-cassandra-client/java/#_rxjava_3_api[Cassandra Client]), you will have to adapt the `Single` and `Maybe` objects.
 
-`RxJavaJdk8Interop` 库提供了这些适配工具。
-您可以在 Maven 构建配置文件的 _dependencies_ 部分中增加以下依赖：
+The `RxJavaJdk8Interop` library provides the tooling to do just that.
+Add the following to the _dependencies_ section of your Maven build file:
 
 [source,xml,subs="+attributes"]
 ----
@@ -24,14 +22,14 @@ GraphQL-Java 期望 DataFetcher 和批量加载器使用 `CompletionStage` 提�
 </dependency>
 ----
 
-如果您使用 Gradle，则增加以下依赖配置：
+Or if you use Gradle:
 
 [source,groovy,subs="+attributes"]
 ----
 implementation 'com.github.akarnokd:rxjava3-jdk8-interop:3.0.0-RC6'
 ----
 
-然后可以从 `Single` 结果中创建 DataFetcher ：
+Then you can create a data fetcher from a `Single` result:
 
 [source,java]
 ----
@@ -41,4 +39,4 @@ DataFetcher<CompletionStage<String>> fetcher = environment -> {
 };
 ----
 
-同样，可以使用 `MaybeInterop` 处理 `Maybe` 结果。
+For `Maybe` results, use `MaybeInterop`.

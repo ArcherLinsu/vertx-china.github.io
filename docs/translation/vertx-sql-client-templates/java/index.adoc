@@ -1,41 +1,39 @@
-= SQL 客户端模版
+= SQL Client Templates
 :toc:
 
-SQL 客户端模版是一个用来方便执行SQL查询的库。
+SQL Client Templates is a small library designed to facilitate the execution of SQL queries.
 
-[[_usage]]
-== 用法
+== Usage
 
-要使用 SQL 客户端模版，需添加如下依赖：
+To use SQL Client Templates add the following dependency to the _dependencies_ section of your build descriptor:
 
-* Maven（在您的 `pom.xml` 文件中）：
+* Maven (in your `pom.xml`):
 
 [source,xml]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-sql-client-templates</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 ----
-* Gradle（在您的 `build.gradle` 文件中）：
+* Gradle (in your `build.gradle` file):
 
 [source,groovy]
 ----
 dependencies {
- implementation 'io.vertx:vertx-sql-client-templates:4.2.3'
+ implementation 'io.vertx:vertx-sql-client-templates:4.1.7'
 }
 ----
 
-[[_getting_started]]
-== 开始
+== Getting started
 
-以下是 SQL 模版最简易的使用方式。
+Here is the simplest way to use an SQL template.
 
-一个 SQL 模版接收 _已命名的_ 参数，因此，默认情况下，它会接收一个map作为参数载体，而非接收元组（tuple）作为参数。
+A SQL template consumes _named_ parameters and thus takes (by default) a map as parameters sources instead of a tuple.
 
-一个SQL 模版默认情况下生成一个类似 `PreparedQuery` 的 `RowSet<Row>` 。
-实际上这个模版是 `PreparedQuery` 的轻量级封装。
+A SQL template produces (by default) a `RowSet<Row>` like a client `PreparedQuery`. In fact the template is a thin
+wrapper for a `PreparedQuery`.
 
 [source,java]
 ----
@@ -51,7 +49,7 @@ SqlTemplate
   });
 ----
 
-当您需要执行一个插入或更新操作，而您并不关心执行结果，您可以用 `link:../../apidocs/io/vertx/sqlclient/templates/SqlTemplate.html#forUpdate-io.vertx.sqlclient.SqlClient-java.lang.String-[SqlTemplate.forUpdate]` ：
+When you need to perform an insert or update operation and you do not care of the result, you can use `link:../../apidocs/io/vertx/sqlclient/templates/SqlTemplate.html#forUpdate-io.vertx.sqlclient.SqlClient-java.lang.String-[SqlTemplate.forUpdate]` instead:
 
 [source,java]
 ----
@@ -68,20 +66,18 @@ SqlTemplate
   });
 ----
 
-[[_template_syntax]]
-== 模板语法
+== Template syntax
 
-模板语法使用 `#{XXX}` 的语法，其中 `{XXX}` 是一个有效的 https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.8[java identifier] 字符串
-（不受关键字约束）
+The template syntax uses `#{XXX}` syntax where `XXX` is a valid https://docs.oracle.com/javase/specs/jls/se8/html/jls-3.html#jls-3.8[java identifier] string
+(without the keyword restriction).
 
-您可以用反斜杠（`\`）来转义 `#` 字符，例如 `\#{foo}` 会被解析成 `#{foo}` 字符串，而不是名为 `foo` 的参数。
+You can use the backslash char `\` to escape  any `#` character, i.e `\#{foo}` will be interpreted as `#{foo}` string without a `foo` parameter.
 
-[[_row_mapping]]
-== 行映射
+== Row mapping
 
-默认情况下模版以 `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` 作为结果值类型。
+By default templates produce `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` as result type.
 
-您可以提供一个自定义的 `link:../../apidocs/io/vertx/sqlclient/templates/RowMapper.html[RowMapper]` 来实现底层的映射操作：
+You can provide a custom `link:../../apidocs/io/vertx/sqlclient/templates/RowMapper.html[RowMapper]` to achieve row level mapping instead:
 
 [source,java]
 ----
@@ -95,7 +91,7 @@ RowMapper<User> ROW_USER_MAPPER = row -> {
 ----
 
 [[row_mapping_with_custom_mapper]]
-实现底层映射操作：
+to achieve row level mapping instead:
 
 [source,java]
 ----
@@ -110,11 +106,10 @@ SqlTemplate
   });
 ----
 
-[[_anemic_json_row_mapping]]
-== JSON行映射
-（译者注：原文为 anemic json row mapping，即anemic mapping，指单纯的属性映射，无行为）
+== Anemic JSON row mapping
 
-JSON 行映射是一个简单的模板映射，它用 `link:../../apidocs/io/vertx/sqlclient/Row.html#toJson--[toJson]` 将数据行映射成JSON对象。
+Anemic JSON row mapping is a trivial mapping between template row columns and a JSON object
+using the `link:../../apidocs/io/vertx/sqlclient/Row.html#toJson--[toJson]`
 
 [source,java]
 ----
@@ -129,12 +124,11 @@ SqlTemplate
   });
 ----
 
-[[_parameters_mapping]]
-== 参数映射
+== Parameters mapping
 
-模板默认接收一个 `Map<String, Object>` 作为输入参数。
+Templates consume `Map<String, Object>` as default input.
 
-您可以提供一个自定义的映射（Mapper）：
+You can provide a custom mapper:
 
 [source,java]
 ----
@@ -148,7 +142,7 @@ TupleMapper<User> PARAMETERS_USER_MAPPER = TupleMapper.mapper(user -> {
 ----
 
 [[params_mapping_with_custom_mapper]]
-实现参数映射：
+to achieve parameter mapping instead:
 
 [source,java]
 ----
@@ -166,7 +160,7 @@ SqlTemplate
   });
 ----
 
-您也可以轻松搞定批处理：
+You can also perform batching easily:
 
 [source,java]
 ----
@@ -179,11 +173,9 @@ SqlTemplate
   });
 ----
 
-[[_anemic_json_parameters_mapping]]
-== JSON 参数映射
-（译者注：原文为 anemic json parameters mapping，即anemic mapping，指单纯的属性映射，无行为）
+== Anemic JSON parameters mapping
 
-JSON 参数映射是一个在模板参数和JSON对象之间的简单映射：
+Anemic JSON parameters mapping is a trivial mapping between template parameters and a JSON object:
 
 [source,java]
 ----
@@ -201,14 +193,13 @@ SqlTemplate
   });
 ----
 
-[[_mapping_with_jackson_databind]]
-== 用Jackson的数据绑定功能做映射
+== Mapping with Jackson databind
 
-您可以用Jackson的数据绑定功能来实现映射。
+You can do mapping using Jackson databind capabilities.
 
-您需要添加 jackson-databind 依赖：
+You need to add the Jackson databind dependency to the _dependencies_ section of your build descriptor:
 
-* Maven (在您的 `pom.xml` 文件):
+* Maven (in your `pom.xml`):
 
 [source,xml]
 ----
@@ -218,7 +209,7 @@ SqlTemplate
  <version>${jackson.version}</version>
 </dependency>
 ----
-* Gradle (在您的 `build.gradle` 文件):
+* Gradle (in your `build.gradle` file):
 
 [source,groovy]
 ----
@@ -227,8 +218,8 @@ dependencies {
 }
 ----
 
-行映射是通过用键值对（key/value pair）来创建 `JsonObject` 实现的，然后
-调用 `link:../../apidocs/io/vertx/core/json/JsonObject.html#mapTo-java.lang.Class-[mapTo]` 来将它映射为任何Java类。
+Row mapping is achieved by creating a `JsonObject` using the row key/value pairs and then calling
+`link:../../apidocs/io/vertx/core/json/JsonObject.html#mapTo-java.lang.Class-[mapTo]` to map it to any Java class with Jackson databind.
 
 [source,java]
 ----
@@ -243,8 +234,8 @@ SqlTemplate
   });
 ----
 
-相似的，参数映射是用 `link:../../apidocs/io/vertx/core/json/JsonObject.html#mapFrom-java.lang.Object-[JsonObject.mapFrom]` 将对象映射为 `JsonObject` 而实现的，
-而后用 key/value pairs 来生成模板参数。
+Likewise parameters mapping is achieved by mapping the object to a `JsonObject` using  `link:../../apidocs/io/vertx/core/json/JsonObject.html#mapFrom-java.lang.Object-[JsonObject.mapFrom]`
+and then using the key/value pairs to produce template parameters.
 
 [source,java]
 ----
@@ -260,15 +251,14 @@ SqlTemplate
   });
 ----
 
-[[_java_datetime_api_mapping]]
-=== Java Date/Time API 映射
+=== Java Date/Time API mapping
 
-您可以用 _jackson-modules-java8_ 的Jackson扩展包来实现对 `java.time` 的映射。
+You can map `java.time` types with the _jackson-modules-java8_ Jackson extension.
 
-您需要加入 Jackson JSR 310 datatype 依赖：
+You need to add the Jackson JSR 310 datatype dependency to the _dependencies_ section of your build descriptor:
 
 
-* Maven (在您的 `pom.xml` 文件):
+* Maven (in your `pom.xml`):
 
 [source,xml]
 ----
@@ -278,7 +268,7 @@ SqlTemplate
  <version>${jackson.version}</version>
 </dependency>
 ----
-* Gradle (在您的 `build.gradle` 文件):
+* Gradle (in your `build.gradle` file):
 
 [source,groovy]
 ----
@@ -287,7 +277,7 @@ dependencies {
 }
 ----
 
-然后您需要将时间模块注册到 Jackson的 `ObjectMapper` ：
+Then you need to register the time module to the Jackson `ObjectMapper`:
 
 [source,java]
 ----
@@ -296,7 +286,7 @@ ObjectMapper mapper = io.vertx.core.json.jackson.DatabindCodec.mapper();
 mapper.registerModule(new JavaTimeModule());
 ----
 
-您可以用 `java.time` 包中的类型，例如 `LocalDateTime` ：
+You can now use `java.time` types such as `LocalDateTime`:
 
 [source,java]
 ----
@@ -307,12 +297,11 @@ public class LocalDateTimePojo {
 }
 ----
 
-[[_mapping_with_vert_x_data_objects]]
-== 用Vert.x数据对象做映射
+== Mapping with Vert.x data objects
 
-SQL 客户端模版组件可为 Vert.x 数据对象生成映射方法。
+The SQL Client Templates component can generate mapping function for Vert.x data objects.
 
-Vert.x 数据对象是指被 `@DataObject` 注解修饰的普通 Java Bean。
+A Vert.x data object is a simple Java bean class annotated with the `@DataObject` annotation.
 
 [source,java]
 ----
@@ -349,49 +338,49 @@ class UserDataObject {
 }
 ----
 
-[[_code_generation]]
-=== 代码生成
+=== Code generation
 
-任何被 `link:../../apidocs/io/vertx/sqlclient/templates/annotations/RowMapped.html[@RowMapped]` 或 `link:../../apidocs/io/vertx/sqlclient/templates/annotations/ParametersMapped.html[@ParametersMapped]` 注解修饰的数据对象将触发相关映射类的生成。
+Any data object annotated by `link:../../apidocs/io/vertx/sqlclient/templates/annotations/RowMapped.html[@RowMapped]` or `link:../../apidocs/io/vertx/sqlclient/templates/annotations/ParametersMapped.html[@ParametersMapped]`
+will trigger  the generation of a corresponding mapper class.
 
-_codegen_ 注解执行器在编译期间生成这些类。
-这是Java编译器的特性，所以 _不需要额外步骤_ ，仅需要在构建时保证配置的正确性：
+The _codegen_ annotation processor generates these classes at compilation time. It is a feature of the Java
+compiler so _no extra step_ is required, it is just a matter of configuring correctly your build:
 
-构建时添加 `io.vertx:vertx-codegen:processor` 和 `io.vertx:vertx-sql-client-templates`
-依赖：
+Just add the `io.vertx:vertx-codegen:processor` and `io.vertx:vertx-sql-client-templates`
+dependencies to your build.
 
-以下是Maven配置示例
+Here a configuration example for Maven:
 
 [source,xml]
 ----
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-codegen</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
  <classifier>processor</classifier>
 </dependency>
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-sql-client-templates</artifactId>
- <version>4.2.3</version>
+ <version>4.1.7</version>
 </dependency>
 ----
 
-Gradle中依然可以使用此特性：
+This feature can also be used in Gradle:
 
 [source]
 ----
-annotationProcessor "io.vertx:vertx-codegen:4.2.3:processor"
-compile "io.vertx:vertx-sql-client-templates:4.2.3"
+annotationProcessor "io.vertx:vertx-codegen:4.1.7:processor"
+compile "io.vertx:vertx-sql-client-templates:4.1.7"
 ----
 
-IDE都会对 annotation processors 提供支持
+IDEs usually provide usually support for annotation processors.
 
-codegen `processor` classifier 在jar中添加服务代理注解执行器的自动配置，
-这是通过 `META-INF/services` 机制实现的。
+The codegen `processor` classifier adds to the jar the automatic configuration of the service proxy annotation processor
+via the `META-INF/services` plugin mechanism.
 
-如果需要，也可以用普通jar包，但是您需要额外声明注解执行器。
-Maven 示例：
+If you want you can use it too with the regular jar but you need then to declare the annotation processor
+explicitly, for instance in Maven:
 
 [source,xml]
 ----
@@ -405,10 +394,9 @@ Maven 示例：
 </plugin>
 ----
 
-[[_row_mapping_2]]
-=== 行映射
+=== Row mapping
 
-您可以通过在数据对象上声明 `link:../../apidocs/io/vertx/sqlclient/templates/annotations/RowMapped.html[@RowMapped]` 注解的方式生成一个行映射器。
+You can generate a row mapper by annotating your data object by `link:../../apidocs/io/vertx/sqlclient/templates/annotations/RowMapped.html[@RowMapped]`.
 
 [source,java]
 ----
@@ -446,10 +434,11 @@ class UserDataObject {
 }
 ----
 
-默认情况下，每一列的名称与数据对象属性的名称相对应，例如 `userName` 属性会
-绑定 `userName` 列。
+By default each column name is bound after the data object properties, e.g the `userName` property binds to
+the `userName` column.
 
-通过 `link:../../apidocs/io/vertx/sqlclient/templates/annotations/Column.html[@Column]` 注解，您可以用自定义名称。
+You can use custom names thanks to the `link:../../apidocs/io/vertx/sqlclient/templates/annotations/Column.html[@Column]`
+annotation.
 
 [source,java]
 ----
@@ -489,9 +478,9 @@ class UserDataObject {
 }
 ----
 
-您可以用注解修饰属性、getter、setter方法。
+You can annotate the field, the getter or the setter.
 
-生成的映射器可以如 <<row_mapping_with_custom_mapper, 行映射章节>> 所示来做行映射。
+The generated mapper can be used to perform row mapping like explained in <<row_mapping_with_custom_mapper,row mapping chapter>>.
 
 [source,java]
 ----
@@ -506,10 +495,9 @@ SqlTemplate
   });
 ----
 
-[[_parameters_mapping_2]]
-=== 参数映射
+=== Parameters mapping
 
-您可以通过在数据对象上加 `link:../../apidocs/io/vertx/sqlclient/templates/annotations/ParametersMapped.html[@ParametersMapped]` 注解的方式生成参数映射器
+You can generate a parameters mapper by annotating your data object by `link:../../apidocs/io/vertx/sqlclient/templates/annotations/ParametersMapped.html[@ParametersMapped]`.
 
 [source,java]
 ----
@@ -547,10 +535,11 @@ class UserDataObject {
 }
 ----
 
-默认情况下，每个参数的名称和数据对象的属性名称相对应，例如
-`userName` 属性绑定到 `userName` 参数。
+By default each parameter is bound after the data object properties, e.g the `userName` property binds to
+the `userName` parameter.
 
-通过 `link:../../apidocs/io/vertx/sqlclient/templates/annotations/TemplateParameter.html[@TemplateParameter]` 注解，您可以使用自定义参数名称。
+You can use custom names thanks to the `link:../../apidocs/io/vertx/sqlclient/templates/annotations/TemplateParameter.html[@TemplateParameter]`
+annotation.
 
 [source,java]
 ----
@@ -590,9 +579,9 @@ class UserDataObject {
 }
 ----
 
-您可以用注解修饰属性、getter、setter方法。
+You can annotate the field, the getter or the setter.
 
-生成的映射器可以用来做参数映射，正如 <<params_mapping_with_custom_mapper, 参数映射章节>> 所示
+The generated mapper can be used to perform param mapping like explained in <<params_mapping_with_custom_function,parameter mapping chapter>>.
 
 [source,java]
 ----
@@ -609,20 +598,18 @@ SqlTemplate
   });
 ----
 
-[[_java_enum_types_mapping]]
-=== Java 枚举类型映射
+=== Java enum types mapping
 
-如果客户端（例如 Reactive PostgreSQL client）提供了支持，那么您可以映射Java枚举类型。
+You can map Java enum types when the client supports it (e.g the Reactive PostgreSQL client).
 
-Java枚举类经常被映射为 string/number/自定义数据库枚举类型。
+Usually Java enum types are mapped to string / numbers and possibly custom database enumerated types.
 
-[[_naming_format]]
-=== 命名格式
+=== Naming format
 
-默认的模版下，参数和数据库列之间的映射不忽略大小写。您可以在 `Column`
-和 `TemplateParameter` 注解中用您喜欢的格式来重写默认名称。
+The default template use the same case for parameters and columns. You can override the default names in the `Column`
+and `TemplateParameter` annotations and use the formatting you like.
 
-您也可以在 `RowMapped` 和 `ParametersMapped` 注解中配置一个特定的大小写格式：
+You can also configure a specific formatting case of a mapper in the `RowMapped` and `ParametersMapped` annotations:
 
 [source,java]
 ----
@@ -634,10 +621,10 @@ class UserDataObject {
 }
 ----
 
-Vert.x提供了下列大小写模式：
+The following cases can be used:
 
 - `link:../../apidocs/io/vertx/codegen/format/CamelCase.html[CamelCase]` : `FirstName`
-- `link:../../apidocs/io/vertx/codegen/format/LowerCamelCase.html[LowerCamelCase]` : `firstName` - 类似驼峰命名法但是小写字母开头，这是默认方式。
+- `link:../../apidocs/io/vertx/codegen/format/LowerCamelCase.html[LowerCamelCase]` : `firstName` - like camel case but starts with a lower case, this is the default case
 - `link:../../apidocs/io/vertx/codegen/format/SnakeCase.html[SnakeCase]` : `first_name`
 - `link:../../apidocs/io/vertx/codegen/format/KebabCase.html[KebabCase]` : `first-name`
 - `link:../../apidocs/io/vertx/codegen/format/QualifiedCase.html[QualifiedCase]` : `first.name`

@@ -1,55 +1,53 @@
 = Vert.x Shell
 
-Vert.x Shell 是一个基于Vert.x，
-支持不同协议的统一终端的命令行接口
+Vert.x Shell is a command line interface for the Vert.x runtime available from regular
+terminals using different protocols.
 
-Vert.x Shell 提供了一系列命令来与 Vert.x 服务进行实时互动
+Vert.x Shell provides a variety of commands for interacting live with Vert.x services.
 
-Vert.x Shell 可以使用任何 Vert.x 支持的语言来扩展自定义命令
+Vert.x Shell can be extended with custom commands in any language supported by Vert.x
 
-[[_using_vert_x_shell]]
-== 使用 Vert.x Shell
+== Using Vert.x Shell
 
-Vert.x Shell 是一个Vert.x服务，既可以通过 `link:../../apidocs/io/vertx/ext/shell/ShellService.html[ShellService]` 以编码的方式启动，
-，也可以作为一个服务来发布。
+Vert.x Shell is a Vert.x Service and can be started programmatically via the `link:../../apidocs/io/vertx/ext/shell/ShellService.html[ShellService]`
+or deployed as a service.
 
-[[_shell_service]]
-=== Shell 服务
+=== Shell service
 
-shell服务可以直接以命令行的方式启动，也可以通过 Vert.x 发布启动
+The shell can be started as a service directly either from the command line or as a the Vert.x deployment:
 
-.启动一个基于 Telnet 的 shell 服务
+.Starting a shell service available via Telnet
 [source,subs="+attributes"]
 ----
-vertx run -conf '{"telnetOptions":{"port":5000}}' maven:io.vertx:vertx-shell:4.2.3
+vertx run -conf '{"telnetOptions":{"port":5000}}' maven:io.vertx:vertx-shell:4.1.7
 ----
 
-或者
+or
 
-.启动一个基于 SSH 的 shell 服务
+.Starting a shell service available via SSH
 [source,subs="+attributes"]
 ----
-# 为 SSH 服务端创建密钥
+# create a key pair for the SSH server
 keytool -genkey -keyalg RSA -keystore ssh.jks -keysize 2048 -validity 1095 -dname CN=localhost -keypass secret -storepass secret
-# 创建授权配置文件
+# create the auth config
 echo user.admin=password > auth.properties
-# 启动 shell
-vertx run -conf '{"sshOptions":{"port":4000,"keyPairOptions":{"path":"ssh.jks","password":"secret"},"authOptions":{"provider":"shiro","config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.2.3
+# start the shell
+vertx run -conf '{"sshOptions":{"port":4000,"keyPairOptions":{"path":"ssh.jks","password":"secret"},"authOptions":{"provider":"shiro","config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.1.7
 ----
 
-或者
+or
 
-.启动一个基于 HTTP 的shell服务
+.Starting a shell service available via HTTP
 [source,subs="+attributes"]
 ----
-# 为 HTTP 服务端创建证书
+# create a certificate for the HTTP server
 keytool -genkey -keyalg RSA -keystore keystore.jks -keysize 2048 -validity 1095 -dname CN=localhost -keypass secret -storepass secret
-# 创建授权配置文件
+# create the auth config
 echo user.admin=password > auth.properties
-vertx run -conf '{"httpOptions":{"port":8080,"ssl":true,"keyStoreOptions":{"path":"keystore.jks","password":"secret"},"authOptions":{"provider":""shiro,"config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.2.3
+vertx run -conf '{"httpOptions":{"port":8080,"ssl":true,"keyStoreOptions":{"path":"keystore.jks","password":"secret"},"authOptions":{"provider":""shiro,"config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.1.7
 ----
 
-你也可以在你的 verticle 中发布 shell 服务:
+You can also deploy this service inside your own verticle:
 
 [source,java,subs="+attributes"]
 ----
@@ -63,7 +61,7 @@ vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
 );
 ----
 
-或者
+or
 
 [source,java,subs="+attributes"]
 ----
@@ -83,7 +81,7 @@ vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
 );
 ----
 
-或者
+or
 
 [source,java,subs="+attributes"]
 ----
@@ -104,15 +102,14 @@ vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
 );
 ----
 
-NOTE: 当你的 classpath 中已经包含了Vert.x Shell ，
-你可以使用 `service:io.vertx.ext.shell` 来代替 `maven:io.vertx:vertx-shell:4.2.3`
+NOTE: when Vert.x Shell is already on your classpath you can use `service:io.vertx.ext.shell` instead
+or `maven:io.vertx:vertx-shell:4.1.7`
 
-[[_programmatic_service]]
-=== 可编码的服务
+=== Programmatic service
 
-使用 `link:../../apidocs/io/vertx/ext/shell/ShellService.html[ShellService]` 来启动Vert.x Shell 实例。
+The `link:../../apidocs/io/vertx/ext/shell/ShellService.html[ShellService]` takes care of starting an instance of Vert.x Shell.
 
-启动一个基于 SSH 的 shell 服务:
+Starting a shell service available via SSH:
 
 [source,java]
 ----
@@ -137,7 +134,7 @@ ShellService service = ShellService.create(vertx,
 service.start();
 ----
 
-启动一个基于 Telnet 的 shell 服务:
+Starting a shell service available via Telnet:
 
 [source,java]
 ----
@@ -151,12 +148,12 @@ ShellService service = ShellService.create(vertx,
 service.start();
 ----
 
-Telnet server 基于 `NetServer` 实现，
-其配置 `link:../../apidocs/io/vertx/ext/shell/term/TelnetTermOptions.html[TelnetTermOptions]` 继承自 Vert.x Core 模块中的 `NetServerOptions` ，
+The `link:../../apidocs/io/vertx/ext/shell/term/TelnetTermOptions.html[TelnetTermOptions]` extends the Vert.x Core `NetServerOptions` as the Telnet server
+implementation is based on a `NetServer`.
 
-CAUTION: Telnet 不提供任何身份授权和加密机制。
+CAUTION: Telnet does not provide any authentication nor encryption at all.
 
-启动一个基于 HTTP 的 shell 服务:
+Starting a shell service available via HTTP:
 
 [source,java]
 ----
@@ -170,23 +167,22 @@ ShellService service = ShellService.create(vertx,
 service.start();
 ----
 
-[[_authentication]]
-== 身份认证
+== Authentication
 
-SSH 和 HTTP 连接管理器提供了一套基于 _vertx-auth_ 的身份认证机制，
-并支持以下授权方式：
+The SSH and HTTP connectors provide both authentication built on top of _vertx-auth_ with the following supported
+providers:
 
-- _shiro_ : 正如演示中看到的，提供了 `.properties` 配置文件 和 _LDAP_ 这两种认证方式
-- _jdbc_ : 基于 JDBC 的身份认证
-- _mongo_ : 基于 MongoDB 的身份认证
+- _shiro_ : provides `.properties` and _LDAP_ backend as seen in the ShellService presentation
+- _jdbc_ : JDBC backend
+- _mongo_ : MongoDB backend
 
-可以使用相关的类来直接创建配置项：
+These options can be created directly using directly corresponding class:
 
-- Shiro 的配置 `link:../../apidocs/io/vertx/ext/auth/shiro/ShiroAuthOptions.html[ShiroAuthOptions]`
-- JDBC 的配置 `link:../../apidocs/io/vertx/ext/auth/jdbc/JDBCAuthOptions.html[JDBCAuthOptions]`
-- Mongo 的配置 `link:../../apidocs/io/vertx/ext/auth/mongo/MongoAuthOptions.html[MongoAuthOptions]`
+- `link:../../apidocs/io/vertx/ext/auth/shiro/ShiroAuthOptions.html[ShiroAuthOptions]` for Shiro
+- `link:../../apidocs/io/vertx/ext/auth/jdbc/JDBCAuthOptions.html[JDBCAuthOptions]` for JDBC
+- `link:../../apidocs/io/vertx/ext/auth/mongo/MongoAuthOptions.html[MongoAuthOptions]` for Mongo
 
-对于使用 Json 的外部服务配置，使用 `authOptions` 对象来表示授权的基本配置， 其 `provider` 属性用来区分不同的授权方式：
+As for external service configuration in Json, the `authOptions` uses the `provider` property to distinguish:
 
 ----
 {
@@ -201,34 +197,32 @@ SSH 和 HTTP 连接管理器提供了一套基于 _vertx-auth_ 的身份认证�
 }
 ----
 
-[[_telnet_term_configuration]]
-== Telnet 终端配置
+== Telnet term configuration
 
-Telnet 终端通过 `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.html#setTelnetOptions-io.vertx.ext.shell.term.TelnetTermOptions-[setTelnetOptions] 来配置，
-`link:../../apidocs/io/vertx/ext/shell/term/TelnetTermOptions.html[TelnetTermOptions]` 继承自 `link:../../apidocs/io/vertx/core/net/NetServerOptions.html[NetServerOptions]`，
-所以它们具有完全相同的配置。
+Telnet terms are configured by `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.html#setTelnetOptions-io.vertx.ext.shell.term.TelnetTermOptions-[setTelnetOptions]`,
+the `link:../../apidocs/io/vertx/ext/shell/term/TelnetTermOptions.html[TelnetTermOptions]` extends the `link:../../apidocs/io/vertx/core/net/NetServerOptions.html[NetServerOptions]` so they
+have the exact same configuration.
 
-[[_ssh_term_configuration]]
-== SSH 终端配置
+== SSH term configuration
 
-SSH 终端通过 `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.html#setSSHOptions-io.vertx.ext.shell.term.SSHTermOptions-[setSSHOptions]` 来配置：
+SSH terms are configured by `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.html#setSSHOptions-io.vertx.ext.shell.term.SSHTermOptions-[setSSHOptions]`:
 
-- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setPort-int-[setPort]`: 端口
-- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setHost-java.lang.String-[setHost]`: 主机地址
+- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setPort-int-[setPort]`: port
+- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setHost-java.lang.String-[setHost]`: host
 
-目前仅支持 username/password（用户名+密码） 这种授权认证方式，可以通过属性文件或者 LDAP 来进行配置，
-获取更多详细信息请查看 Vert.x Auth 文档：
+Only username/password authentication is supported at the moment, it can be configured with property file
+or LDAP, see Vert.x Auth for more info:
 
-- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setAuthOptions-io.vertx.core.json.JsonObject-[setAuthOptions]`: 配置用户授权认证信息
+- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setAuthOptions-io.vertx.core.json.JsonObject-[setAuthOptions]`: configures user authentication
 
-服务端密钥配置采用的是 _Vert.x Core_ 提供的密钥对存储配置方案：
+The server key configuration reuses the key pair store configuration scheme provided by _Vert.x Core_:
 
-- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setKeyPairOptions-io.vertx.core.net.JksOptions-[setKeyPairOptions]`: 设置 `.jks` 密钥对存储
-- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setPfxKeyPairOptions-io.vertx.core.net.PfxOptions-[setPfxKeyPairOptions]`: 设置 `.pfx` 密钥对存储
-- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setPemKeyPairOptions-io.vertx.core.net.PemKeyCertOptions-[setPemKeyPairOptions]`: 设置 `.pem` 密钥对存储
+- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setKeyPairOptions-io.vertx.core.net.JksOptions-[setKeyPairOptions]`: set `.jks` key pair store
+- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setPfxKeyPairOptions-io.vertx.core.net.PfxOptions-[setPfxKeyPairOptions]`: set `.pfx` key pair store
+- `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setPemKeyPairOptions-io.vertx.core.net.PemKeyCertOptions-[setPemKeyPairOptions]`: set `.pem` key pair store
 
 
-.在 SSH 上发布基于 Mongo 身份授权的 Shell 服务
+.Deploying the Shell Service on SSH with Mongo authentication
 [source,java,subs="+attributes"]
 ----
 vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
@@ -247,7 +241,7 @@ vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
 );
 ----
 
-.在 SSH 上运行基于  Mongo 身份授权的 Shell 服务
+.Running the Shell Service on SSH with Mongo authentication
 [source,java,subs="+attributes"]
 ----
 ShellService service = ShellService.create(vertx,
@@ -268,7 +262,7 @@ ShellService service = ShellService.create(vertx,
 service.start();
 ----
 
-.在 SSH 上发布基于 JDBC 身份授权的 Shell 服务
+.Deploying the Shell Service on SSH with JDBC authentication
 [source,java,subs="+attributes"]
 ----
 vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
@@ -288,7 +282,7 @@ vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
 );
 ----
 
-.在 SSH 上运行基于 JDBC 身份授权的 Shell 服务
+.Running the Shell Service on SSH with JDBC authentication
 [source,java,subs="+attributes"]
 ----
 ShellService service = ShellService.create(vertx,
@@ -311,19 +305,18 @@ ShellService service = ShellService.create(vertx,
 service.start();
 ----
 
-[[_http_term_configuration]]
-== HTTP 终端配置
+== HTTP term configuration
 
-HTTP 终端通过 `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.html#setHttpOptions-io.vertx.ext.shell.term.HttpTermOptions-[setHttpOptions]` 来配置, 这个配置
-继承自 `link:../../apidocs/io/vertx/core/http/HttpServerOptions.html[HttpServerOptions]`，所以它们提供了完全相同的配置。
+HTTP terms are configured by `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.html#setHttpOptions-io.vertx.ext.shell.term.HttpTermOptions-[setHttpOptions]`, the http options
+extends the `link:../../apidocs/io/vertx/core/http/HttpServerOptions.html[HttpServerOptions]` so they expose the exact same configuration.
 
-此外，它还提供了配置 HTTP 终端的其他选项：
+In addition there are extra options for configuring an HTTP term:
 
-- `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html#setAuthOptions-io.vertx.core.json.JsonObject-[setAuthOptions]`: 配置用户身份授权信息
-- `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html#setSockJSHandlerOptions-io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions-[setSockJSHandlerOptions]`: 配置 SockJS
-- `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html#setSockJSPath-java.lang.String-[setSockJSPath]`: SockJS 在路由中的路径
+- `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html#setAuthOptions-io.vertx.core.json.JsonObject-[setAuthOptions]`: configures user authentication
+- `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html#setSockJSHandlerOptions-io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions-[setSockJSHandlerOptions]`: configures SockJS
+- `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html#setSockJSPath-java.lang.String-[setSockJSPath]`: the SockJS path in the router
 
-.在 HTTP 上发布基于 Mongo 身份授权的 Shell 服务
+.Deploying the Shell Service on HTTP with Mongo authentication
 [source,java,subs="+attributes"]
 ----
 vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
@@ -343,7 +336,7 @@ vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
 );
 ----
 
-.在 HTTP 上运行基于 Mongo 身份授权的 Shell 服务
+.Running the Shell Service on HTTP with Mongo authentication
 [source,java,subs="+attributes"]
 ----
 ShellService service = ShellService.create(vertx,
@@ -361,7 +354,7 @@ ShellService service = ShellService.create(vertx,
 service.start();
 ----
 
-.在 HTTP 上发布基于 JDBC 身份授权的 Shell 服务
+.Deploying the Shell Service on HTTP with JDBC authentication
 [source,java,subs="+attributes"]
 ----
 vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
@@ -382,7 +375,7 @@ vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
 );
 ----
 
-.在 HTTP 上运行基于 JDBC 身份授权的 Shell 服务
+.Running the Shell Service on HTTP with JDBC authentication
 [source,java,subs="+attributes"]
 ----
 ShellService service = ShellService.create(vertx,
@@ -401,19 +394,18 @@ ShellService service = ShellService.create(vertx,
 service.start();
 ----
 
-[[_keymap_configuration]]
-== 按键映射配置
+== Keymap configuration
 
-shell 使用默认的按键映射配置，
-可以使用各种终端配置对象的 `inputrc` 属性来进行覆盖。
+The shell uses a default keymap configuration that can be overriden using the `inputrc` property of the various
+term configuration object:
 
 - `link:../../apidocs/io/vertx/ext/shell/term/TelnetTermOptions.html#setIntputrc-java.lang.String-[setIntputrc]`
 - `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html#setIntputrc-java.lang.String-[setIntputrc]`
 - `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html#setIntputrc-java.lang.String-[setIntputrc]`
 
-`inputrc` 必须通过 classloader 或者文件系统指定一个存在的文件。
+The `inputrc` must point to a file available via the classloader or the filesystem.
 
-`inputrc` 只能进行函数绑定，目前可用的函数有：
+The `inputrc` only function bindings and the available functions are:
 
 - _backward-char_
 - _forward-char_
@@ -434,55 +426,53 @@ shell 使用默认的按键映射配置，
 - _forward-word_
 - _backward-kill-word_
 
-NOTE: 要想添加额外的函数，必须要实现一个`Term.d` 项目中的函数，这个项目包含在 Vert.x Shell 中。
-例如，首先实现一个 https://github.com/termd/termd/blob/c1629623c8a3add4bde7778640bf8cc233a7c98f/src/examples/java/examples/readlinefunction/ReverseFunction.java[reverse function] 函数，
-然后在 `META-INF/services/io.termd.core.readline.Function` 中添加实现声明，最后 shell 会以 SPI 的方式加载该函数。
+NOTE: Extra functions can be added, however this is done by implementing functions of the `Term.d` project on which
+Vert.x Shell is based, for instance the https://github.com/termd/termd/blob/c1629623c8a3add4bde7778640bf8cc233a7c98f/src/examples/java/examples/readlinefunction/ReverseFunction.java[reverse function]
+can be implemented and then declared in a `META-INF/services/io.termd.core.readline.Function` to be loaded by the shell.
 
-[[_base_commands]]
-== 基本命令
+== Base commands
 
-你可以使用内置命令 _help_ 来获取当前可用的命令：
+To find out the available commands you can use the _help_ builtin command:
 
-. Verticle 命令
-.. verticle-ls: 列出所有已发布的 verticle
-.. verticle-undeploy: 卸载一个verticle
-.. verticle-deploy: 以JSON字符串作为配置来发布 verticle
-.. verticle-factories: 列出所有已知的 verticle 工厂
-. 文件系统命令
+. Verticle commands
+.. verticle-ls: list all deployed verticles
+.. verticle-undeploy: undeploy a verticle
+.. verticle-deploy: deploys a verticle with deployment options as JSON string
+.. verticle-factories: list all known verticle factories
+. File system commands
 .. ls
 .. cd
 .. pwd
-. Event Bus 命令
-.. bus-tail: 显示 Event Bus 地址上所有接收到的消息
-.. bus-send: 在 Event Bus 上发送消息
-. 网络命令
-.. net-ls: 列出所有存在网络服务端，包括HTTP服务端
-. 共享数据命令
+. Bus commands
+.. bus-tail: display all incoming messages on an event bus address
+.. bus-send: send a message on the event bus
+. Net commands
+.. net-ls: list all available net servers, including HTTP servers
+. Shared data commands
 .. local-map-put
 .. local-map-get
 .. local-map-rm
-. 其他命令
+. Various commands
 .. echo
 .. sleep
 .. help
 .. exit
 .. logout
-. 任务控制
+. Job control
 .. fg
 .. bg
 .. jobs
 
-NOTE: 这个命令列表应该会在下个 Vert.x Shell 版本中得到改进，以便其他 Vert.x 项目可以对 Vert.x Shell 进行扩展，
-例如 Dropwizard Metrics。
+NOTE: this command list should evolve in next releases of Vert.x Shell. Other Vert.x project may provide commands to extend
+Vert.x Shell, for instance Dropwizard Metrics.
 
-[[_extending_vert_x_shell]]
-== 扩展 Vert.x Shell
+== Extending Vert.x Shell
 
-在任何支持代码生成的语言 中，Vert.x Shell 都可以通过自定义命令的方式来进行扩展。
+Vert.x Shell can be extended with custom commands in any of the languages supporting code generation.
 
-可以使用 `link:../../apidocs/io/vertx/ext/shell/command/CommandBuilder.html#command-java.lang.String-[CommandBuilder.command]` 方法来创建命令：
-通过 `link:../../apidocs/io/vertx/ext/shell/command/CommandBuilder.html#processHandler-io.vertx.core.Handler-[processHandler]` 为命令指定 _处理器_ ，
-这个 _处理器_  会在命令执行的时候被 Shell 调用。
+A command is created by the `link:../../apidocs/io/vertx/ext/shell/command/CommandBuilder.html#command-java.lang.String-[CommandBuilder.command]` method: the command process handler is called
+by the shell when the command is executed, this handler can be set with the `link:../../apidocs/io/vertx/ext/shell/command/CommandBuilder.html#processHandler-io.vertx.core.Handler-[processHandler]`
+method:
 
 [source,java]
 ----
@@ -501,28 +491,27 @@ CommandRegistry registry = CommandRegistry.getShared(vertx);
 registry.registerCommand(builder.build(vertx));
 ----
 
-在命令创建完成后，还需要注册到 `link:../../apidocs/io/vertx/ext/shell/command/CommandRegistry.html[CommandRegistry]` 中，这个
-命令注册表保存着 Vert.x 实例的所有命令。
+After a command is created, it needs to be registed to a `link:../../apidocs/io/vertx/ext/shell/command/CommandRegistry.html[CommandRegistry]`. The
+command registry holds all the commands for a Vert.x instance.
 
-一旦通过 `link:../../apidocs/io/vertx/ext/shell/command/CommandRegistry.html#unregisterCommand-java.lang.String-[unregisterCommand]` 方法进行注销，该命令就会失效。
-如果命令注册在 Verticle 中，那么卸载 verticle 之时，便是该命令注销之时。
+A command is registered until it is unregistered with the `link:../../apidocs/io/vertx/ext/shell/command/CommandRegistry.html#unregisterCommand-java.lang.String-[unregisterCommand]`.
+When a command is registered from a Verticle, this command is unregistered when this verticle is undeployed.
 
-NOTE: 当在注册表中注册命令时，将在 {@literal io.vertx.core.Context} 中调用命令的回调函数。
-当你想要在命令中保持状态尤其需要注意这一点。
+NOTE: Command callbacks are invoked in the {@literal io.vertx.core.Context} when the command is registered in the
+registry. Keep this in mind if you maintain state in a command.
 
-`link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html[CommandProcess]` 对象可以用于与 shell 互动。
+The `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html[CommandProcess]` object can be used for interacting with the shell.
 
-[[_command_arguments]]
-=== 命令参数
+=== Command arguments
 
-`link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#args--[args]` 方法可以返回命令参数:
+The `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#args--[args]` returns the command arguments:
 
 [source,java]
 ----
 command.processHandler(process -> {
 
   for (String arg : process.args()) {
-    // 在控制台上打印所有的参数
+    // Print each argument on the console
     process.write("Argument " + arg);
   }
 
@@ -530,12 +519,12 @@ command.processHandler(process -> {
 });
 ----
 
-除此之外，也可以使用 `link:../../apidocs/io/vertx/core/cli/CLI.html[Vert.x CLI]` 来创建命令：
-这种方式更容易对写入的命令行参数进行解析：
+Besides it is also possible to create commands using `link:../../apidocs/io/vertx/core/cli/CLI.html[Vert.x CLI]`: it makes easier to
+write command line argument parsing:
 
-- _option_ 和 _argument_ 解析
-- 参数 _校验_
-- 生成命令的 _帮助文档_
+- _option_ and _argument_ parsing
+- argument _validation_
+- generation of the command _usage_
 
 [source,java]
 ----
@@ -555,8 +544,8 @@ command.processHandler(process -> {
 });
 ----
 
-当一个名为 _help_ 选项被添加到 CLI 对象中时，
-shell 将负责在该选项激活时生成命令的帮助文档：
+When an option named _help_ is added to the CLI object, the shell will take care of generating the command usage
+when the option is activated:
 
 [source,java]
 ----
@@ -569,18 +558,16 @@ command.processHandler(process -> {
 });
 ----
 
-命令不仅提供了 `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html[process]` 与 shell 互动，
-还提供了继承自 `link:../../apidocs/io/vertx/ext/shell/term/Tty.html[Tty]` 的 `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html[CommandProcess]`
-来与 terminal 互动。
+When the command executes the `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html[process]` is provided for interacting
+with the shell. A `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html[CommandProcess]` extends `link:../../apidocs/io/vertx/ext/shell/term/Tty.html[Tty]`
+which is used for interacting with the terminal.
 
-[[_terminal_usage]]
-=== 终端用法
+=== Terminal usage
 
-[[_terminal_io]]
-==== 终端 I/O
+==== terminal I/O
 
-当终端接收到数据时，`link:../../apidocs/io/vertx/ext/shell/term/Tty.html#stdinHandler-io.vertx.core.Handler-[stdinHandler]` 注册的 _处理器_ 会被调用，
-比如用户的键盘输入：
+The `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#stdinHandler-io.vertx.core.Handler-[stdinHandler]` handler is used to be notified when the terminal
+receives data, e.g the user uses his keyboard:
 
 [source,java]
 ----
@@ -589,30 +576,28 @@ tty.stdinHandler(data -> {
 });
 ----
 
-命令可以使用 `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#write-java.lang.String-[write]` 写入数据到标准输出流中。
+A command can use the `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#write-java.lang.String-[write]` to write to the standard output.
 
 [source,java]
 ----
 tty.write("Hello World");
 ----
 
-[[_terminal_size]]
-==== 终端窗口大小
+==== Terminal size
 
-当前的终端窗口大小可以使用 `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#width--[width]` 和
-`link:../../apidocs/io/vertx/ext/shell/term/Tty.html#height--[height]` 来获取。
+The current terminal size can be obtained using `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#width--[width]` and
+`link:../../apidocs/io/vertx/ext/shell/term/Tty.html#height--[height]`.
 
 [source,java]
 ----
 tty.write("Current terminal size: (" + tty.width() + ", " + tty.height() + ")");
 ----
 
-[[_resize_event]]
-==== 窗口尺寸调整事件
+==== Resize event
 
-当终端的窗口大小改变，`link:../../apidocs/io/vertx/ext/shell/term/Tty.html#resizehandler-io.vertx.core.Handler-[resizehandler]` 将会被调用，
-新的终端窗口大小可以通过 `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#width--[width]` 和
-`link:../../apidocs/io/vertx/ext/shell/term/Tty.html#height--[height]` 来获得。
+When the size of the terminal changes the `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#resizehandler-io.vertx.core.Handler-[resizehandler]`
+is called, the new terminal size can be obtained with `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#width--[width]` and
+`link:../../apidocs/io/vertx/ext/shell/term/Tty.html#height--[height]`.
 
 [source,java]
 ----
@@ -621,22 +606,20 @@ tty.resizehandler(v -> {
 });
 ----
 
-[[_terminal_type]]
-==== 终端类型
+==== Terminal type
 
-终端类型被用来给远程的终端发送转义符号：
-`link:../../apidocs/io/vertx/ext/shell/term/Tty.html#type--[type]` 方法返回当前终端的类型，如果终端没有指定该值，则可能返回为 null。
+The terminal type is useful for sending escape codes to the remote terminal: `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#type--[type]`
+returns the current terminal type, it can be null if the terminal has not advertised the value.
 
 [source,java]
 ----
 System.out.println("terminal type : " + tty.type());
 ----
 
-[[_shell_session]]
-=== Shell 会话
+=== Shell session
 
-shell 是一个有连接的服务，所以它需要维护与客户端之间的会话，命令可以使用这个会话来限制数据的有效范围。
-任何命令都可以使用 `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#session--[session]` 来获取当前的会话。
+The shell is a connected service that naturally maintains a session with the client, this session can be
+used in commands to scope data. A command can get the session with `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#session--[session]`:
 
 [source,java]
 ----
@@ -652,11 +635,10 @@ command.processHandler(process -> {
 });
 ----
 
-[[_process_termination]]
-=== 进程结束
+=== Process termination
 
-调用 `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#end--[end]` 方法即可结束当前的处理进程，
-它可以在处理进程中的任何时候进行调用：
+Calling `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#end--[end]` ends the current process. It can be called directly
+in the invocation of the command handler or any time later:
 
 [source,java]
 ----
@@ -672,29 +654,27 @@ command.processHandler(process -> {
 });
 ----
 
-[[_process_events]]
-=== 进程事件
+=== Process events
 
-命令可以订阅一些进程事件.
+A command can subscribe to a few process events.
 
-[[_interrupt_event]]
-==== 中断事件
+==== Interrupt event
 
-当用户在命令执行的过程中键入 _Ctrl+C_，该中断事件将会被触发，随后该进程被中断，
-`link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#interruptHandler-io.vertx.core.Handler-[interruptHandler]` 指定的 _处理器_ 即被调用。
-该 handler 可以用来中断命令对 CLI 的 _阻塞_，然后优雅地结束命令进程。
+The `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#interruptHandler-io.vertx.core.Handler-[interruptHandler]` is called when the process
+is interrupted, this event is fired when the user press _Ctrl+C_ during the execution of a command. This handler can
+be used for interrupting commands _blocking_ the CLI and gracefully ending the command process:
 
 [source,java]
 ----
 command.processHandler(process -> {
   Vertx vertx = process.vertx();
 
-  // 在控制台每隔1s打印一次信息
+  // Every second print a message on the console
   long periodicId = vertx.setPeriodic(1000, id -> {
     process.write("tick\n");
   });
 
-  // 当用户按下 Ctrl+C：取消定时器的并结束当前进程
+  // When user press Ctrl+C: cancel the timer and end the process
   process.interruptHandler(v -> {
     vertx.cancelTimer(periodicId);
     process.end();
@@ -702,91 +682,87 @@ command.processHandler(process -> {
 });
 ----
 
-如果没有注册任何中断 _处理器_， 输入 _Ctrl+C_ 不会对当前的命令进程产生丝毫影响，
-并且该事件很可能会被 shell 延期处理，就好像是在控制台换行一样。
+When no interrupt handler is registered, pressing _Ctrl+C_ will have no effect on the current process and the event
+will be delayed and will likely be handled by the shell, like printing a new line on the console.
 
-[[_suspendresume_events]]
-==== 挂起/恢复 事件
+==== Suspend/resume events
 
-如果用户对正在运行的命令进行输入 _Ctrl+Z_ ，那么由 `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#suspendHandler-io.vertx.core.Handler-[suspendHandler]` 注册的 _处理器_ 即被调用，
-该命令则会被 _挂起_：
+The `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#suspendHandler-io.vertx.core.Handler-[suspendHandler]` is called when the process
+is running and the user press _Ctrl+Z_, the command is _suspended_:
 
-- 如果命令注册了挂起事件，那么它将接收到该事件的触发。
-- 命令不会收到标准输入的任何数据
-- shell 会提示用户继续输入
-- 命令可以收到中断事件和结束事件
+- the command can receive the suspend event when it has registered an handler for this event
+- the command will not receive anymore data from the standard input
+- the shell prompt the user for input
+- the command can receive interrupts event or end events
 
-当用户键入 _fg_，当前命令处理进程即可恢复，
-而 `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#resumeHandler-io.vertx.core.Handler-[resumeHandler]` 注册的 _处理器_ 也会被调用：
+The `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#resumeHandler-io.vertx.core.Handler-[resumeHandler]` is called when the process
+is resumed, usually when the user types _fg_:
 
-- 如果命令注册了恢复事件，那么它可以收到该事件的触发
-- 如果命令已经注册了 stdin _处理器_，那么它可以再一次从标准输入流中获取到数据
+- the command can receive the resume event when it has registered an handler for this event
+- the command will receive again data from the standard input when it has registered an stdin handler
 
 [source,java]
 ----
 command.processHandler(process -> {
 
-  // 命令被挂起
+  // Command is suspended
   process.suspendHandler(v -> {
     System.out.println("Suspended");
   });
 
-  // 命令恢复
+  // Command is resumed
   process.resumeHandler(v -> {
     System.out.println("Resumed");
   });
 });
 ----
 
-[[_end_events]]
-==== 结束事件
+==== End events
 
-当正在运行或者挂起的命令进程被终止时，
-`link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#endHandler-io.vertx.core.Handler-[endHandler]` 将会被调用，
-比如 shell 会话关闭或者命令 _结束_。
+The `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#endHandler-io.vertx.core.Handler-[endHandler]` (io.vertx.core.Handler)} is
+called when the process is running or suspended and the command terminates, for instance the shell session is closed,
+the command is _terminated_.
 
 [source,java]
 ----
 command.processHandler(process -> {
 
-  // 命令终止
+  // Command terminates
   process.endHandler(v -> {
     System.out.println("Terminated");
   });
 });
 ----
 
-一旦执行 `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#end--[end]` 方法，结束 _处理器_ 即被调用。
+The end handler is called even when the command invokes `link:../../apidocs/io/vertx/ext/shell/command/CommandProcess.html#end--[end]`.
 
-该 _处理器_ 对于命令终止时的一些资源清理是非常有用的，比如关闭连接或者定时器等。
+This handler is useful for cleaning up resources upon command termination, for instance closing a client or a timer.
 
-[[_command_completion]]
-=== 命令完成
+=== Command completion
 
-命令提供了完成 _处理器_ ，以便于实现上下文命令行的完成接口。
+A command can provide a completion handler when it wants to provide contextual command line interface completion.
 
-由于其实现是基于 Vert.x 服务，`link:../../apidocs/io/vertx/ext/shell/command/CommandBuilder.html#completionHandler-io.vertx.core.Handler-[completion
-handler]` 与其他处理 handler一样都是非阻塞的，比如文件系统。
+Like the process handler, the `link:../../apidocs/io/vertx/ext/shell/command/CommandBuilder.html#completionHandler-io.vertx.core.Handler-[completion
+handler]` is non blocking because the implementation may use Vert.x services, e.g the file system.
 
-`link:../../apidocs/io/vertx/ext/shell/cli/Completion.html#lineTokens--[lineTokens]` 返回从行起点到光标位置的 `link:../../apidocs/io/vertx/ext/shell/cli/CliToken.html[tokens]` 列表，
-如果光标位于行起点，
-那么这个列表可能为空。
+The `link:../../apidocs/io/vertx/ext/shell/cli/Completion.html#lineTokens--[lineTokens]` returns a list of `link:../../apidocs/io/vertx/ext/shell/cli/CliToken.html[tokens]`
+from the beginning of the line to the cursor position. The list can be empty if the cursor when the cursor is at the
+beginning of the line.
 
-`link:../../apidocs/io/vertx/ext/shell/cli/Completion.html#rawLine--[rawLine]` 返回当前完成列表从行起点到光标位置的原始格式的数据，
-即没有任何字符转义。
+The `link:../../apidocs/io/vertx/ext/shell/cli/Completion.html#rawLine--[rawLine]` returns the current completed from the beginning
+of the line to the cursor position, in raw format, i.e without any char escape performed.
 
-通过调用 `link:../../apidocs/io/vertx/ext/shell/cli/Completion.html#complete-java.util.List-[complete]` 来结束当前的完成事件。
+Completion ends with a call to `link:../../apidocs/io/vertx/ext/shell/cli/Completion.html#complete-java.util.List-[complete]`.
 
-[[_shell_server]]
-== Shell 服务端
+== Shell server
 
-无论是以编码的方式，还是作为一个 Vert.x 服务，Shell 服务提供了便利的方式来启动一个预配置的 shell。
-如果需要更大的灵活性，那么可以使用 `link:../../apidocs/io/vertx/ext/shell/ShellServer.html[ShellServer]` 来代替 shell 服务。
+The Shell service is a convenient facade for starting a preconfigured shell either programmatically or as a Vert.x service.
+When more flexibility is needed, a `link:../../apidocs/io/vertx/ext/shell/ShellServer.html[ShellServer]` can be used instead of the service.
 
-例如 shell http 终端可以配置成使用现有的路由，而不是启动一个自己的 http 服务端。
+For instance the shell http term can be configured to use an existing router instead of starting its own http server.
 
-要想使用 shell 服务端需要配置明确，但也更加灵活，一个 shell 服务端配置需要以下几步：
-
+Using a shell server requires explicit configuration but provides full flexiblity, a shell server is setup in a few
+steps:
 
 [source,java]
 ----
@@ -805,71 +781,69 @@ server.registerCommandResolver(CommandResolver.baseCommands(vertx)); // <5>
 
 server.listen(); // <6>
 ----
-<1> 创建一个 shell 服务端
-<2> 创建一个 HTTP 终端服务器挂载到现有的路由
-<3> 创建一个 SSH 终端的服务器
-<4> 注册终端服务器
-<5> 注册所有基本命令
-<6> 最后启动 shell 服务端
+<1> create a the shell server
+<2> create an HTTP term server mounted on an existing router
+<3> create an SSH term server
+<4> register term servers
+<5> register all base commands
+<6> finally start the shell server
 
-除此之外，shell 服务端还可以用于创建处理进程中shell会话：提供了一个可编码的交互式 shell 。
+Besides, the shell server can also be used for creating in process shell session: it provides a programmatic interactive shell.
 
-使用 `link:../../apidocs/io/vertx/ext/shell/ShellServer.html#createShell-io.vertx.ext.shell.term.Term-[createShell]` 来创建处理进程中 shell 会话：
-
-[source,java]
-----
-Shell shell = shellServer.createShell();
-----
-
-主要的作用是运行和命令测试：
+In process shell session can be created with `link:../../apidocs/io/vertx/ext/shell/ShellServer.html#createShell-io.vertx.ext.shell.term.Term-[createShell]`:
 
 [source,java]
 ----
 Shell shell = shellServer.createShell();
+----
 
-// 为当前命令创建一个任务
+The main use case is running or testing a command:
+
+[source,java]
+----
+Shell shell = shellServer.createShell();
+
+// Create a job fo the command
 Job job = shell.createJob("my-command 1234");
 
-// 创建一个伪终端
+// Create a pseudo terminal
 Pty pty = Pty.create();
 pty.stdoutHandler(data -> {
   System.out.println("Command wrote " + data);
 });
 
-// 运行命令
+// Run the command
 job.setTty(pty.slave());
 job.statusUpdateHandler(status -> {
   System.out.println("Command terminated with status " + status);
 });
 ----
 
-当 shell 运行时，
-`link:../../apidocs/io/vertx/ext/shell/term/Pty.html[Pty]` 伪终端是与命令互动的主要手段：
+The `link:../../apidocs/io/vertx/ext/shell/term/Pty.html[Pty]` pseudo terminal is the main interface for interacting with the command
+when it's running:
 
-- 使用标准的 输入/输出 来写入和读取数据
-- 调整终端的窗口大小
+- uses standard input/output for writing or reading strings
+- resize the terminal
 
-当使用 `link:../../apidocs/io/vertx/ext/shell/system/JobController.html#close-io.vertx.core.Handler-[close]` 关闭 shell 时，
-它将会结束当前 shell 会话中的所有任务。
+The `link:../../apidocs/io/vertx/ext/shell/system/JobController.html#close-io.vertx.core.Handler-[close]` closes the shell, it will terminate all jobs in the current shell
+session.
 
-[[_terminal_servers]]
-== 终端服务器
+== Terminal servers
 
-Vert.x Shell 还为那些需要写纯终端应用的开发者提供了裸终端服务器。
+Vert.x Shell also provides bare terminal servers for those who need to write pure terminal applications.
 
-`link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` 的 _处理器_ 必须在终端服务器启动前配置好，
-当用户连接时，这个 _处理器_ 将处理每个终端的数据。
+A `link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` handler must be set on a term server before starting it. This handler will
+handle each term when the user connects.
 
-{@code Auth*Options} 可以通过 `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html[SSHTermOptions]` 和 `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html[HttpTermOptions]` 来设置。
-或者，在终端服务器启动之前通过 `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#authProvider-io.vertx.ext.auth.AuthProvider-[set]` 直接设置
-`link:../../apidocs/io/vertx/ext/auth/AuthProvider.html[AuthProvider]` 。
+An {@code Auth*Options} can be set on `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html[SSHTermOptions]` and `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html[HttpTermOptions]`.
+Alternatively, an `link:../../apidocs/io/vertx/ext/auth/AuthProvider.html[AuthProvider]` can be `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#authProvider-io.vertx.ext.auth.AuthProvider-[set]`
+directly on the term server before starting it.
 
-[[_ssh_term]]
-=== SSH 终端
+=== SSH term
 
-终端服务器提供了 `link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` _处理器_ 来接受传入的终端连接。
-当一个远程终端进行连接时，
-`link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` 可以用来与当前连接的终端互动。
+The terminal server `link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` handler accepts incoming terminal connections.
+When a remote terminal connects, the `link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` can be used to interact with connected
+terminal.
 
 [source,java]
 ----
@@ -882,11 +856,10 @@ server.termHandler(term -> {
 server.listen();
 ----
 
-`link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` 同时也是一个 `link:../../apidocs/io/vertx/ext/shell/term/Tty.html[Tty]`，
-本节将介绍如何使用 tty。
+The `link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` is also a `link:../../apidocs/io/vertx/ext/shell/term/Tty.html[Tty]`, this section explains
+how to use the tty.
 
-[[_telnet_term]]
-=== Telnet 终端
+=== Telnet term
 
 [source,java]
 ----
@@ -899,11 +872,10 @@ server.termHandler(term -> {
 server.listen();
 ----
 
-[[_http_term]]
-=== HTTP 终端
+=== HTTP term
 
-使用 `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#createHttpTermServer-io.vertx.core.Vertx-[TermServer.createHttpTermServer]` 方法创建一个 HTTP终端服务器，
-该服务器基于 Vert.x Web ，使用 SockJS 协议。
+The `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#createHttpTermServer-io.vertx.core.Vertx-[TermServer.createHttpTermServer]` method creates an HTTP term server, built
+on top of Vert.x Web using the SockJS protocol.
 
 [source,java]
 ----
@@ -916,9 +888,9 @@ server.termHandler(term -> {
 server.listen();
 ----
 
-一个 HTTP终端可以启动自己的 HTTP 服务器，也可以复用 Vert.x Web 中已存在的 `link:../../apidocs/io/vertx/ext/web/Router.html[Router]`。
+An HTTP term can start its own HTTP server, or it can reuse an existing Vert.x Web `link:../../apidocs/io/vertx/ext/web/Router.html[Router]`.
 
-shell 可以在 `/shell.html` 中找到。
+The shell can be found at `/shell.html`.
 
 [source,java]
 ----
@@ -931,17 +903,17 @@ server.termHandler(term -> {
 server.listen();
 ----
 
-如果 HTTP shell 集成到现有的 HTTP 服务器中，那么后面的配置将会很方便。
+The later option is convenient when the HTTP shell is integrated in an existing HTTP server.
 
-HTTP 终端服务器提供了一些默认配置：
+The HTTP term server by default is configured for serving:
 
-- `shell.html` 访问页面
-- `https://github.com/chjj/term.js/[term.js]` 客户端js
-- the `vertxshell.js` 客户端js
+- the `shell.html` page
+- the `https://github.com/chjj/term.js/[term.js]` client library
+- the `vertxshell.js` client library
 
-`vertxshell.js` 集成 `term.js` 作为 HTTP终端客户端连接的一部分。
+The `vertxshell.js` integrates `term.js` is the client side part of the HTTP term.
 
-它将 `term.js` 与 SockJS 集成，并且需要 HTTP 终端服务器的地址作为访问地址：
+It integrates `term.js` with SockJS and needs the URL of the HTTP term server endpoint:
 
 [source,javascript]
 ----
@@ -954,7 +926,7 @@ window.addEventListener('load', function () {
 });
 ----
 
-也可以使用更直接的 websockets，如果是这样，远程的终端 URL 需要以 `/websocket` 开始：
+Straight websockets can also be used, if so, the remote term URL should be suffixed with `/websocket`:
 
 [source,javascript]
 ----
@@ -967,17 +939,16 @@ window.addEventListener('load', function () {
 });
 ----
 
-为了满足更多定制化需求，这些资源统一集中在 Vert.x Shell 模块下面的 `io.vertx.ext.shell` 包中，
-可以直接复制和修改。
+For customization purpose these resources can be copied and customized, they are available in the Vert.x Shell
+jar under the `io.vertx.ext.shell` packages.
 
-[[_command_discovery]]
-== 命令发现
+== Command discovery
 
-命令发现可以用来在没有明确注册的情况下添加新的命令到 Vert.x 中。
+The command discovery can be used when new commands need to be added to Vert.x without an explicit registration.
 
-比如，在 _Dropwizard_ metrics 服务中，通过这种方式动态地添加特定的 metrics 命令到 shell 服务中。
+For example, the _Dropwizard_ metrics service, adds specific metrics command to the shell service on the fly.
 
-这一切都是通过扩展自 `java.util.ServiceLoader` 的 `link:../../apidocs/io/vertx/ext/shell/spi/CommandResolverFactory.html[CommandResolverFactory]` 实现的。
+It can be achieved via the `java.util.ServiceLoader` of a `link:../../apidocs/io/vertx/ext/shell/spi/CommandResolverFactory.html[CommandResolverFactory]`.
 
 [source,java]
 ----
@@ -989,26 +960,25 @@ public class CustomCommands implements CommandResolverFactory {
 }
 ----
 
-`resolver` 方法是异步的，因为在命令被执行之前，
-resolver 可能需要等待一些条件。
+The `resolver` method is async, because the resolver may need to wait some condition before commands
+are resolved.
 
-shell 服务发现使用了服务加载机制：
+The shell service discovery using the service loader mechanism:
 
-.服务提供的加载文件 `META-INF/services/io.vertx.ext.shell.spi.CommandResolverFactory`
+.The service provider file `META-INF/services/io.vertx.ext.shell.spi.CommandResolverFactory`
 [source]
 ----
 my.CustomCommands
 ----
 
-这只对 `link:../../apidocs/io/vertx/ext/shell/ShellService.html[ShellService]` 有效，
-`link:../../apidocs/io/vertx/ext/shell/ShellServer.html[ShellServer]` 并没有使用该机制。
+This is only valid for the `link:../../apidocs/io/vertx/ext/shell/ShellService.html[ShellService]`. `link:../../apidocs/io/vertx/ext/shell/ShellServer.html[ShellServer]`
+don't use this mechanism.
 
-[[_command_pack]]
-== 命令包
+== Command pack
 
-命令包是一个提供了新的 Vert.x Shell 命令的 jar 包文件。
+A command pack is a jar that provides new Vert.x Shell commands.
 
-该 jar 文件只需要放在 classpath 目录下，然后就会被 Vertx. Shell 发现。
+Such jar just need to be present on the classpath and it is discovered by Vertx. Shell.
 
 [source,java]
 ----
@@ -1018,23 +988,23 @@ public class CommandPackExample implements CommandResolverFactory {
   public void resolver(Vertx vertx, Handler<AsyncResult<CommandResolver>> resolveHandler) {
     List<Command> commands = new ArrayList<>();
 
-    // 添加一个命令
+    // Add commands
     commands.add(Command.create(vertx, JavaCommandExample.class));
 
-    // 添加另一个命令
+    // Add another command
     commands.add(CommandBuilder.command("another-command").processHandler(process -> {
-      // 命令处理逻辑
+      // Handle process
     }).build(vertx));
 
-    // 用命令来处理
+    // Resolve with the commands
     resolveHandler.handle(Future.succeededFuture(() -> commands));
   }
 }
 ----
 
-该命令包使用了命令发现机制，所以需要一些服务描述：
+The command pack uses command discovery mechanism, so it needs the descriptor:
 
-.`META-INF/services/io.vertx.ext.shell.spi.CommandResolverFactory` 文件中添加内容
+.`META-INF/services/io.vertx.ext.shell.spi.CommandResolverFactory` descriptor
 [source]
 ----
 examples.pack.CommandPackExample
