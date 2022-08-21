@@ -931,7 +931,7 @@ new HttpServerOptions()
   .addCompressor(io.netty.handler.codec.compression.StandardCompressionOptions.zstd());
 ----
 
-NOTE: use {@code io.netty.handler.codec.compression.StandardCompressionOptions} static methods to create {@code io.netty.handler.codec.compression.CompressionOptions}
+NOTE: use `link:../../apidocs/io/netty/handler/codec/compression/StandardCompressionOptions.html[StandardCompressionOptions]` static methods to create `link:../../apidocs/io/netty/handler/codec/compression/CompressionOptions.html[CompressionOptions]`
 
 Brotli and zstandard libraries need to be added to the classpath.
 

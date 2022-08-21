@@ -31,7 +31,7 @@ To use the Reactive Oracle Client add the following dependency to the _dependenc
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-oracle-client</artifactId>
- <version>4.3.0</version>
+ <version>4.3.1</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -39,7 +39,7 @@ To use the Reactive Oracle Client add the following dependency to the _dependenc
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-oracle-client:4.3.0'
+ compile 'io.vertx:vertx-oracle-client:4.3.1'
 }
 ----
 
@@ -299,8 +299,33 @@ Currently, the client supports the following Oracle data types:
 * FLOAT(`java.lang.Double`)
 * DATE(`java.time.LocalDate`)
 * TIMESTAMP(`java.time.LocalDateTime`)
+* RAW(`io.vertx.core.buffer.Buffer`)
 
 Tuple decoding uses the above types when storing values.
+
+`BLOB` data type is also supported with one caveat: it must be represented by an instance of `link:../../apidocs/io/vertx/oracleclient/data/Blob.html[Blob]` when writing or filtering.
+However, when reading `BLOB` data, the client returns a `link:../../apidocs/io/vertx/core/buffer/Buffer.html[Buffer]`.
+
+[source,java]
+----
+client.preparedQuery("INSERT INTO images (name, data) VALUES (?, ?)")
+  // Use io.vertx.oracleclient.data.Blob when inserting
+  .execute(Tuple.of("beautiful-sunset.jpg", Blob.copy(imageBuffer)))
+  .onComplete(ar -> {
+    // Do something
+  });
+
+client.preparedQuery("SELECT data FROM images WHERE id = ?")
+  .execute(Tuple.of(id))
+  .onComplete(ar -> {
+    if (ar.succeeded()) {
+      Row row = ar.result().iterator().next();
+
+      // Use io.vertx.core.buffer.Buffer when reading
+      Buffer data = row.getBuffer("data");
+    }
+  });
+----
 
 == Tracing queries
 
