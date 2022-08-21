@@ -19,7 +19,7 @@ The shell can be started as a service directly either from the command line or a
 .Starting a shell service available via Telnet
 [source,subs="+attributes"]
 ----
-vertx run -conf '{"telnetOptions":{"port":5000}}' maven:io.vertx:vertx-shell:4.3.2
+vertx run -conf '{"telnetOptions":{"port":5000}}' maven:io.vertx:vertx-shell:4.3.3
 ----
 
 or
@@ -32,7 +32,7 @@ keytool -genkey -keyalg RSA -keystore ssh.jks -keysize 2048 -validity 1095 -dnam
 # create the auth config
 echo user.admin=password > auth.properties
 # start the shell
-vertx run -conf '{"sshOptions":{"port":4000,"keyPairOptions":{"path":"ssh.jks","password":"secret"},"authOptions":{"provider":"shiro","config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.2
+vertx run -conf '{"sshOptions":{"port":4000,"keyPairOptions":{"path":"ssh.jks","password":"secret"},"authOptions":{"provider":"properties","config":{"file":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.3
 ----
 
 or
@@ -44,66 +44,69 @@ or
 keytool -genkey -keyalg RSA -keystore keystore.jks -keysize 2048 -validity 1095 -dname CN=localhost -keypass secret -storepass secret
 # create the auth config
 echo user.admin=password > auth.properties
-vertx run -conf '{"httpOptions":{"port":8080,"ssl":true,"keyStoreOptions":{"path":"keystore.jks","password":"secret"},"authOptions":{"provider":""shiro,"config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.2
+vertx run -conf '{"httpOptions":{"port":8080,"ssl":true,"keyStoreOptions":{"path":"keystore.jks","password":"secret"},"authOptions":{"provider":""properties,"config":{"file":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.3
 ----
 
 You can also deploy this service inside your own verticle:
 
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(
-    new JsonObject().put("telnetOptions",
-      new JsonObject().
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(
+      new JsonObject().put("telnetOptions",
+        new JsonObject().
+          put("host", "localhost").
+          put("port", 4000))
+    )
+  );
+----
+
+or
+
+[source,java,subs="+attributes"]
+----
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("sshOptions", new JsonObject().
         put("host", "localhost").
-        put("port", 4000))
-  )
-);
+        put("port", 5000).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/ssh.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "properties").
+          put("config", new JsonObject().
+            put("file", "file:/path/to/my/auth.properties"))))
+    )
+  );
 ----
 
 or
 
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("sshOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 5000).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/ssh.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "shiro").
-        put("config", new JsonObject().
-          put("properties_path", "file:/path/to/my/auth.properties"))))
-  )
-);
-----
-
-or
-
-[source,java,subs="+attributes"]
-----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("httpOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 8080).
-      put("ssl", true).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/server-keystore.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "shiro").
-        put("config", new JsonObject().
-          put("properties_path", "file:/path/to/my/auth.properties"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("httpOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 8080).
+        put("ssl", true).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/server-keystore.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "properties").
+          put("config", new JsonObject().
+            put("file", "file:/path/to/my/auth.properties"))))
+    )
+  );
 ----
 
 NOTE: when Vert.x Shell is already on your classpath you can use `service:io.vertx.ext.shell` instead
-or `maven:io.vertx:vertx-shell:4.3.2`
+or `maven:io.vertx:vertx-shell:4.3.3`
 
 === Programmatic service
 
@@ -124,7 +127,7 @@ ShellService service = ShellService.create(vertx,
       ).
       setAuthOptions(
         new JsonObject()
-          .put("provider", "shiro")
+          .put("provider", "properties")
           .put("type", "PROPERTIES")
           .put("config", new JsonObject().
             put("properties_path", "file:/path/to/my/auth.properties"))
@@ -172,15 +175,17 @@ service.start();
 The SSH and HTTP connectors provide both authentication built on top of _vertx-auth_ with the following supported
 providers:
 
-- _shiro_ : provides `.properties` and _LDAP_ backend as seen in the ShellService presentation
-- _jdbc_ : JDBC backend
+- _properties_: provides `.properties` backend
+- _ldap_: provides `LDAP` backend
 - _mongo_ : MongoDB backend
+- _jdbc_ : JDBC backend
+- _shiro_ : (_deprecated_) provides `.properties` and _LDAP_ backend as seen in the ShellService presentation
 
 These options can be created directly using directly corresponding class:
 
-- `link:../../apidocs/io/vertx/ext/auth/shiro/ShiroAuthOptions.html[ShiroAuthOptions]` for Shiro
-- `link:../../apidocs/io/vertx/ext/auth/jdbc/JDBCAuthOptions.html[JDBCAuthOptions]` for JDBC
-- `link:../../apidocs/io/vertx/ext/auth/mongo/MongoAuthOptions.html[MongoAuthOptions]` for Mongo
+- `link:../../apidocs/io/vertx/ext/auth/ldap/LdapAuthenticationOptions.html[LdapAuthenticationOptions]` for LDAP
+- `link:../../apidocs/io/vertx/ext/auth/jdbc/JDBCAuthenticationOptions.html[JDBCAuthenticationOptions]` for JDBC
+- `link:../../apidocs/io/vertx/ext/auth/mongo/MongoAuthenticationOptions.html[MongoAuthenticationOptions]` for Mongo
 
 As for external service configuration in Json, the `authOptions` uses the `provider` property to distinguish:
 
@@ -188,9 +193,9 @@ As for external service configuration in Json, the `authOptions` uses the `provi
 {
  ...
  "authOptions": {
-   "provider":"shiro",
+   "provider":"properties",
    "config": {
-     "properties_path":"file:auth.properties"
+     "file":"file:auth.properties"
    }
  }
  ...
@@ -225,20 +230,21 @@ The server key configuration reuses the key pair store configuration scheme prov
 .Deploying the Shell Service on SSH with Mongo authentication
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("sshOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 5000).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/ssh.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "mongo").
-        put("config", new JsonObject().
-          put("connection_string", "mongodb://localhost:27018"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("sshOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 5000).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/ssh.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "mongo").
+          put("config", new JsonObject().
+            put("connection_string", "mongodb://localhost:27018"))))
+    )
+  );
 ----
 
 .Running the Shell Service on SSH with Mongo authentication
@@ -255,7 +261,8 @@ ShellService service = ShellService.create(vertx,
       ).
       setAuthOptions(new JsonObject()
         .put("provider", "mongo")
-        .put("config", new JsonObject().put("connection_string", "mongodb://localhost:27018"))
+        .put("config", new JsonObject()
+          .put("connection_string", "mongodb://localhost:27018"))
       )
   )
 );
@@ -265,21 +272,22 @@ service.start();
 .Deploying the Shell Service on SSH with JDBC authentication
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("sshOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 5000).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/ssh.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "jdbc").
-        put("config", new JsonObject()
-          .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
-          .put("driver_class", "org.hsqldb.jdbcDriver"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("sshOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 5000).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/ssh.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "jdbc").
+          put("config", new JsonObject()
+            .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
+            .put("driver_class", "org.hsqldb.jdbcDriver"))))
+    )
+  );
 ----
 
 .Running the Shell Service on SSH with JDBC authentication
@@ -319,21 +327,22 @@ In addition there are extra options for configuring an HTTP term:
 .Deploying the Shell Service on HTTP with Mongo authentication
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("httpOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 8080).
-      put("ssl", true).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/server-keystore.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "mongo").
-        put("config", new JsonObject().
-          put("connection_string", "mongodb://localhost:27018"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("httpOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 8080).
+        put("ssl", true).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/server-keystore.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "mongo").
+          put("config", new JsonObject().
+            put("connection_string", "mongodb://localhost:27018"))))
+    )
+  );
 ----
 
 .Running the Shell Service on HTTP with Mongo authentication
@@ -357,22 +366,23 @@ service.start();
 .Deploying the Shell Service on HTTP with JDBC authentication
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("httpOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 8080).
-      put("ssl", true).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/server-keystore.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "jdbc").
-        put("config", new JsonObject()
-          .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
-          .put("driver_class", "org.hsqldb.jdbcDriver"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("httpOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 8080).
+        put("ssl", true).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/server-keystore.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "jdbc").
+          put("config", new JsonObject()
+            .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
+            .put("driver_class", "org.hsqldb.jdbcDriver"))))
+    )
+  );
 ----
 
 .Running the Shell Service on HTTP with JDBC authentication
@@ -538,7 +548,8 @@ command.processHandler(process -> {
 
   String argValue = commandLine.getArgumentValue(0);
   String optValue = commandLine.getOptionValue("my-option");
-  process.write("The argument is " + argValue + " and the option is " + optValue);
+  process
+    .write("The argument is " + argValue + " and the option is " + optValue);
 
   process.end();
 });
@@ -551,7 +562,11 @@ when the option is activated:
 ----
 CLI cli = CLI.create("my-command").
   addArgument(new Argument().setArgName("my-arg")).
-  addOption(new Option().setArgName("help").setShortName("h").setLongName("help"));
+  addOption(new Option()
+    .setArgName("help")
+    .setShortName("h")
+    .setLongName("help"));
+
 CommandBuilder command = CommandBuilder.command(cli);
 command.processHandler(process -> {
   // ...
@@ -571,9 +586,7 @@ receives data, e.g the user uses his keyboard:
 
 [source,java]
 ----
-tty.stdinHandler(data -> {
-  System.out.println("Received " + data);
-});
+tty.stdinHandler(data -> System.out.println("Received " + data));
 ----
 
 A command can use the `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#write-java.lang.String-[write]` to write to the standard output.
@@ -601,9 +614,8 @@ is called, the new terminal size can be obtained with `link:../../apidocs/io/ver
 
 [source,java]
 ----
-tty.resizehandler(v -> {
-  System.out.println("terminal resized : " + tty.width() + " " + tty.height());
-});
+tty.resizehandler(v ->
+  System.out.println("terminal resized : " + tty.width() + " " + tty.height()));
 ----
 
 ==== Terminal type
@@ -670,9 +682,7 @@ command.processHandler(process -> {
   Vertx vertx = process.vertx();
 
   // Every second print a message on the console
-  long periodicId = vertx.setPeriodic(1000, id -> {
-    process.write("tick\n");
-  });
+  long periodicId = vertx.setPeriodic(1000, id -> process.write("tick\n"));
 
   // When user press Ctrl+C: cancel the timer and end the process
   process.interruptHandler(v -> {
@@ -706,14 +716,10 @@ is resumed, usually when the user types _fg_:
 command.processHandler(process -> {
 
   // Command is suspended
-  process.suspendHandler(v -> {
-    System.out.println("Suspended");
-  });
+  process.suspendHandler(v -> System.out.println("Suspended"));
 
   // Command is resumed
-  process.resumeHandler(v -> {
-    System.out.println("Resumed");
-  });
+  process.resumeHandler(v -> System.out.println("Resumed"));
 });
 ----
 
@@ -728,9 +734,7 @@ the command is _terminated_.
 command.processHandler(process -> {
 
   // Command terminates
-  process.endHandler(v -> {
-    System.out.println("Terminated");
-  });
+  process.endHandler(v -> System.out.println("Terminated"));
 });
 ----
 
@@ -808,15 +812,12 @@ Job job = shell.createJob("my-command 1234");
 
 // Create a pseudo terminal
 Pty pty = Pty.create();
-pty.stdoutHandler(data -> {
-  System.out.println("Command wrote " + data);
-});
+pty.stdoutHandler(data -> System.out.println("Command wrote " + data));
 
 // Run the command
 job.setTty(pty.slave());
-job.statusUpdateHandler(status -> {
-  System.out.println("Command terminated with status " + status);
-});
+job.statusUpdateHandler(status ->
+  System.out.println("Command terminated with status " + status));
 ----
 
 The `link:../../apidocs/io/vertx/ext/shell/term/Pty.html[Pty]` pseudo terminal is the main interface for interacting with the command
@@ -836,7 +837,7 @@ A `link:../../apidocs/io/vertx/ext/shell/term/Term.html[Term]` handler must be s
 handle each term when the user connects.
 
 An {@code Auth*Options} can be set on `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html[SSHTermOptions]` and `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html[HttpTermOptions]`.
-Alternatively, an `link:../../apidocs/io/vertx/ext/auth/AuthProvider.html[AuthProvider]` can be `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#authProvider-io.vertx.ext.auth.AuthProvider-[set]`
+Alternatively, an `link:../../apidocs/io/vertx/ext/auth/authentication/AuthenticationProvider.html[AuthenticationProvider]` can be `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#authenticationProvider-io.vertx.ext.auth.authentication.AuthenticationProvider-[set]`
 directly on the term server before starting it.
 
 === SSH term
@@ -847,12 +848,11 @@ terminal.
 
 [source,java]
 ----
-TermServer server = TermServer.createSSHTermServer(vertx, new SSHTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createSSHTermServer(vertx,
+    new SSHTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
@@ -863,12 +863,11 @@ how to use the tty.
 
 [source,java]
 ----
-TermServer server = TermServer.createTelnetTermServer(vertx, new TelnetTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createTelnetTermServer(vertx,
+    new TelnetTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
@@ -879,12 +878,11 @@ on top of Vert.x Web using the SockJS protocol.
 
 [source,java]
 ----
-TermServer server = TermServer.createHttpTermServer(vertx, new HttpTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createHttpTermServer(vertx,
+    new HttpTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
@@ -894,12 +892,12 @@ The shell can be found at `/shell.html`.
 
 [source,java]
 ----
-TermServer server = TermServer.createHttpTermServer(vertx, router, new HttpTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createHttpTermServer(vertx,
+    router,
+    new HttpTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
