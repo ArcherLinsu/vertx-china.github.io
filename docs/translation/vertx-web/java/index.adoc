@@ -74,7 +74,7 @@ To use vert.x web, add the following dependency to the _dependencies_ section of
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-web</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 
@@ -83,7 +83,7 @@ To use vert.x web, add the following dependency to the _dependencies_ section of
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-web:4.3.1'
+ compile 'io.vertx:vertx-web:4.3.2'
 }
 ----
 
@@ -1539,7 +1539,7 @@ HTTPS when sessions are being used. Vert.x will warn you if you attempt to use s
 To enable sessions in your application you must have a `link:../../apidocs/io/vertx/ext/web/handler/SessionHandler.html[SessionHandler]`
 on a matching route before your application logic.
 
-The session handler handles the creation of session cookies and the lookup of the session so you don't have to do
+The session handler handles the creation of session cookies and the lookup of the session, so you don't have to do
 that yourself.
 
 Sessions data is saved to a session store automatically after the response headers have been sent to the client.
@@ -1705,7 +1705,7 @@ distributing different requests from the same browser to different servers.
 As the session is stored in the Cookie, this means sessions survive server crashes too.
 
 A second known implementation is the Redis session store. This store works just like the normal cluster store, however
-just like it's name suggests, it uses a redis backend to keep the session data centralized.
+just like its name suggests, it uses a redis backend to keep the session data centralized.
 
 Also, there is the Infinispan session store (details below).
 
@@ -1753,6 +1753,10 @@ router.route("/somepath/blah/").handler(ctx -> {
 The session handler will ensure that your session is automatically looked up (or created if no session exists)
 from the session store and set on the routing context before it gets to your application handlers.
 
+By default, the session handler will always add a session cookie to the HTTP response, even if the session has not been
+accessed by your application. To create the session cookie only when the session has been used, use
+`sessionHandler.setLazySession(true)`.
+
 === Using the session
 
 In your handlers you can access the session instance with `link:../../apidocs/io/vertx/ext/web/RoutingContext.html#session--[session]`.
@@ -1788,7 +1792,7 @@ router.route("/somepath/blah").handler(ctx -> {
 });
 ----
 
-Sessions are automatically written back to the store after after responses are complete.
+Sessions are automatically written back to the store after responses are complete.
 
 You can manually destroy a session using `link:../../apidocs/io/vertx/ext/web/Session.html#destroy--[destroy]`. This will remove the session
 from the context and the session store. Note that if there is no session a new one will be automatically created
@@ -1955,7 +1959,7 @@ router
 === JWT authentication
 
 With JWT authentication resources can be protected by means of permissions and users without enough rights are denied
-access. You need to add the `io.vertx:vertx-auth-jwt:4.3.1` dependency to use `JWTAuthProvider`
+access. You need to add the `io.vertx:vertx-auth-jwt:4.3.2` dependency to use `JWTAuthProvider`
 
 To use this handler there are 2 steps involved:
 
@@ -2346,7 +2350,6 @@ githubOAuth2.setupCallback(router.route("/github-callback"));
 OAuth2Auth googleAuthProvider = OAuth2Auth.create(vertx, new OAuth2Options()
   .setClientId("CLIENT_ID")
   .setClientSecret("CLIENT_SECRET")
-  .setFlow(OAuth2FlowType.AUTH_CODE)
   .setSite("https://accounts.google.com")
   .setTokenPath("https://www.googleapis.com/oauth2/v3/token")
   .setAuthorizationPath("/o/oauth2/auth"));
@@ -2455,7 +2458,7 @@ router.getWithRegex(".+\\.hbs").handler(handler);
 === MVEL template engine
 
 To use MVEL, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-mvel:4.3.1`. Create an instance of the MVEL template engine using:
+`io.vertx:vertx-web-templ-mvel:4.3.2`. Create an instance of the MVEL template engine using:
 `io.vertx.ext.web.templ.mvel.MVELTemplateEngine#create(io.vertx.core.Vertx)`
 
 When using the MVEL template engine, it will by default look for
@@ -2481,7 +2484,7 @@ MVEL templates.
 === Jade template engine
 
 To use the Jade template engine, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-jade:4.3.1`. Create an instance of the Jade template engine using:
+`io.vertx:vertx-web-templ-jade:4.3.2`. Create an instance of the Jade template engine using:
 `io.vertx.ext.web.templ.jade.JadeTemplateEngine#create(io.vertx.core.Vertx)`.
 
 When using the Jade template engine, it will by default look for
@@ -2507,7 +2510,7 @@ Jade templates.
 === Handlebars template engine
 
 To use Handlebars, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-handlebars:4.3.1`. Create an instance of the Handlebars template engine
+`io.vertx:vertx-web-templ-handlebars:4.3.2`. Create an instance of the Handlebars template engine
 using: `io.vertx.ext.web.templ.handlebars.HandlebarsTemplateEngine#create(io.vertx.core.Vertx)`.
 
 When using the Handlebars template engine, it will by default look for
@@ -2542,7 +2545,7 @@ handlebars templates.
 === Thymeleaf template engine
 
 To use Thymeleaf, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-thymeleaf:4.3.1`. Create an instance of the Thymeleaf template engine
+`io.vertx:vertx-web-templ-thymeleaf:4.3.2`. Create an instance of the Thymeleaf template engine
 using: `io.vertx.ext.web.templ.thymeleaf.ThymeleafTemplateEngine#create(io.vertx.core.Vertx)`.
 
 When using the Thymeleaf template engine, it will by default look for
@@ -2570,7 +2573,7 @@ Thymeleaf templates.
 === Apache FreeMarker template engine
 
 To use Apache FreeMarker, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-freemarker:4.3.1`. Create an instance of the Apache FreeMarker template engine
+`io.vertx:vertx-web-templ-freemarker:4.3.2`. Create an instance of the Apache FreeMarker template engine
 using: `io.vertx.ext.web.templ.Engine#create()`.
 
 When using the Apache FreeMarker template engine, it will by default look for
@@ -2598,7 +2601,7 @@ Apache FreeMarker templates.
 === Pebble template engine
 
 To use Pebble, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-pebble:4.3.1`. Create an instance of the Pebble template engine
+`io.vertx:vertx-web-templ-pebble:4.3.2`. Create an instance of the Pebble template engine
 using: `io.vertx.ext.web.templ.pebble.PebbleTemplateEngine#create(vertx)`.
 
 When using the Pebble template engine, it will by default look for
@@ -2625,7 +2628,7 @@ Pebble templates.
 
 === Rocker template engine
 
-To use Rocker, then add `io.vertx:vertx-web-templ-rocker:4.3.1` as a dependency to your project.
+To use Rocker, then add `io.vertx:vertx-web-templ-rocker:4.3.2` as a dependency to your project.
 You can then create a Rocker template engine instance with `io.vertx.ext.web.templ.rocker#create()`.
 
 The values of the JSON context object passed to the `render` method are then exposed as template parameters.
@@ -2656,7 +2659,7 @@ Request path is @context.getString("path")
 === HTTL template engine
 
 To use HTTL, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-httl:4.3.1`. Create an instance of the HTTL template engine
+`io.vertx:vertx-web-templ-httl:4.3.2`. Create an instance of the HTTL template engine
 using: `io.vertx.ext.web.templ.httl.HTTLTemplateEngine#create(io.vertx.core.Vertx)`.
 
 When using the HTTL template engine, it will by default look for
@@ -2692,7 +2695,7 @@ HTTL templates.
 === Rythm template engine
 
 To use Rythm, you need to add the following _dependency_ to your project:
-`io.vertx:vertx-web-templ-rythm:4.3.1`. Create an instance of the Rythm template engine
+`io.vertx:vertx-web-templ-rythm:4.3.2`. Create an instance of the Rythm template engine
 using: `io.vertx.ext.web.templ.rythm.RythmTemplateEngine#create(io.vertx.core.Vertx)`.
 
 When using the Rythm template engine, it will by default look for
@@ -3642,7 +3645,6 @@ However if you're using an unlisted provider you can still do it using the base 
 OAuth2Auth authProvider = OAuth2Auth.create(vertx, new OAuth2Options()
   .setClientId("CLIENT_ID")
   .setClientSecret("CLIENT_SECRET")
-  .setFlow(OAuth2FlowType.AUTH_CODE)
   .setSite("https://accounts.google.com")
   .setTokenPath("https://www.googleapis.com/oauth2/v3/token")
   .setAuthorizationPath("/o/oauth2/auth"));

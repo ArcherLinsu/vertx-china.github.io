@@ -31,7 +31,7 @@ To use the Reactive Oracle Client add the following dependency to the _dependenc
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-oracle-client</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -39,7 +39,7 @@ To use the Reactive Oracle Client add the following dependency to the _dependenc
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-oracle-client:4.3.1'
+ compile 'io.vertx:vertx-oracle-client:4.3.2'
 }
 ----
 
@@ -210,17 +210,42 @@ pool.getConnection(ar -> {
 
 === Connection URI
 
-Apart from configuring with a `link:../../apidocs/io/vertx/oracleclient/OracleConnectOptions.html[OracleConnectOptions]` data object, we also provide you with an alternative way to connect when you want to configure with a connection URI:
+Apart from configuring with a `link:../../apidocs/io/vertx/oracleclient/OracleConnectOptions.html[OracleConnectOptions]` data object, we also provide you with an alternative way to connect when you want to configure with a connection URI.
+
+Using the EZConnect format:
 
 [source,java]
 ----
-String connectionUri = "oracle:thin:scott/tiger@myhost:1521:orcl";
+String connectionUri = "oracle:thin:@mydbhost1:5521/mydbservice?connect_timeout=10sec";
+
+// Connect options
+OracleConnectOptions connectOptions = OracleConnectOptions.fromUri(connectionUri)
+  .setUser("user")
+  .setPassword("secret");
 
 // Pool Options
 PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 
 // Create the pool from the connection URI
-OraclePool pool = OraclePool.pool(connectionUri, poolOptions);
+OraclePool pool = OraclePool.pool(vertx, connectOptions, poolOptions);
+----
+
+Or, using the TNS Alias format:
+
+[source,java]
+----
+String connectionUri = "oracle:thin:@prod_db?TNS_ADMIN=/work/tns/";
+
+// Connect options
+OracleConnectOptions connectOptions = OracleConnectOptions.fromUri(connectionUri)
+  .setUser("user")
+  .setPassword("secret");
+
+// Pool Options
+PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
+
+// Create the pool from the connection URI
+OraclePool pool = OraclePool.pool(vertx, connectOptions, poolOptions);
 ----
 
 == Connect retries

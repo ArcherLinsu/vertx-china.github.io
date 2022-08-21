@@ -1551,6 +1551,7 @@ Native on Linux gives you extra networking options:
 * `TCP_QUICKACK`
 * `TCP_CORK`
 * `TCP_FASTOPEN`
+* `TCP_USER_TIMEOUT`
 
 [source,java]
 ----

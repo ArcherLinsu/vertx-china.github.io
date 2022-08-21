@@ -31,7 +31,7 @@ To use the Reactive MSSQL Client add the following dependency to the _dependenci
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mssql-client</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -39,7 +39,7 @@ To use the Reactive MSSQL Client add the following dependency to the _dependenci
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mssql-client:4.3.1'
+ compile 'io.vertx:vertx-mssql-client:4.3.2'
 }
 ----
 
@@ -208,7 +208,7 @@ As an alternative to configuring the client with a `link:../../apidocs/io/vertx/
 
 [source,java]
 ----
-String connectionUri = "sqlserver://dbuser:secretpassword@database.server.com:3211/mydb";
+String connectionUri = "sqlserver://dbuser:secretpassword@database.server.com:1433/mydb";
 
 // Create the pool from the connection URI
 MSSQLPool pool = MSSQLPool.pool(connectionUri);
@@ -219,15 +219,21 @@ MSSQLConnection.connect(vertx, connectionUri, res -> {
 });
 ----
 
-The connection URI format is defined by the client in an idiomatic way: `sqlserver://[user[:[password]]@]host[:port][/database][?attribute1=value1&attribute2=value2...]`
+The connection URI format is defined by the client in an idiomatic way:
 
-Currently, the client supports the following parameter keywords in connection uri (keys are case-insensitive):
+----
+sqlserver://[user[:[password]]@]host[:port][/database][?<key1>=<value1>[&<key2>=<value2>]]
+----
 
-* host
-* port
-* user
-* password
-* database
+Currently, the client supports the following parameter keys:
+
+* `host`
+* `port`
+* `user`
+* `password`
+* `database`
+
+NOTE: Configuring parameters in connection URI will override the default properties.
 
 == Connect retries
 

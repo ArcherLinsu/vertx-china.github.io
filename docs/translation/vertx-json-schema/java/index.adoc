@@ -22,7 +22,7 @@ To use Vert.x Json Schema, add the following dependency to the _dependencies_ se
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-json-schema</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 
@@ -31,7 +31,7 @@ To use Vert.x Json Schema, add the following dependency to the _dependencies_ se
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-json-schema:4.3.1'
+ compile 'io.vertx:vertx-json-schema:4.3.2'
 }
 ----
 
@@ -41,7 +41,7 @@ dependencies {
 
 Schemas can exist in 2 flavours:
 
-* JSON as in JSON natation
+* JSON as in JSON notation
 * Boolean as in `true/false`
 
 The `link:../../apidocs/io/vertx/json/schema/JsonSchema.html[JsonSchema]` interface allows both types to be handled without the constant check of the

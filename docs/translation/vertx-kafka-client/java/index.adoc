@@ -19,7 +19,7 @@ To use this component, add the following dependency to the dependencies section 
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-kafka-client</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 
@@ -27,7 +27,7 @@ To use this component, add the following dependency to the dependencies section 
 
 [source,groovy,subs="+attributes"]
 ----
-compile io.vertx:vertx-kafka-client:4.3.1
+compile io.vertx:vertx-kafka-client:4.3.2
 ----
 
 == Creating Kafka clients
@@ -885,4 +885,4 @@ span tags are:
 - `peer.service` is always `kafka`
 - `message_bus.destination`, which is set to the topic in use
 
-include::admin.adoc[]
+include::adminclient.adoc[]
