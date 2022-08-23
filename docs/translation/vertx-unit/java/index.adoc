@@ -351,7 +351,7 @@ suite.before(context -> {
 您也可以等待 `link:../../apidocs/io/vertx/ext/unit/Async.html[Async]` 直到其结束，
 类似Java的 count-down latch：
 
-.Wait for completion
+.等待完成
 [source, java]
 ----
 Async async = context.async();
