@@ -18,7 +18,7 @@ const TranslationProfile = ({ profile, size = "small" }) => {
         } alt={profile.name || profile.githubId} title={size === "small" ? (profile.name || profile.githubId) : undefined}
         className="lazyload" />
       </a>
-      {profile.name && <div className="community-profile-name" style={{ maxWidth: "100px", marginLeft: "auto", marginRight: "auto", overflow: "hidden" }}>{profile.name}</div>}
+      {profile.name && <div className="community-profile-name" style={{ maxWidth: "90%", marginLeft: "auto", marginRight: "auto", overflow: "hidden" }}>{profile.name}</div>}
       <style jsx>{styles}</style>
     </div>
   )
