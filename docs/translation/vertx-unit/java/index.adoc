@@ -1002,11 +1002,11 @@ public class TimeoutTestSuite {
 }
 ----
 
-NOTE: Use `io.vertx.ext.unit.junit.Timeout`, not `org.junit.rules.Timeout`.
+NOTE: 使用 `io.vertx.ext.unit.junit.Timeout`，而不是 `org.junit.rules.Timeout`。
 
-The method level timeout overwrites the class level timeout:
+这个方法级别的超时会覆盖 class 级别的超时：
 
-.Combine the class level rule with a method level timeout
+.结合 class 级别规则 以及 方法级别的超时
 [source,java]
 ----
 @RunWith(VertxUnitRunner.class)
