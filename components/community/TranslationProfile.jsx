@@ -10,7 +10,7 @@ const TranslationProfile = ({ profile, size = "small" }) => {
   }
 
   return (
-    <div className={classNames("community-profile", size)}>
+    <div className={classNames("community-profile", size)} style={{ minWidth: "100px" }}>
       <a href={`https://github.com/${profile.githubId}`} target="_blank" rel="noopener noreferrer">
         <img data-srcset={
           (`${profile.avatar_url}&s=${cx} 2x,` || `https://github.com/${profile.githubId}.png?size=${cx} 2x,`) +
@@ -18,7 +18,7 @@ const TranslationProfile = ({ profile, size = "small" }) => {
         } alt={profile.name || profile.githubId} title={size === "small" ? (profile.name || profile.githubId) : undefined}
         className="lazyload" />
       </a>
-      {profile.name && <div className="community-profile-name">{profile.name}</div>}
+      {profile.name && <div className="community-profile-name" style={{ maxWidth: "100px", marginLeft: "auto", marginRight: "auto", overflow: "hidden" }}>{profile.name}</div>}
       <style jsx>{styles}</style>
     </div>
   )
