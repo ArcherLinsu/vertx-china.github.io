@@ -321,13 +321,16 @@ assertEquals("http://server.com/currency/%E2%82%AC", UriTemplate.of("http://serv
 |{ "map": { "firstName": "Dale", "lastName": "Cooper" } } | {;map*} | ;firstName=Dale;lastName=Cooper
 |===
 
+[[_characters_set_cheatsheet]]
 == 字符集备忘单
 
+[[_reserved_set]]
 === 预留集
 
 [[reserved_set]]
 `!*'();:@&=+$,/?#[]`
 
+[[_unreserved_set]]
 === 非预留集
 
 [[unreserved_set]]
