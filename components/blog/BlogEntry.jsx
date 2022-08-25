@@ -6,7 +6,11 @@ import classNames from "classnames"
 import styles from "./BlogEntry.scss?type=global"
 
 const BlogEntry = ({ post }) => {
-  let authors = post.meta.authors.map(a => {
+  let allAuthors = [...post.meta.authors]
+  if (post.meta.translators) {
+    allAuthors.push(...post.meta.translators)
+  }
+  let authors = allAuthors.map(a => {
     let img = <img src={`https://github.com/${a.github_id}.png?size=50`}
       alt={`${a.name}'s profile image`} />
     let name = a.name

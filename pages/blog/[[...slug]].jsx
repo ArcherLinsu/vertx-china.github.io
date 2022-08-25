@@ -253,6 +253,21 @@ export async function getStaticPaths() {
   // add blog index
   paths.push({ params: { slug: [] } })
 
+  // 添加已翻译标签
+  paths.push({
+    params: {
+      slug: ["translated"]
+    }
+  })
+  let translatedPosts = allPosts.filter(p => p.meta.translators && p.meta.translators.length > 0)
+  let nTranslatedPages = Math.ceil(translatedPosts.length / MAX_ITEMS_PER_PAGE)
+  for (let p = 1; p < nTranslatedPages; ++p) {
+    paths.push({
+      params: {
+        slug: ["translated", "page", `${p + 1}`]
+      }
+    })
+  }
   return {
     paths,
     fallback: false
@@ -276,11 +291,14 @@ function trimPost(post, includeDetails = false) {
   return result
 }
 
-function getTrimmedPostsForPage(allPosts, page, category = undefined) {
+function getTrimmedPostsForPage(allPosts, page, category = undefined, onlyTranslated = false) {
   // filter posts by category
   let posts = allPosts
   if (category !== undefined) {
     posts = posts.filter(p => p.meta.category === category)
+  }
+  if (onlyTranslated) {
+    posts = posts.filter(p => p.meta.translators && p.meta.translators.length > 0)
   }
 
   // get current page
@@ -308,7 +326,7 @@ export async function getStaticProps({ params }) {
   await writeFeed(allPosts, anyPostChanged)
 
   // handle blog index
-  if (!params.slug) {
+  if (!params.slug || params.slug[0] === "[[...slug]]") {
     return {
       props: {
         ...result,
@@ -348,6 +366,24 @@ export async function getStaticProps({ params }) {
         category,
         page,
         ...getTrimmedPostsForPage(allPosts, page, category)
+      }
+    }
+  }
+
+  // 处理已翻译的首页
+  if (slug === "translated") {
+    // handle pages
+    let page
+    if (params.slug.length > 2 && params.slug[1] === "page") {
+      page = parseInt(params.slug[2])
+    }
+    page = page || 1
+    return {
+      props: {
+        ...result,
+        page,
+        translated: true,
+        ...getTrimmedPostsForPage(allPosts, page, undefined, true)
       }
     }
   }
@@ -392,7 +428,7 @@ export async function getStaticProps({ params }) {
   }
 }
 
-const BlogPage = ({ post, prevPost, nextPost, relatedPosts, category, categories,
+const BlogPage = ({ post, prevPost, nextPost, relatedPosts, category, translated, categories,
     page, posts, numPages }) => {
   const [mdxModule, setMdxModule] = useState()
 
@@ -411,6 +447,9 @@ const BlogPage = ({ post, prevPost, nextPost, relatedPosts, category, categories
     if (category !== undefined) {
       title = `${capitalize(category)} | ${title}`
     }
+    if (translated) {
+      title = `已翻译 | ${title}`
+    }
     if (page > 1) {
       title = `第${page}页 | ${title}`
     }
@@ -420,7 +459,7 @@ const BlogPage = ({ post, prevPost, nextPost, relatedPosts, category, categories
         <div className="blog-entries">
           {entries}
         </div>
-        <Pagination currentPage={page} numPages={numPages} category={category} />
+        <Pagination currentPage={page} numPages={numPages} category={category} translated={translated} />
       </Blog>
     )
   }
@@ -446,6 +485,18 @@ const BlogPage = ({ post, prevPost, nextPost, relatedPosts, category, categories
                   target="_blank" rel="noopener noreferrer">{author.name}</a>
               </div>
             </div>
+          ))}
+          {post.meta.translators && <div className="blog-post-sidebar-pinned"><strong>译者</strong></div>}
+          {post.meta.translators && post.meta.translators.map(author => (
+              <div className="blog-post-author" key={author.github_id}>
+                <img className="blog-post-author-avatar"
+                     src={`https://github.com/${author.github_id}.png?size=160`}
+                     alt={`${author.name}'s profile image`} />
+                <div className="blog-post-author-name">
+                  {post.meta.translators.length === 1 && "by "}<a href={`https://github.com/${author.github_id}`}
+                                                              target="_blank" rel="noopener noreferrer">{author.name}</a>
+                </div>
+              </div>
           ))}
           {post.meta.pinned && <div className="blog-post-sidebar-pinned"><Label dark><strong>置顶文章</strong></Label></div>}
           {post.meta.pinned || <><div className="blog-post-sidebar-date">Posted on <BlogDate date={post.date} /></div>
