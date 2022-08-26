@@ -83,7 +83,7 @@ export async function getStaticProps({ params }) {
   const path = require("path")
 
   // handle index page
-  if (!params.slug) {
+  if (!params.slug || params.slug[0] === "[[...slug]]") {
     return {
       props: {}
     }

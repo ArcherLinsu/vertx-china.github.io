@@ -19,6 +19,7 @@ import { useEffect, useState } from "react"
 import { Clock } from "react-feather"
 import SimpleIcon from "../../components/SimpleIcon"
 import { siFacebook, siLinkedin, siTwitter } from "simple-icons/icons"
+import Translation from "../../components/icon/Translation.js"
 
 const MAX_ITEMS_PER_PAGE = 6
 
@@ -283,6 +284,10 @@ function trimPost(post, includeDetails = false) {
     slug: post.slug
   }
 
+  if (post.filename) {
+    result.filename = post.filename
+  }
+
   if (includeDetails) {
     result.readingTime = post.readingTime
     result.content = post.content
@@ -402,7 +407,7 @@ export async function getStaticProps({ params }) {
 
   // calculate related posts based on tf-idf
   let relatedPosts = tfidf.tfidfs(post.tfIdfTerms.map(t => t.term))
-    .map((f, i) => ({ f, date: allPosts[i].date, meta: allPosts[i].meta, slug: allPosts[i].slug }))
+    .map((f, i) => ({ f, date: allPosts[i].date, meta: allPosts[i].meta, slug: allPosts[i].slug, filename: allPosts[i].filename }))
     .sort((a, b) => b.f - a.f) // sort by tf-idf (best matches first)
     .filter(p => p.slug !== slug) // remove current post
     .slice(0, 3) // select best three matches
@@ -499,10 +504,11 @@ const BlogPage = ({ post, prevPost, nextPost, relatedPosts, category, translated
               </div>
           ))}
           {post.meta.pinned && <div className="blog-post-sidebar-pinned"><Label dark><strong>置顶文章</strong></Label></div>}
-          {post.meta.pinned || <><div className="blog-post-sidebar-date">Posted on <BlogDate date={post.date} /></div>
-          in <Link href="/blog/[[...slug]]" as={`/blog/category/${post.meta.category}/`}>
+          {post.meta.pinned || <><div className="blog-post-sidebar-date">发表于 <BlogDate date={post.date} /></div>
+          分类 <Link href="/blog/[[...slug]]" as={`/blog/category/${post.meta.category}/`}>
             <a className="blog-post-sidebar-category">{post.meta.category}</a>
           </Link></>}
+          <div className="blog-post-sidebar-pinned"><Label small tiny><strong><a href={`https://github.com/vertx-china/vertx-china.github.io/edit/master/${post.filename}`}><Translation className="feather" />{post.meta.translators !== undefined ? "改进翻译" : "翻译本文"}</a></strong></Label></div>
           <div className="blog-post-sidebar-reading-time"><Clock className="feather" /> {post.readingTime.text}</div>
           <div className="blog-post-sidebar-share-icons">
             <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.meta.title)}&url=${encodeURIComponent(url)}&via=vertx_project`}
