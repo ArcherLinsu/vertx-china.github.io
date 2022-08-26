@@ -35,9 +35,12 @@ Issues 里面带 `待认领` 标签的都是 [需要翻译的文档](https://git
 
 新版本是预编译*.adoc文件的，因此翻译完成后，本地预览需要执行 `npm run update-docs`。
 
+> 新版本翻译在各版本目录下增加了 `.cache.version` 文件来控制缓存，修改完翻译后，修改此文件可以破坏缓存，从而让翻译的文件重新编译。
+
 网络不好的情况下，可以修改 `download.js` 第 10 行 `repoUrl` 为阿里云（其他也可以）的镜像地址：`https://maven.aliyun.com/repository/central`
 
-> 因为是以 index.adoc 文件来计算缓存的key，非 index.adoc 文件翻译后，如果不修改 index.adoc 文件，则不会更新缓存，页面也不会更新，需要在 index.adoc中进行小的修改
+> ~~因为是以 index.adoc 文件来计算缓存的key，非 index.adoc 文件翻译后，如果不修改 index.adoc 文件，则不会更新缓存，页面也不会更新，需要在 index.adoc中进行小的修改~~
+
 
 ### 如何提交
 提交翻译通过PR（Pull Request）进行。请在自己Fork的项目中发起PR，而不是本项目（本项目Fork了官方项目，若在本项目发起PR，默认会提交到官方项目）。
@@ -69,7 +72,7 @@ review完毕后，点击左上角 `Review changes`，有三个选项：
 
 翻译只翻译master分支，因为创建的其他分支最终需要合并到master分支。
 
-english分支与master分支的区别是：`english分支` 的 translation目录为当前版本的英文文档。主要是版本升级时，更新英文文档时用。
+english分支与master分支的区别是：`english` 分支 的 translation目录为当前版本的英文文档。主要是版本升级时，更新英文文档时用。
  
 ## 版本更新操作说明
 
