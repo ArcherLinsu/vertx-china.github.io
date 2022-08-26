@@ -15,6 +15,7 @@ import { latestRelease, metadata as docsMetadata } from "../../docs/metadata/all
 import { filterLatestBugfixVersions } from "../../docs/metadata/helpers"
 import { Book, Code, Edit, List, Paperclip, X } from "react-feather"
 import styles from "./Docs.scss?type=global"
+import Translation from "../icon/Translation.js"
 
 const Docs = ({ metadata, allVersions, fallbackGitHubStars, toc, contents }) => {
   const tocRef = useRef()
@@ -174,8 +175,10 @@ const Docs = ({ metadata, allVersions, fallbackGitHubStars, toc, contents }) => 
     examples = <a href={metadata.examples}><Paperclip className="feather" /> Examples</a>
   }
   let edit
+  let translation
   if (metadata.edit) {
-    edit = <a href={metadata.edit}><Edit className="feather" /> 改进翻译</a>
+    edit = <a href={metadata.edit}><Edit className="feather" /> 编辑原文 </a>
+    translation = <a href={`https://github.com/vertx-china/vertx-china.github.io/tree/master/docs/translation/${metadata.id}/java`}><Translation className="feather" /> 改进翻译 </a>
   }
 
   return (
@@ -211,6 +214,7 @@ const Docs = ({ metadata, allVersions, fallbackGitHubStars, toc, contents }) => 
                   </div>
                   {examples && <div className="docs-content-metadata-examples">{examples}</div>}
                   {edit && <div className="docs-content-metadata-edit">{edit}</div>}
+                  {translation && <div className="docs-content-metadata-edit">{translation}</div>}
                   <span className="docs-content-metadata-version">
                     <DropDown title={`v${activeVersionTitle}`} align="right">
                       {filterLatestBugfixVersions(sortedAllVersions).map(v => {

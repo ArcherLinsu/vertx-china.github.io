@@ -6,7 +6,7 @@
 
 ## 翻译说明
 ### 如何认领
-Issues 里面带 `待认领` 标签的都是 [需要翻译的文档](https://github.com/vertx-china/vertx-web-site/issues?q=is%3Aopen+is%3Aissue+label%3A%E5%BE%85%E8%AE%A4%E9%A2%86)。 
+Issues 里面带 `待认领` 标签的都是 [需要翻译的文档](https://github.com/vertx-china/vertx-china.github.io/issues?q=is%3Aopen+is%3Aissue+label%3A%E5%BE%85%E8%AE%A4%E9%A2%86)。 
 
 请在想翻译的文档对应 issue 下面留言认领，我们会Assign给你，并修改issue标签等。
 

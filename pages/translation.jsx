@@ -54,8 +54,8 @@ async function fetchContributors(octokit, users) {
 
   let repos = [
     {
-      name: "vertx-web-site",
-      full_name: "vertx-china/vertx-web-site",
+      name: "vertx-china.github.io",
+      full_name: "vertx-china/vertx-china.github.io",
       owner: {
         login: "vertx-china"
       },
@@ -133,7 +133,7 @@ export async function getStaticProps() {
   } else {
 
     const pulls = await octokit.paginate(octokit.pulls.list, {
-      repo: "vertx-web-site",
+      repo: "vertx-china.github.io",
       owner:"vertx-china",
       state: "all"
     })
