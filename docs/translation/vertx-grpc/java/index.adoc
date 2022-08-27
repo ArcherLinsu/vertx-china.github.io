@@ -11,7 +11,7 @@ gRPC是谷歌开源的远程方法调用（RPC）系统。
 ----
 
 Vert.x gRPC 是将谷歌 gRPC 编程风格与 Vert.x 编程风格统一的模块。
-使用本模块 ，你可以在保留 Vert.x Streams 和 Futures 编码风格的同时享受 gRPC 原有的各种特性和优势。
+使用本模块，您可以在保留 Vert.x Streams 和 Futures 编码风格的同时享受 gRPC 原有的各种特性和优势。
 
 更多关于 gRPC 的信息请查看官方文档 http://www.grpc.io/ 。
 
