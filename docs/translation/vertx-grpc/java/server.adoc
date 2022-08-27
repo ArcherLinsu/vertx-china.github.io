@@ -135,7 +135,7 @@ performAsyncOperation().onComplete(ar -> {
 });
 ----
 
-你可以检查响应的写能力,然后设置恢复处理器
+你可以检查响应的写能力，然后设置恢复处理器
 
 [source,java]
 ----
