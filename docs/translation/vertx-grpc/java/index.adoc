@@ -16,7 +16,7 @@ Vert.x gRPC 是将谷歌 gRPC 编程风格与 Vert.x 编程风格统一的模块
 更多关于 gRPC 的信息请查看官方文档 http://www.grpc.io/ 。
 
 
-警告：本模块是 Vert.x 技术栈自 4.3 版本后对 gRPC 支持的新实现，
+WARNING: 本模块是 Vert.x 技术栈自 4.3 版本后对 gRPC 支持的新实现，
 基于 gRPC Netty 实现的老模块依然保留，更名为Vert.x gRPC Netty ，相关链接：https://vertx.io/docs/vertx-grpc-netty/java/ 。
 本模块处于技术前瞻状态，接口定义可能在后续版本中进行改动
 
