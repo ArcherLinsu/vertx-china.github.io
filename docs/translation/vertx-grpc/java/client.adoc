@@ -8,7 +8,7 @@ Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x
 
 在项目中添加依赖
 
-* Maven (`pom.xml` 文件):
+* Maven（在您的 `pom.xml` 文件中）：
 
 [source,xml,subs="+attributes"]
 ----
