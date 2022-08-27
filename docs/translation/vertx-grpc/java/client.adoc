@@ -209,6 +209,7 @@ request.write(Item.newBuilder().setValue("item-2").build());
 request.write(Item.newBuilder().setValue("item-3").build());
 ----
 
+[[_decompression_2]]
 === 解压缩
 
 解压缩在服务端自动进行（译者注：gRPC只内置了gzip，如果要使用其他压缩算法需要在客户端和服务端同时进行扩展）。
