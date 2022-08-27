@@ -31,6 +31,7 @@ dependencies {
 }
 ----
 
+[[_grpc_requestresponse_server_api]]
 === gRPC 请求/响应 服务端接口
 
 gRPC 请求/响应 服务端接口可以使用客户端直接进行调用，而不依赖于调用桩
