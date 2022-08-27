@@ -169,6 +169,7 @@ response.write(Item.newBuilder().setValue("item-3").build());
 
 解压缩在服务端自动进行 (译者注：gRPC只内置了gzip，如果要使用其他压缩算法需要在客户端和服务端同时进行扩展)
 
+[[_stub_api]]
 === 调用桩接口
 
 Vert.x gRPC Server 提供了传统的使用 gRPC 通道的调用桩接口
