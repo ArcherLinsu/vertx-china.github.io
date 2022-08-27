@@ -193,6 +193,7 @@ vertx.createHttpServer(options)
   .listen();
 ----
 
+[[_message_level_api]]
 === 消息级接口
 
 服务端提供了消息级别的接口用于直接处理 protobuf 编码的 gRPC 消息
