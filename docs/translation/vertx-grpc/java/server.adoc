@@ -5,7 +5,8 @@ Vert.x gRPC Server 是一个新的 gRPC 服务端， 内核部分使用 Vert.x H
 此服务端不但提供我们熟知的 请求/响应 式的服务端接口，也提供服务桥接的接口调用桩
 
 
-=== 集成 Vert.x gRPC Server
+[[_using_vert_x_grpc_server]]
+=== 集成 Vert.x gRPC 服务器
 
 在项目中添加依赖
 
