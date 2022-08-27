@@ -4,7 +4,8 @@ Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x
 
 此客户端不但提供我们熟悉的 请求/响应 式的客户端接口，也提供 gRPC Channel 方式的接口调用桩
 
-=== 集成 Vert.x gRPC Client
+[[_using_vert_x_grpc_client]]
+=== 集成 Vert.x gRPC 客户端
 
 在项目中添加依赖
 
