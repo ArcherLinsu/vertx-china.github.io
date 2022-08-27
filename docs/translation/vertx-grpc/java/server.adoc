@@ -269,7 +269,7 @@ server.callHandler(request -> {
 ----
 
 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#writeMessage-io.vertx.grpc.common.GrpcMessage-[writeMessage]`` 和 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#endMessage-io.vertx.grpc.common.GrpcMessage-[endMessage]``
-将处理这些消息编码:
+将处理这些消息编码：
 
 - 如果消息使用服务端编码，将原样发出
 - 如果消息使用一个不同的编码, 它将会重新编码,例如压缩和解压缩
