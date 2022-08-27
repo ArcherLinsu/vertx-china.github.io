@@ -119,6 +119,7 @@ server.callHandler(StreamingGrpc.getPipeMethod(), request -> {
 });
 ----
 
+[[_flow_control]]
 === 流控
 
 使用 Vert.x streams 对请求和响应进行背压控制
