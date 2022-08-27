@@ -1,4 +1,5 @@
-== Vert.x gRPC Server
+[[_vert_x_grpc_server]]
+== Vert.x gRPC 服务器
 
 Vert.x gRPC Server 是一个新的 gRPC 服务端， 内核部分使用 Vert.x HTTP server 替换了原有的 grpc Netty Server
 
