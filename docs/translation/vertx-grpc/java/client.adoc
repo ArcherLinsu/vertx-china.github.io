@@ -195,6 +195,7 @@ client
 
 NOTE: 取消指令会发送一个 HTTP/2 reset 帧到服务端
 
+[[_compression_2]]
 === 压缩
 
 在发送消息 *之前* 设置压缩算法，用于消息压缩
