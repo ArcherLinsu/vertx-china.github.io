@@ -33,7 +33,7 @@ dependencies {
 
 gRPC 请求/响应 客户端接口可以对服务直接进行调用，而不依赖于调用桩
 
-你可以快速的创建客户端实例
+您可以快速的创建客户端实例
 
 [source,java]
 ----
@@ -103,7 +103,7 @@ client
 
 ==== 流式响应
 
-你可以设置处理器去处理每个响应事件
+您可以设置处理器去处理每个响应事件
 
 [source,java]
 ----
@@ -134,7 +134,7 @@ client
 
 使用 Vert.x streams 进行背压控制
 
-你可以检查请求的写能力，然后设置恢复处理器
+您可以检查请求的写能力，然后设置恢复处理器
 
 [source,java]
 ----
@@ -147,7 +147,7 @@ if (request.writeQueueFull()) {
 }
 ----
 
-你可以 暂停/恢复/同步 响应
+您可以 暂停/恢复/同步 响应
 
 [source,java]
 ----
@@ -161,7 +161,7 @@ performAsyncOperation().onComplete(ar -> {
 
 === 取消指令
 
-你可以使用 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#cancel--[cancel]`` 取消一个请求
+您可以使用 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#cancel--[cancel]`` 取消一个请求
 
 [source,java]
 ----
@@ -236,7 +236,7 @@ greeter.sayHello(HelloRequest.newBuilder().setName("Bob").build(), new StreamObs
 
 TIP: 客户端消息级接口可以和服务端消息级接口一起使用构建一个 gRPC 反向代理
 
-如果你对消息的内容不感兴趣，而是想将消息转发到其他服务，比方说你在写一个代理,这些接口就十分有用。
+如果您对消息的内容不感兴趣，而是想将消息转发到其他服务，比方说您在写一个代理，这些接口就十分有用。
 
 [source,java]
 ----
@@ -261,7 +261,7 @@ requestFut.onSuccess(request -> {
 });
 ----
 
-你也可以使用 `messageHandler` 去处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]`` ，这些消息会保留服务端的编码。
+您也可以使用 `messageHandler` 去处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]`` ，这些消息会保留服务端的编码。
 
 [source,java]
 ----
@@ -287,7 +287,7 @@ requestFut.onSuccess(request -> {
 ----
 
 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#writeMessage-io.vertx.grpc.common.GrpcMessage-[writeMessage]`` 和 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#endMessage-io.vertx.grpc.common.GrpcMessage-[endMessage]``
-将处理这些消息编码:
+将处理这些消息编码：
 
 - 如果消息使用服务端编码，将原样发出
-- 如果消息使用一个不同的编码, 它将会重新编码，例如压缩和解压缩
+- 如果消息使用一个不同的编码， 它将会重新编码，例如压缩和解压缩
