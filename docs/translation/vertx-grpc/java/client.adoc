@@ -1,14 +1,14 @@
 == Vert.x gRPC Client
 
-Vert.x gRPC Client is a new gRPC client powered by Vert.x HTTP client superseding the integrated Netty based gRPC client.
+Vert.x gRPC Client 是一个新的 gRPC 客户端, 其内核部分使用 Vert.x HTTP Client 替换了原有的 gRPC Netty client
 
-This client provides a gRPC request/response client API as well as a the generated stub approach with a gRPC Channel
+此客户端不但提供我们熟悉的 请求/响应 式的客户端接口 , 也提供 gRPC Channel 方式的接口调用桩
 
-=== Using Vert.x gRPC Client
+=== 集成 Vert.x gRPC Client
 
-To use Vert.x gRPC Client, add the following dependency to the _dependencies_ section of your build descriptor:
+在项目中添加依赖
 
-* Maven (in your `pom.xml`):
+* Maven (`pom.xml` 文件):
 
 [source,xml,subs="+attributes"]
 ----
@@ -19,7 +19,7 @@ To use Vert.x gRPC Client, add the following dependency to the _dependencies_ se
 </dependency>
 ----
 
-* Gradle (in your `build.gradle` file):
+* Gradle (`build.gradle` 文件):
 
 [source,groovy,subs="+attributes"]
 ----
@@ -28,20 +28,21 @@ dependencies {
 }
 ----
 
-=== gRPC request/response client API
+=== gRPC 请求/响应 客户端接口
 
-The gRPC request/response client API provides an alternative way to interact with a server without the need of a generated stub.
 
-You can easily create the gRPC client
+gRPC 请求/响应 客户端接口可以对服务直接进行调用, 而不依赖于调用桩
+
+你可以快速的创建客户端实例
 
 [source,java]
 ----
 GrpcClient client = GrpcClient.client(vertx);
 ----
 
-==== Request/response
+==== 请求/响应
 
-Any interaction with a gRPC server involves creating a request to the remote gRPC service
+创建和发送请求
 
 [source,java]
 ----
@@ -54,8 +55,8 @@ fut.onSuccess(request -> {
 });
 ----
 
-The ``link:../../apidocs/io/vertx/grpc/client/GrpcClientRequest.html#response--[response]`` holds the response and the
-``link:../../apidocs/io/vertx/grpc/common/GrpcReadStream.html#last--[last]`` holds the result
+``link:../../apidocs/io/vertx/grpc/client/GrpcClientRequest.html#response--[response]``  持有响应
+``link:../../apidocs/io/vertx/grpc/common/GrpcReadStream.html#last--[last]`` 持有结果
 
 [source,java]
 ----
@@ -67,7 +68,7 @@ request.response().onSuccess(response -> {
 });
 ----
 
-Future composition can combine all the previous steps together in a compact fashion
+Future 的组合接口可以将所有步骤组合在一起形成流式编程风格
 
 [source,java]
 ----
@@ -83,10 +84,10 @@ client
   });
 ----
 
-==== Streaming request
+==== 流式请求
 
-A streaming request involves calling ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#write-java.lang.Object-[write]`` for each element of the stream
-and using ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#end--[end]`` to end the stream
+流式请求使用 ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#write-java.lang.Object-[write]`` 发送每条请求消息元素
+使用 ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#end--[end]`` 结束流
 
 [source,java]
 ----
@@ -100,9 +101,9 @@ client
 });
 ----
 
-==== Streaming response
+==== 流式响应
 
-You can set handlers to process response events
+你可以设置处理器去处理每个响应事件
 
 [source,java]
 ----
@@ -125,15 +126,15 @@ client
   });
 ----
 
-==== Bidi request/response
+==== 双向流
 
-A bidi request/response is simply the combination of a streaming request and a streaming response.
+一个双向流可以用一个流式请求和一个流式响应简单的组合起来
 
-=== Flow control
+=== 流控
 
-Request and response are back pressured Vert.x streams.
+使用 Vert.x streams 进行背压控制
 
-You can check the writability of a request and set a drain handler
+你可以检查请求的写能力,然后设置恢复处理器
 
 [source,java]
 ----
@@ -146,7 +147,7 @@ if (request.writeQueueFull()) {
 }
 ----
 
-You can pause/resume/fetch a response
+你可以 暂停/恢复/同步 响应
 
 [source,java]
 ----
@@ -158,9 +159,9 @@ performAsyncOperation().onComplete(ar -> {
 });
 ----
 
-=== Cancellation
+=== 取消指令
 
-You can call ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#cancel--[cancel]`` to cancel a request
+你可以使用 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#cancel--[cancel]`` 取消一个请求
 
 [source,java]
 ----
@@ -183,11 +184,11 @@ client
   });
 ----
 
-NOTE: cancellation sends an HTTP/2 reset frame to the server
+注意: 取消指令会发送一个 HTTP/2 reset 帧到服务端
 
-=== Compression
+=== 压缩
 
-You can compress request messages by setting the request encoding *prior* before sending any message
+在发送消息 *之前* 设置压缩算法, 用于消息压缩
 
 [source,java]
 ----
@@ -199,13 +200,13 @@ request.write(Item.newBuilder().setValue("item-2").build());
 request.write(Item.newBuilder().setValue("item-3").build());
 ----
 
-=== Decompression
+=== 解压缩
 
-Decompression is done transparently by the client when the server send encoded responses.
+解压缩在服务端自动进行 (译者注: gRPC只内置了gzip,如果要使用其他压缩算法需要在客户端和服务端同时进行扩展)
 
-=== Stub API
+=== 调用桩接口
 
-The Vert.x gRPC Client provides a gRPC channel to use with a generated client stub in a more traditional fashion
+Vert.x gRPC Client 提供了传统的使用 gRPC 通道的调用桩 API
 
 [source,java]
 ----
@@ -229,14 +230,13 @@ greeter.sayHello(HelloRequest.newBuilder().setName("Bob").build(), new StreamObs
 });
 ----
 
-=== Message level API
+=== 消息级接口
 
-The client provides a message level API to interact directly with protobuf encoded gRPC messages.
+客户端提供了消息级别的接口用于直接处理 protobuf 编码的 gRPC 消息
 
-TIP: the client message level API can be used with the server message level API to write a gRPC reverse proxy
+提示: 客户端消息级接口可以和服务端消息级接口一起使用构建一个 gRPC 反向代理
 
-Such API is useful when you are not interested in the content of the messages, and instead you want to forward them to
-another service, e.g. you are writing a proxy.
+如果你对消息的内容不感兴趣,而是想将消息转发到其他服务,比方说你在写一个代理,这些接口就十分有用。
 
 [source,java]
 ----
@@ -261,7 +261,7 @@ requestFut.onSuccess(request -> {
 });
 ----
 
-You can also set a `messageHandler` to handle ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]``, such messages preserve the server encoding.
+你也可以使用 `messageHandler` 去处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]``, 这些消息会保留服务端的编码
 
 [source,java]
 ----
@@ -286,8 +286,8 @@ requestFut.onSuccess(request -> {
 });
 ----
 
-The ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#writeMessage-io.vertx.grpc.common.GrpcMessage-[writeMessage]`` and ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#endMessage-io.vertx.grpc.common.GrpcMessage-[endMessage]`` will
-handle the message encoding:
+``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#writeMessage-io.vertx.grpc.common.GrpcMessage-[writeMessage]`` 和 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#endMessage-io.vertx.grpc.common.GrpcMessage-[endMessage]``
+将处理这些消息编码:
 
-- when the message uses the response encoding, the message is sent as is
-- when the message uses a different encoding, it will be encoded, e.g. compressed or uncompressed
+- 如果消息使用服务端编码，将原样发出
+- 如果消息使用一个不同的编码, 它将会重新编码,例如压缩和解压缩

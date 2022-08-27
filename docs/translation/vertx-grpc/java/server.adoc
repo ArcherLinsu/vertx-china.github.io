@@ -1,14 +1,15 @@
 == Vert.x gRPC Server
 
-Vert.x gRPC Server is a new gRPC server powered by Vert.x HTTP server superseding the integrated Netty based gRPC client.
+Vert.x gRPC Server 是一个新的 gRPC 服务端, 内核部分使用 Vert.x HTTP server 替换了原有的 grpc Netty Server
 
-This server provides a gRPC request/response client API as well as a the generated stub approach with a service bridge.
+此服务端不但提供我们熟知的 请求/响应 式的服务端接口 , 也提供服务桥接的接口调用桩
 
-=== Using Vert.x gRPC Server
 
-To use Vert.x gRPC Server, add the following dependency to the _dependencies_ section of your build descriptor:
+=== 集成 Vert.x gRPC Server
 
-* Maven (in your `pom.xml`):
+在项目中添加依赖
+
+* Maven (`pom.xml` 文件):
 
 [source,xml,subs="+attributes"]
 ----
@@ -19,7 +20,7 @@ To use Vert.x gRPC Server, add the following dependency to the _dependencies_ se
 </dependency>
 ----
 
-* Gradle (in your `build.gradle` file):
+* Gradle (`build.gradle` 文件):
 
 [source,groovy,subs="+attributes"]
 ----
@@ -28,11 +29,11 @@ dependencies {
 }
 ----
 
-=== gRPC request/response server API
+=== gRPC 请求/响应 服务端接口
 
-The gRPC request/response server API provides an alternative way to interact with a client without the need of a generated stub.
+gRPC 请求/响应 服务端接口可以使用客户端直接进行调用, 而不依赖于调用桩
 
-A ``link:../../apidocs/io/vertx/grpc/server/GrpcServer.html[GrpcServer]`` is a `Handler<HttpServerRequest>` and can be used as an HTTP server request handler.
+``link:../../apidocs/io/vertx/grpc/server/GrpcServer.html[GrpcServer]`` 就是一个 `Handler<HttpServerRequest>` 并且像 HTTP 服务请求处理器一样使用.
 
 [source,java]
 ----
@@ -45,11 +46,11 @@ server
   .listen();
 ----
 
-TIP: a `GrpcServer` can be mounted in a Vert.x Web router
+提示: `GrpcServer` 可以挂载到 Vert.x Web 路由上
 
-==== Request/response
+==== 请求/响应
 
-Each service method is processed by a handler
+每个服务中的接口都由一个处理器处理
 
 [source,java]
 ----
@@ -66,9 +67,9 @@ server.callHandler(GreeterGrpc.getSayHelloMethod(), request -> {
 });
 ----
 
-==== Streaming request
+==== 流式请求
 
-You can set handlers to process request events
+你可以设置处理器处理请求事件
 
 [source,java]
 ----
@@ -87,10 +88,10 @@ server.callHandler(StreamingGrpc.getSinkMethod(), request -> {
 });
 ----
 
-==== Streaming response
+==== 流式响应
 
-A streaming response involves calling ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#write-java.lang.Object-[write]`` for each element of the stream
-and using ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#end--[end]`` to end the stream
+流式响应使用 ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#write-java.lang.Object-[write]`` 发送每条响应消息元素
+使用  ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#end--[end]`` 结束流
 
 [source,java]
 ----
@@ -105,9 +106,9 @@ server.callHandler(StreamingGrpc.getSourceMethod(), request -> {
 });
 ----
 
-==== Bidi request/response
+==== 双向流
 
-A bidi request/response is simply the combination of a streaming request and a streaming response
+一个双向流可以用一个流式请求和一个流式响应简单的组合起来
 
 [source,java]
 ----
@@ -118,11 +119,11 @@ server.callHandler(StreamingGrpc.getPipeMethod(), request -> {
 });
 ----
 
-=== Flow control
+=== 流控
 
-Request and response are back pressured Vert.x streams.
+使用 Vert.x streams 对请求和响应进行背压控制
 
-You can pause/resume/fetch a request
+你可以 暂停/恢复/同步 一个请求
 
 [source,java]
 ----
@@ -134,7 +135,7 @@ performAsyncOperation().onComplete(ar -> {
 });
 ----
 
-You can check the writability of a response and set a drain handler
+你可以检查响应的写能力,然后设置恢复处理器
 
 [source,java]
 ----
@@ -147,9 +148,9 @@ if (response.writeQueueFull()) {
 }
 ----
 
-=== Compression
+=== 压缩
 
-You can compress response messages by setting the response encoding *prior* before sending any message
+你要再发送消息 *之前* 设置压缩算法, 用于消息压缩
 
 [source,java]
 ----
@@ -161,13 +162,13 @@ response.write(Item.newBuilder().setValue("item-2").build());
 response.write(Item.newBuilder().setValue("item-3").build());
 ----
 
-=== Decompression
+=== 解压缩
 
-Decompression is done transparently by the server when the client send encoded requests.
+解压缩在服务端自动进行 (译者注: gRPC只内置了gzip,如果要使用其他压缩算法需要在客户端和服务端同时进行扩展)
 
-=== Stub API
+=== 调用桩接口
 
-The Vert.x gRPC Server can bridge a gRPC service to use with a generated server stub in a more traditional fashion
+Vert.x gRPC Server 提供了传统的使用 gRPC 通道的调用桩接口
 
 [source,java]
 ----
@@ -191,14 +192,13 @@ vertx.createHttpServer(options)
   .listen();
 ----
 
-=== Message level API
+=== 消息级接口
 
-The server provides a message level API to interact directly with protobuf encoded gRPC messages.
+服务端提供了消息级别的接口用于直接处理 protobuf 编码的 gRPC 消息
 
-TIP: the server message level API can be used with the client message level API to write a gRPC reverse proxy
+提示: 服务端消息级接口可以和客户端消息级接口一起使用构建一个 gRPC 反向代理
 
-Such API is useful when you are not interested in the content of the messages, and instead you want to forward them to
-another service, e.g. you are writing a proxy.
+如果你对消息的内容不感兴趣,而是想将消息转发到其他服务,比方说你在写一个代理,这些接口就十分有用。
 
 [source,java]
 ----
@@ -228,9 +228,8 @@ server.callHandler(request -> {
 });
 ----
 
-You can also set a `messageHandler` to handle ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]``, such messages preserve the
-client encoding, which is useful the service you are forwarding to can handle compressed messages directly, in this case
-the message does not need to be decompressed and compressed again.
+你也可以使用 `messageHandler` 去处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]``, 这些消息会保留客户端的编码,
+如果你想直接转发压缩后的消息就非常有用，可以避免二次解压缩和压缩
 
 [source,java]
 ----
@@ -269,8 +268,8 @@ server.callHandler(request -> {
 });
 ----
 
-The ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#writeMessage-io.vertx.grpc.common.GrpcMessage-[writeMessage]`` and ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#endMessage-io.vertx.grpc.common.GrpcMessage-[endMessage]`` will
-handle the message encoding:
+``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#writeMessage-io.vertx.grpc.common.GrpcMessage-[writeMessage]`` 和 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#endMessage-io.vertx.grpc.common.GrpcMessage-[endMessage]``
+将处理这些消息编码:
 
-- when the message uses the response encoding, the message is sent as is
-- when the message uses a different encoding, it will be encoded, e.g. compressed or uncompressed
+- 如果消息使用服务端编码，将原样发出
+- 如果消息使用一个不同的编码, 它将会重新编码,例如压缩和解压缩
