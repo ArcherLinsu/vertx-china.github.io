@@ -167,6 +167,7 @@ performAsyncOperation().onComplete(ar -> {
 });
 ----
 
+[[_cancellation]]
 === 取消指令
 
 您可以使用 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#cancel--[cancel]`` 取消一个请求
