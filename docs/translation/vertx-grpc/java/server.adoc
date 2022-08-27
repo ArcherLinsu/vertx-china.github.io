@@ -9,7 +9,7 @@ Vert.x gRPC Server 是一个新的 gRPC 服务端, 内核部分使用 Vert.x HTT
 
 在项目中添加依赖
 
-* Maven (`pom.xml` 文件):
+* Maven（在您的 `pom.xml` 文件中）：
 
 [source,xml,subs="+attributes"]
 ----
