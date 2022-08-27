@@ -19,7 +19,7 @@ Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x
 </dependency>
 ----
 
-* Gradle (`build.gradle` 文件):
+* Gradle（在您的`build.gradle` 文件中）：
 
 [source,groovy,subs="+attributes"]
 ----
