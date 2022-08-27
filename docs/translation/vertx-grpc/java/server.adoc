@@ -51,6 +51,7 @@ server
 
 TIP: `GrpcServer` 可以挂载到 Vert.x Web 路由上
 
+[[_requestresponse]]
 ==== 请求/响应
 
 每个服务中的接口都由一个处理器处理
