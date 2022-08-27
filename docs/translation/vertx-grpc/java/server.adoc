@@ -149,6 +149,7 @@ if (response.writeQueueFull()) {
 }
 ----
 
+[[_compression]]
 === 压缩
 
 您可在发送消息 *之前* 设置压缩算法，用于压缩消息
