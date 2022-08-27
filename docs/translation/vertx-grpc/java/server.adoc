@@ -33,7 +33,7 @@ dependencies {
 
 gRPC 请求/响应 服务端接口可以使用客户端直接进行调用, 而不依赖于调用桩
 
-``link:../../apidocs/io/vertx/grpc/server/GrpcServer.html[GrpcServer]`` 就是一个 `Handler<HttpServerRequest>` 并且像 HTTP 服务请求处理器一样使用.
+``link:../../apidocs/io/vertx/grpc/server/GrpcServer.html[GrpcServer]`` 就是一个 `Handler<HttpServerRequest>` 并且像 HTTP 服务请求处理器一样使用。
 
 [source,java]
 ----
