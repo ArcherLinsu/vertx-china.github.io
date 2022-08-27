@@ -20,7 +20,7 @@ Vert.x gRPC Server 是一个新的 gRPC 服务端, 内核部分使用 Vert.x HTT
 </dependency>
 ----
 
-* Gradle (`build.gradle` 文件):
+* Gradle（在您的 `build.gradle` 文件中）：
 
 [source,groovy,subs="+attributes"]
 ----
