@@ -69,6 +69,7 @@ server.callHandler(GreeterGrpc.getSayHelloMethod(), request -> {
 });
 ----
 
+[[_streaming_request]]
 ==== 流式请求
 
 您可以设置处理器处理请求事件
