@@ -46,7 +46,7 @@ server
   .listen();
 ----
 
-提示: `GrpcServer` 可以挂载到 Vert.x Web 路由上
+TIP: `GrpcServer` 可以挂载到 Vert.x Web 路由上
 
 ==== 请求/响应
 
