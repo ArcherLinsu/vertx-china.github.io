@@ -84,6 +84,7 @@ client
   });
 ----
 
+[[_streaming_request_2]]
 ==== 流式请求
 
 流式请求使用 ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#write-java.lang.Object-[write]`` 发送每条请求消息元素
