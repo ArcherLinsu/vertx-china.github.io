@@ -229,7 +229,7 @@ server.callHandler(request -> {
 ----
 
 您也可以使用 `messageHandler` 处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]`` ，这些消息会保留客户端的编码，
-如果你想直接转发压缩后的消息就非常有用，可以避免二次解压缩和压缩
+如果你想直接转发压缩后的消息就非常有用，可以避免二次解压缩和压缩。
 
 [source,java]
 ----
