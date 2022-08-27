@@ -261,7 +261,7 @@ requestFut.onSuccess(request -> {
 });
 ----
 
-你也可以使用 `messageHandler` 去处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]``, 这些消息会保留服务端的编码
+你也可以使用 `messageHandler` 去处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]`` ，这些消息会保留服务端的编码。
 
 [source,java]
 ----
