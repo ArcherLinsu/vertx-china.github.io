@@ -242,6 +242,7 @@ greeter.sayHello(HelloRequest.newBuilder().setName("Bob").build(), new StreamObs
 });
 ----
 
+[[_message_level_api_2]]
 === 消息级接口
 
 客户端提供了消息级别的接口用于直接处理 protobuf 编码的 gRPC 消息
