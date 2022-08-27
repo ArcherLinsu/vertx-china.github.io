@@ -109,6 +109,7 @@ server.callHandler(StreamingGrpc.getSourceMethod(), request -> {
 });
 ----
 
+[[_bidi_requestresponse]]
 ==== 双向流
 
 一个双向流可以用一个流式请求和一个流式响应简单的组合起来
