@@ -1,45 +1,42 @@
 = Vert.x gRPC
 
-The best description of gRPC can be seen at wikipedia.
+关于gRPC的最佳描述可以在维基百科上看到.
 
-[quote, wikipedia, wikipedia]
+[quote, 维基百科, 维基百科]
 ____
-gRPC is an open source remote procedure call (RPC) system initially developed at Google. It uses HTTP/2 for
-transport, Protocol Buffers as the interface description language, and provides features such as authentication,
-bidirectional streaming and flow control, blocking or nonblocking bindings, and cancellation and timeouts. It
-generates cross-platform client and server bindings for many languages.
+gRPC是谷歌开源的远程方法调用（RPC）系统。
+它基于 HTTP/2 传输协议和 ProtoBuffer 接口描述语言，
+提供认证，双向流，流量控制，阻塞和非阻塞的调用桩绑定，以及接口调用的撤销、超时等功能和特性。
+它为很多语言生成跨平台客户端和服务端。
 ____
 
-Vert.x gRPC is a module that will align the programming style of Google gRPC with Vert.x style. As a user of this
-module you will be more familiar with the code style using Vert.x Streams and Futures while benefiting from all the
-benefits of gRPC.
+Vert.x gRPC 是一个使 Google gRPC编程风格与Vert.x风格一致的模块。
+作为这个模块的用户, 在受益于gRPC的同时，您将更熟悉使用Vert.x Streams 和 Futures的代码风格。
 
-For more information related to gRPC please consult the official documentation site http://www.grpc.io/.
+有关gRPC的更多信息，请参考官方文档网站http://www.grpc.io/。
 
-In addition Vert.x gRPC supports
+此外Vert.x gRPC支持
 
-* gRPC service scaling with Verticles
-* non-blocking native transports
+* 使用 Verticles 扩展 gRPC 服务
+* 非阻塞原生传输
 
-== gRPC types
+[[_grpc_types]]
+== gRPC 类型
 
-With gRPC you benefit from HTTP/2 which means that you will have asynchronous streaming support which means that your
-Remote Procedure Calls can have the following characteristics:
+基于HTTP/2协议的gRPC, 给您带来异步流传输支持, 这意味着您的远程过程调用可以具有以下特征:
 
-* Client streams request objects while Server replies with a single response object
-* Client streams request objects while Server replies with a stream of response objects
-* Client sends a single request object while Server replies with a single response object
-* Client sends a single request object while Server replies with a stream of response objects
+* 客户端流式请求，服务端单次响应
+* 客户端流式请求，服务端流式响应
+* 客户端单次请求，服务端单次响应
+* 客户端单次请求，服务端流式响应
 
-While to the untrained eye this might not look to different from other HTTP based RPC approaches you should be aware
-that with HTTP/2 your requests do not need to complete before the responses start to arrive. This means that your
-communication channel is full duplex. Being full duplex allows you to reduce the response latency and make more
-response application.
+虽然在初次接触的人看来, 这可能与其他基于HTTP的RPC方法没有什么不同, 但您应该了解HTTP/2协议中, 请求不需要在响应到达之前结束。
+这意味着您的通信通道是全双工的。全双工可以让您减少响应时延并提高吞吐量。
 
-== A simple Hello World
+[[_a_simple_hello_world]]
+== 一个简单的Hello World
 
-In order to start with your first hello world example, one needs to define the protocol. gRPC requires you to define
-this protocol using the `protobuffer` format.
+为了开始您的第一个 hello world 示例，需要定义协议。gRPC 要求您使用 `protobuffer` 格式定义此协议.
 
 [source,proto]
 ----
@@ -67,16 +64,17 @@ message HelloReply {
 }
 ----
 
-This is a very simple example showing the single request, single response mode.
+这是一个非常简单的示例，展示了单请求，单响应模式。
 
-=== Compile the RPC definition
+[[_compile_the_rpc_definition]]
+=== 编译 RPC 定义
 
-Using the definition above we need to compile it.
+我们需要编译上面的定义。
 
-You can compile the proto file using the `protoc` compiler if you https://github.com/google/protobuf/tree/master/java#installation---without-maven[like]
-or you can integrate it in your build.
+如果您https://github.com/google/protobuf/tree/master/java#installation---without-maven[愿意], 可以使用protoc编译器编译proto文件,
+或者您可以将其集成到构建中。
 
-If you're using Apache Maven you need to add the plugin:
+如果您使用的是Apache Maven， 则需要添加插件：
 
 [source,xml]
 ----
@@ -121,9 +119,8 @@ If you're using Apache Maven you need to add the plugin:
 </plugin>
 ----
 
-The `${os.detected.classifier}` property is used to make the build OS independant, on OSX it is replaced
-by _osx-x86_64_ and so on. To use it you need to add the os-maven-plugin[https://github.com/trustin/os-maven-plugin]
-in the `build` section of your `pom.xml`:
+“${os.detected.classifier}”属性用于使构建操作系统独立，在OSX上，它被_OSX-x86_64_等替代。
+要使用它，您需要添加os maven插件[https://github.com/trustin/os-maven-plugin] 在您的“pom.xml”的“build”部分中`：
 
 [source,xml]
 ----
@@ -140,9 +137,8 @@ in the `build` section of your `pom.xml`:
 </build>
 ----
 
-This plugin will compile your proto files under `src/main/proto` and make them available to your project.
-
-If you're using Gradle you need to add the plugin:
+这个插件将编译您在' src/main/proto '下的proto文件，并将其提供给您的项目。
+如果您使用Gradle，您需要添加插件：
 
 [source,groovy]
 ----
@@ -178,13 +174,13 @@ protobuf {
 }
 ----
 
-This plugin will compile your proto files under `build/generated/source/proto/main` and make them available to your project.
+该插件将编译您在“build/generated/source/proto/main”下的proto文件，并将其提供给您的项目
 
-=== gRPC Server
+[[_grpc_server]]
+=== gRPC 服务器
 
-Now you should have your RPC base code setup it is time to implement your server. As you should recall from above we
-described that our server should implement a `sayHello` method that receives a `HelloRequest` objects and returns a
-`HelloReply` object. So you can implement it as:
+现在您应该已经编写了RPC基本代码, 是实现您的服务端的时候了. 您应该记得, 我们在上面描述过, 我们的服务端应该实现一个“sayHello”方法,
+该方法接收“HelloRequest”对象并返回“HelloReply”对象. 因此您可以实现为:
 
 [source,java]
 ----
@@ -203,8 +199,7 @@ GreeterGrpc.GreeterImplBase service = new GreeterGrpc.GreeterImplBase() {
 };
 ----
 
-Once you're happy with it you can then make your service available on a server. Vert.x makes the creation of a server
-quite simple all you need to add is:
+当您开心时，您就可以在服务端上提供您的服务。 Vert.x创建服务非常简单，您需要添加：
 
 [source,java]
 ----
@@ -217,12 +212,13 @@ VertxServer rpcServer = VertxServerBuilder
 rpcServer.start();
 ----
 
-==== Using Vert.x future and streams
+[[_using_vert_x_future_and_streams]]
+==== 使用Vert.x future 和 streams
 
-The previous example was using a gRPC server processing asynchronously using gRPC asynchronous constructs such
-as `io.grpc.stub.StreamObserver`. This code is generated by the protoc compiler.
+上一个例子是使用gRPC异步构造， 如`io.grpc.stub.StreamObserver`去异步处理gRPC服务。
+此代码由 protoc 编译器生成.
 
-The plugin configuration above configures the following plugin:
+插件配置如下：
 
 ```xml
 <protocPlugin>
@@ -234,8 +230,7 @@ The plugin configuration above configures the following plugin:
 </protocPlugin>
 ```
 
-This generates a service version that uses Vert.x asynchronous constructs such as `Future` or `ReadStream` or `WriteStream`
-which can be more convenient in the Vert.x ecosystem.
+这是一个使用Vert.x异步构造，如`Future`或者`ReadStream`或者`WriteStream`的服务版本，在Vert.x体系中更方便。
 
 [source,java]
 ----
@@ -251,10 +246,10 @@ VertxGreeterGrpc.GreeterVertxImplBase service =
   };
 ----
 
-==== Server gzip compression
+[[_server_gzip_compression]]
+==== 服务端 gzip 压缩
 
-You can enable gzip compression to tell the server to send compressed responses (compressed requests
-are automatically handled by the server).
+您可以启用 gzip 压缩来告诉服务端发送压缩响应（压缩请求由服务端自动处理）。
 
 [source,java]
 ----
@@ -271,9 +266,7 @@ VertxGreeterGrpc.GreeterVertxImplBase service =
     .withCompression("gzip");
 ----
 
-The `withCompression` configuration is generated by the Vert.x gRPC protoc plugin. You can also enable compression
-on default services by casting the `ResponseObserver` to `ServerCallStreamObserver` and call `setCompression` before
-sending the response.
+withCompression配置由Vert.x gRPC protoc 插件生成。你也可以通过将ResponseObserver转换为ServerCallStreamObserver并在发送响应之前调用setCompression来启用默认服务的压缩。
 
 [source,java]
 ----
@@ -296,12 +289,12 @@ GreeterGrpc.GreeterImplBase service = new GreeterGrpc.GreeterImplBase() {
 };
 ----
 
-NOTE: you can use other compressors as long as the server support them and they are registered against the compressor
-registry when building the `ManagedChannel`
+NOTE: 只要服务端支持其他压缩器，并且在构建 `ManagedChannel` 时在压缩器注册表注册它们，就可以使用
 
-==== SSL configuration
+[[_ssl_configuration]]
+==== SSL 配置
 
-The previous example was simple but your RPC is not secure. In order to make it secure we should enable SSL/TLS:
+前面的示例很简单，但是您的RPC不安全。为了使其安全，我们应该启用SSL/TLS：
 
 [source,java]
 ----
@@ -314,16 +307,14 @@ VertxServerBuilder builder = VertxServerBuilder.forPort(vertx, 8080)
       .setPassword("secret")));
 ----
 
-Congratulations you just completed your first gRPC server.
+恭喜您刚刚完成第一个gRPC服务端。
 
-IMPORTANT: since gRPC uses HTTP/2 transport, SSL/TLS setup requires the
-https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
-in your server
+IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的服务端中进行https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
 
-==== Server scaling
+[[_server_scaling]]
+==== Server 扩展
 
-When you deploy several instances of the same verticles, the gRPC server will be scaled
-on the verticle event-loops.
+当您部署多实例的verticles时，gRPC服务端将按verticle event-loops缩放。
 
 [source,java]
 ----
@@ -362,11 +353,11 @@ vertx.deployVerticle(
     .setInstances(4));
 ----
 
-==== BlockingServerInterceptor
+[[_blockingserverinterceptor]]
+==== 阻塞型服务端拦截器
 
-gRPC https://grpc.io/grpc-java/javadoc/io/grpc/ServerInterceptor.html[ServerInterceptor] is a mechanism
-for intercepting incoming calls before they are sent to the service.
-It has synchronous behavior and will be execute on the Vert.x event loop.
+gRPC https://grpc.io/grpc-java/javadoc/io/grpc/ServerInterceptor.html[ServerInterceptor]是一种机制，用于传入的调用在发送到服务之前拦截它们。
+它具有同步行为，将在Vert.x event loop上执行。
 
 [source,java]
 ----
@@ -376,7 +367,7 @@ VertxServer rpcServer = VertxServerBuilder
   .build();
 ----
 
-Suppose we have an interceptor that does something blocking the event loop:
+假设我们有一个拦截器来阻塞event loop：
 
 [source,java]
 ----
@@ -391,7 +382,7 @@ class MyInterceptor implements ServerInterceptor {
 MyInterceptor myInterceptor = new MyInterceptor();
 ----
 
-To avoid the blocking one should wrap the interceptor. Then it will be called on the Vert.x worker thread.
+为了避免阻塞，应该包装拦截器。然后它就会Vert.x工作线程中调用。
 
 [source,java]
 ----
@@ -408,14 +399,12 @@ VertxServer rpcServer = VertxServerBuilder
 rpcServer.start();
 ----
 
-==== Context Server Interceptor
+[[_context_server_interceptor]]
+==== 服务端上下文拦截器
 
-An abstract context server interceptor is available to allow intercepting server calls and extract metadata into the
-vert.x context. This context does not rely on thread locals so it is safe to use on vert.x APIs. This interceptor should
-be the first (or one of the firsts to be added to the interceptors list).
+服务端上下文拦截器的抽象可用于拦截服务端调用并将元数据提取到 vert.x 上下文中。此上下文不依赖于本地线程变量，因此在 vert.x API 上是正常使用的。这个拦截器应该是第一个（或要添加到拦截器列表中的第一个）。
 
-A typical example is the use of a session id. A client can create a client interceptor that sets a session id in all
-connections as:
+一个典型的使用会话id的例子。客户端可以创建一个客户端拦截器来设置所有的会话id连接:
 
 [source,java]
 ----
@@ -431,7 +420,7 @@ channel = VertxChannelBuilder.forAddress(vertx, "localhost", port)
   .build();
 ----
 
-And then on the server side an interceptor can be added as:
+然后如下在服务端端可以添加拦截器:
 
 [source,java]
 ----
@@ -457,16 +446,15 @@ VertxServer rpcServer = VertxServerBuilder
   .build();
 ----
 
-=== gRPC Client
+[[_grpc_client]]
+=== gRPC 客户端
 
-A server without a client is of no use, so let's create a client. In order to do this some steps overlap with the
-server. First we need to have the RPC definition, which should already done otherwise there would be no server and
-the same definition should have been compiled.
+没有客户端的服务端是没用的，所以我们来创建一个客户端。为了做到这一点，一些步骤与服务端类似。
+首先，我们需要有RPC定义，这应该已经完成，否则将没有服务端，并且应该编译相同的定义。
 
-Note that the compiler will always generate both the base server and a client stub so if you already compiled once
-you do not need to re-compile it again.
+请注意，编译器将始终生成基础服务端和客户端存根，因此如果您已经编译过一次，则不需要再次编译。
 
-Every client stub will always require a communication channel to a server so first we need to create a gRPC channel:
+每个客户端存根总是需要一个到服务端的通信通道，所以我们首先需要创建一个gRPC通道：
 
 [source,java]
 ----
@@ -479,8 +467,7 @@ ManagedChannel channel = VertxChannelBuilder
 GreeterGrpc.GreeterStub stub = GreeterGrpc.newStub(channel);
 ----
 
-Once the stub is created we can communicate with our server, this time it is easier since the stub already provides
-the correct method definition and parameter types:
+一旦创建了存根，我们就可以和我们的服务端通信了，这次就容易多了，因为存根已经提供了正确的方法定义和参数类型：
 
 [source,java]
 ----
@@ -507,12 +494,12 @@ stub.sayHello(request, new StreamObserver<HelloReply>() {
 });
 ----
 
-==== Using Vert.x future and streams
+[[_using_vert_x_future_and_streams_2]]
+==== 使用 Vert.x future 和 streams
 
-The previous example was using a gRPC client processing asynchronously using gRPC asynchronous constructs such
-as `io.grpc.stub.StreamObserver`. This code is generated by the protoc compiler.
+上一个例子是使用gRPC异步构造， 如`io.grpc.stub.StreamObserver`去异步处理gRPC客户端。  此代码由 protoc 编译器生成.
 
-The plugin configuration above configures the following plugin:
+插件配置如下：
 
 ```xml
 <protocPlugin>
@@ -524,8 +511,7 @@ The plugin configuration above configures the following plugin:
 </protocPlugin>
 ```
 
-This generates a client version that uses Vert.x asynchronous constructs such as `Future` or `ReadStream` or `WriteStream`
-which can be more convenient in the Vert.x ecosystem.
+这是一个使用Vert.x异步构造，如`Future`或者`ReadStream`或者`WriteStream`的客户端版本，在Vert.x生态系统更方便。
 
 [source,java]
 ----
@@ -539,9 +525,10 @@ future
   .onSuccess(helloReply -> System.out.println("Got the server response: " + helloReply.getMessage())).onFailure(err -> System.out.println("Coult not reach server " + err));
 ----
 
-==== Client gzip compression
+[[_client_gzip_compression]]
+==== 客户端 gzip 压缩
 
-You can enable gzip compression to tell the client to send compressed messages.
+您可以启用gzip压缩来告诉客户端发送压缩后的消息。
 
 [source,java]
 ----
@@ -550,12 +537,12 @@ GreeterGrpc.GreeterStub stub = GreeterGrpc
   .withCompression("gzip");
 ----
 
-NOTE: you can use other compressors as long as the server support them and they are registered against the compressor
-     registry when building the `ManagedChannel`
+NOTE: 只要服务端支持其他压缩器，并且在构建 `ManagedChannel` 时在压缩器注册表注册它们，就可以使用
 
-==== SSL configuration
+[[_ssl_configuration_2]]
+==== SSL 配置
 
-If you enabled SSL previously your client will also require SSL, in order to do this we need to configure the channel:
+如果您之前启用了 SSL，您的客户端也需要 SSL，为此我们需要配置通道：
 
 [source,java]
 ----
@@ -570,26 +557,24 @@ ManagedChannel channel = VertxChannelBuilder.
   .build();
 ----
 
-IMPORTANT: since gRPC uses HTTP/2 transport, SSL/TLS setup requires the
-https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
-in your client
+IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的客户端中进行https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
 
-== Advanced configuration
+[[_advanced_configuration]]
+== 高级的配置
 
-Until now all gRPC examples where using sensible defaults but there is more, if you need to have full control over
-the server configuration you should refer to the documentation: `link:../../apidocs/io/vertx/grpc/VertxServerBuilder.html[VertxServerBuilder]`, or if you
-need to control your client channel `link:../../apidocs/io/vertx/grpc/VertxChannelBuilder.html[VertxChannelBuilder]`. Vert.x gRPC extends the grpc-java
-project (Netty transport) and therefore reading its http://www.grpc.io/grpc-java/javadoc/[documentation] is
+到目前为止，所有gRPC示例都使用了合理的默认值，但还有更多，如果您需要完全控制服务端配置，您应该参考文档：`link:../../apidocs/io/vertx/grpc/VertxServerBuilder.html[VertxServerBuilder]`，
+或者如果您需要控制您的客户端通道：`link:../../apidocs/io/vertx/grpc/VertxChannelBuilder.html[VertxChannelBuilder]`。
+Vert.x gRPC扩展了grpc-java项目（Netty transport），因此推荐阅读http://www.grpc.io/grpc-java/javadoc/[文档]。
 recommended.
 
-== Native transports
+[[_native_transports]]
+== 原生传输
 
-The client and server can be deployed with Netty's native transports, this is achieved when
-creating the Vert.x instance.
+客户端和服务端可以使用 Netty 的原生传输，这是在创建 Vert.x 实例时设置的。
 
 [source,java]
 ----
 Vertx.vertx(new VertxOptions().setPreferNativeTransport(true));
 ----
 
-Please refer Vert.x Core documentation for more information about native transports.
+有关原生传输的更多信息，请参阅 Vert.x Core 文档。
