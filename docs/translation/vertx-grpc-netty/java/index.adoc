@@ -519,6 +519,7 @@ future
   .onSuccess(helloReply -> System.out.println("Got the server response: " + helloReply.getMessage())).onFailure(err -> System.out.println("Coult not reach server " + err));
 ----
 
+[[_client_gzip_compression]]
 ==== 客户端 gzip 压缩
 
 您可以启用gzip压缩来告诉客户端发送压缩后的消息。
