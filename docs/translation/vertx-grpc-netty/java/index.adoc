@@ -488,6 +488,7 @@ stub.sayHello(request, new StreamObserver<HelloReply>() {
 });
 ----
 
+[[_using_vert_x_future_and_streams_2]]
 ==== 使用 Vert.x future 和 streams
 
 上一个例子是使用gRPC异步构造， 如`io.grpc.stub.StreamObserver`去异步处理gRPC客户端。  此代码由 protoc 编译器生成.
