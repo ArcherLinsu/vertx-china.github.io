@@ -564,8 +564,7 @@ IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的客户端�
 
 到目前为止，所有gRPC示例都使用了合理的默认值，但还有更多，如果您需要完全控制服务端配置，您应该参考文档：`link:../../apidocs/io/vertx/grpc/VertxServerBuilder.html[VertxServerBuilder]`，
 或者如果您需要控制您的客户端通道：`link:../../apidocs/io/vertx/grpc/VertxChannelBuilder.html[VertxChannelBuilder]`。
-Vert.x gRPC扩展了grpc-java项目（Netty transport），因此推荐阅读http://www.grpc.io/grpc-java/javadoc/[文档]。
-recommended.
+Vert.x gRPC 扩展了 grpc-java 项目（Netty transport），因此推荐阅读 http://www.grpc.io/grpc-java/javadoc/[文档]。
 
 [[_native_transports]]
 == 原生传输
