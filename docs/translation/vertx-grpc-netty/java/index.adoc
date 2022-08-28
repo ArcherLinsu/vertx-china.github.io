@@ -446,7 +446,8 @@ VertxServer rpcServer = VertxServerBuilder
   .build();
 ----
 
-=== gRPC Client
+[[_grpc_client]]
+=== gRPC 客户端
 
 没有客户端的服务端是没用的，所以我们来创建一个客户端。为了做到这一点，一些步骤与服务端类似。
 首先，我们需要有RPC定义，这应该已经完成，否则将没有服务端，并且应该编译相同的定义。
