@@ -291,6 +291,7 @@ GreeterGrpc.GreeterImplBase service = new GreeterGrpc.GreeterImplBase() {
 
 NOTE: 只要服务端支持其他压缩器，并且在构建 `ManagedChannel` 时在压缩器注册表注册它们，就可以使用
 
+[[_ssl_configuration]]
 ==== SSL 配置
 
 前面的示例很简单，但是您的RPC不安全。为了使其安全，我们应该启用SSL/TLS：
