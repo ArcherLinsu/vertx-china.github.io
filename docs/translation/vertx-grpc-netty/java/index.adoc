@@ -20,6 +20,7 @@ Vert.x gRPC 是一个使 Google gRPC编程风格与Vert.x风格一致的模块�
 * 使用 Verticles 扩展 gRPC 服务
 * 非阻塞原生传输
 
+[[_grpc_types]]
 == gRPC 类型
 
 基于HTTP/2协议的gRPC, 给您带来异步流传输支持, 这意味着您的远程过程调用可以具有以下特征:
