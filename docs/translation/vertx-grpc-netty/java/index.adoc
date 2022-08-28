@@ -176,7 +176,8 @@ protobuf {
 
 该插件将编译您在“build/generated/source/proto/main”下的proto文件，并将其提供给您的项目
 
-=== gRPC Server
+[[_grpc_server]]
+=== gRPC 服务器
 
 现在您应该已经编写了RPC基本代码, 是实现您的服务端的时候了. 您应该记得, 我们在上面描述过, 我们的服务端应该实现一个“sayHello”方法,
 该方法接收“HelloRequest”对象并返回“HelloReply”对象. 因此您可以实现为:
