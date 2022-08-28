@@ -310,6 +310,7 @@ VertxServerBuilder builder = VertxServerBuilder.forPort(vertx, 8080)
 
 IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的服务端中进行https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
 
+[[_server_scaling]]
 ==== Server 扩展
 
 当您部署多实例的verticles时，gRPC服务端将按verticle event-loops缩放。
