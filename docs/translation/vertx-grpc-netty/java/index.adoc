@@ -399,6 +399,7 @@ VertxServer rpcServer = VertxServerBuilder
 rpcServer.start();
 ----
 
+[[_context_server_interceptor]]
 ==== 服务端上下文拦截器
 
 服务端上下文拦截器的抽象可用于拦截服务端调用并将元数据提取到 vert.x 上下文中。此上下文不依赖于本地线程变量，因此在 vert.x API 上是正常使用的。这个拦截器应该是第一个（或要添加到拦截器列表中的第一个）。
