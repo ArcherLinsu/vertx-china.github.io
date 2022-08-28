@@ -533,6 +533,7 @@ GreeterGrpc.GreeterStub stub = GreeterGrpc
 
 NOTE: 只要服务端支持其他压缩器，并且在构建 `ManagedChannel` 时在压缩器注册表注册它们，就可以使用
 
+[[_ssl_configuration_2]]
 ==== SSL 配置
 
 如果您之前启用了 SSL，您的客户端也需要 SSL，为此我们需要配置通道：
