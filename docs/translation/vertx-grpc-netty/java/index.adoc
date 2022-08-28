@@ -11,7 +11,7 @@ gRPC是谷歌开源的远程方法调用（RPC）系统。
 ____
 
 Vert.x gRPC 是一个使 Google gRPC 编程风格与 Vert.x 风格一致的模块。
-作为这个模块的用户, 在受益于 gRPC 的同时，您将更熟悉使用 Vert.x Streams 和 Futures 的代码风格。
+作为这个模块的用户，在受益于 gRPC 的同时，您将更熟悉使用 Vert.x Streams 和 Futures 的代码风格。
 
 有关gRPC的更多信息，请参考官方文档网站http://www.grpc.io/。
 
@@ -23,7 +23,7 @@ Vert.x gRPC 是一个使 Google gRPC 编程风格与 Vert.x 风格一致的模�
 [[_grpc_types]]
 == gRPC 类型
 
-基于HTTP/2协议的gRPC, 给您带来异步流传输支持, 这意味着您的远程过程调用可以具有以下特征:
+基于 HTTP/2 协议的 gRPC，给您带来异步流传输支持，这意味着您的远程过程调用可以具有以下特征：
 
 * 客户端流式请求，服务端单次响应
 * 客户端流式请求，服务端流式响应
@@ -71,10 +71,10 @@ message HelloReply {
 
 我们需要编译上面的定义。
 
-如果您 https://github.com/google/protobuf/tree/master/java#installation---without-maven[愿意] , 可以使用 protoc 编译器编译 proto 文件,
-或将其集成到构建中。
+如果您 https://github.com/google/protobuf/tree/master/java#installation---without-maven[愿意]，
+可以使用 protoc 编译器编译 proto 文件，或将其集成到构建中。
 
-如果您使用的是Apache Maven， 则需要添加插件：
+如您使用 Apache Maven，则需要添加插件：
 
 [source,xml]
 ----
@@ -174,13 +174,13 @@ protobuf {
 }
 ----
 
-该插件将编译您在 `build/generated/source/proto/main` 下的proto文件，并将其提供给您的项目
+该插件将编译您在 `build/generated/source/proto/main` 下的 proto 文件，并将其提供给您的项目
 
 [[_grpc_server]]
 === gRPC 服务器
 
-现在您应该已经编写了 RPC 基本代码, 是实现您的服务端的时候了. 您应该记得, 我们在上面描述过, 我们的服务端应该实现一个 `sayHello` 方法,
-该方法接收 `HelloRequest` 对象并返回 `HelloReply` 对象. 因此您可以实现为:
+现在您应该已经编写了 RPC 基本代码, 是实现您的服务端的时候了. 您应该记得，我们在上面描述过，我们的服务端应该实现一个 `sayHello` 方法,
+该方法接收 `HelloRequest` 对象并返回 `HelloReply` 对象. 因此您可以实现为：
 
 [source,java]
 ----
@@ -215,8 +215,7 @@ rpcServer.start();
 [[_using_vert_x_future_and_streams]]
 ==== 使用Vert.x future 和 streams
 
-上述例子是使用 gRPC 异步构造， 如 `io.grpc.stub.StreamObserver` 异步处理gRPC服务。
-此代码由 protoc 编译器生成.
+上述例子是使用 gRPC 异步构造，如 `io.grpc.stub.StreamObserver` 异步处理gRPC服务。此代码由 protoc 编译器生成。
 
 插件配置如下：
 
@@ -289,7 +288,7 @@ GreeterGrpc.GreeterImplBase service = new GreeterGrpc.GreeterImplBase() {
 };
 ----
 
-NOTE: 只要服务端支持其他压缩器，并且在构建 `ManagedChannel` 时在压缩器注册表注册它们，就可以使用
+NOTE: 您也可以使用其它压缩器，只要服务器支持，在构建 `ManagedChannel` 时在压缩器注册表里注册它们即可
 
 [[_ssl_configuration]]
 ==== SSL 配置
@@ -309,8 +308,7 @@ VertxServerBuilder builder = VertxServerBuilder.forPort(vertx, 8080)
 
 恭喜您刚刚完成第一个gRPC服务端。
 
-IMPORTANT: 由于 gRPC 使用 HTTP/2 传输，SSL/TLS 设置需要在您的服务端中开展 https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[
-应用层协议协商]
+IMPORTANT: 由于 gRPC 使用 HTTP/2 传输，SSL/TLS 设置需要在您的服务端中开展 https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[应用层协议协商]
 
 [[_server_scaling]]
 ==== Server 扩展
@@ -405,7 +403,7 @@ rpcServer.start();
 
 服务端上下文拦截器的抽象可用于拦截服务端调用并将元数据提取到 vert.x 上下文中。此上下文不依赖于本地线程变量，因此在 vert.x API 上是正常使用的。这个拦截器应该是第一个（或要添加到拦截器列表中的第一个）。
 
-一个典型的使用会话id的例子。客户端可以创建一个客户端拦截器来设置所有的会话id连接:
+一个典型的使用会话id的例子。客户端可以创建一个客户端拦截器来设置所有的会话id连接：
 
 [source,java]
 ----
@@ -421,7 +419,7 @@ channel = VertxChannelBuilder.forAddress(vertx, "localhost", port)
   .build();
 ----
 
-然后如下在服务端端可以添加拦截器:
+然后在服务器端可以按如下方式添加拦截器：
 
 [source,java]
 ----
@@ -450,8 +448,8 @@ VertxServer rpcServer = VertxServerBuilder
 [[_grpc_client]]
 === gRPC 客户端
 
-没有客户端的服务端是没用的，所以我们来创建一个客户端。为了做到这一点，一些步骤与服务端类似。
-首先，我们需要有 RPC 定义，这应该已经完成，否则将没有服务端，并且应该编译相同的定义。
+服务器没有客户端可不行，所以我们来创建一个客户端。实现过程中一些步骤与服务器端类似。
+首先，我们需要有 RPC 定义，这应该已经完成，否则将没有服务器端，并且应该编译相同的定义。
 
 请注意，编译器将始终生成基础服务端和客户端存根，因此如果您已经编译过一次，则不需要再次编译。
 
@@ -498,7 +496,8 @@ stub.sayHello(request, new StreamObserver<HelloReply>() {
 [[_using_vert_x_future_and_streams_2]]
 ==== 使用 Vert.x future 和 streams
 
-上一个例子是使用 gRPC 异步构造， 如使用 `io.grpc.stub.StreamObserver` 异步处理 gRPC 客户端。此代码由 protoc 编译器生成.
+上一个例子是使用 gRPC 异步构造， 如使用 `io.grpc.stub.StreamObserver` 异步处理 gRPC 客户端。
+此代码由 protoc 编译器生成。
 
 插件配置如下：
 
