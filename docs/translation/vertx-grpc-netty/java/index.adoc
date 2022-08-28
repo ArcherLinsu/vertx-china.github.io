@@ -246,6 +246,7 @@ VertxGreeterGrpc.GreeterVertxImplBase service =
   };
 ----
 
+[[_server_gzip_compression]]
 ==== 服务端 gzip 压缩
 
 您可以启用 gzip 压缩来告诉服务端发送压缩响应（压缩请求由服务端自动处理）。
