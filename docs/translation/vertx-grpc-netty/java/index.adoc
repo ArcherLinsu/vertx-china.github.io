@@ -10,8 +10,8 @@ gRPC是谷歌开源的远程方法调用（RPC）系统。
 它为很多语言生成跨平台客户端和服务端。
 ____
 
-Vert.x gRPC 是一个使 Google gRPC编程风格与Vert.x风格一致的模块。
-作为这个模块的用户, 在受益于gRPC的同时，您将更熟悉使用Vert.x Streams 和 Futures的代码风格。
+Vert.x gRPC 是一个使 Google gRPC 编程风格与 Vert.x 风格一致的模块。
+作为这个模块的用户, 在受益于 gRPC 的同时，您将更熟悉使用 Vert.x Streams 和 Futures 的代码风格。
 
 有关gRPC的更多信息，请参考官方文档网站http://www.grpc.io/。
 
@@ -30,7 +30,7 @@ Vert.x gRPC 是一个使 Google gRPC编程风格与Vert.x风格一致的模块�
 * 客户端单次请求，服务端单次响应
 * 客户端单次请求，服务端流式响应
 
-虽然在初次接触的人看来, 这可能与其他基于HTTP的RPC方法没有什么不同, 但您应该了解HTTP/2协议中, 请求不需要在响应到达之前结束。
+虽然在初次接触的人看来, 这可能与其他基于 HTTP 的 RPC 方法没有什么不同, 但您应该了解 HTTP/2 协议中, 请求不需要在响应到达之前结束。
 这意味着您的通信通道是全双工的。全双工可以让您减少响应时延并提高吞吐量。
 
 [[_a_simple_hello_world]]
@@ -47,18 +47,18 @@ option java_package = "examples";
 option java_outer_classname = "HelloWorldProto";
 package helloworld;
 
-// The greeting service definition.
+// 定义问候服务。
 service Greeter {
  // Sends a greeting
  rpc SayHello (HelloRequest) returns (HelloReply) {}
 }
 
-// The request message containing the user's name.
+// 包含用户名的请求消息。
 message HelloRequest {
  string name = 1;
 }
 
-// The response message containing the greetings
+// 包含问候语的响应消息
 message HelloReply {
  string message = 1;
 }
@@ -71,8 +71,8 @@ message HelloReply {
 
 我们需要编译上面的定义。
 
-如果您https://github.com/google/protobuf/tree/master/java#installation---without-maven[愿意], 可以使用protoc编译器编译proto文件,
-或者您可以将其集成到构建中。
+如果您 https://github.com/google/protobuf/tree/master/java#installation---without-maven[愿意] , 可以使用 protoc 编译器编译 proto 文件,
+或将其集成到构建中。
 
 如果您使用的是Apache Maven， 则需要添加插件：
 
@@ -119,8 +119,8 @@ message HelloReply {
 </plugin>
 ----
 
-“${os.detected.classifier}”属性用于使构建操作系统独立，在OSX上，它被_OSX-x86_64_等替代。
-要使用它，您需要添加os maven插件[https://github.com/trustin/os-maven-plugin] 在您的“pom.xml”的“build”部分中`：
+`${os.detected.classifier}` 属性使该构建独立于操作系统，在 OSX 上，它将会被 _OSX-x86_64_ 所替代，其它操作系统以此类推。
+要使用它，您需要在您的 `pom.xml` 的 `build` 部分中添加 os maven 插件 [https://github.com/trustin/os-maven-plugin] ：
 
 [source,xml]
 ----
@@ -137,7 +137,7 @@ message HelloReply {
 </build>
 ----
 
-这个插件将编译您在' src/main/proto '下的proto文件，并将其提供给您的项目。
+这个插件将编译您在 `src/main/proto` 下的proto文件，并将其提供给您的项目。
 如果您使用Gradle，您需要添加插件：
 
 [source,groovy]
@@ -174,13 +174,13 @@ protobuf {
 }
 ----
 
-该插件将编译您在“build/generated/source/proto/main”下的proto文件，并将其提供给您的项目
+该插件将编译您在 `build/generated/source/proto/main` 下的proto文件，并将其提供给您的项目
 
 [[_grpc_server]]
 === gRPC 服务器
 
-现在您应该已经编写了RPC基本代码, 是实现您的服务端的时候了. 您应该记得, 我们在上面描述过, 我们的服务端应该实现一个“sayHello”方法,
-该方法接收“HelloRequest”对象并返回“HelloReply”对象. 因此您可以实现为:
+现在您应该已经编写了 RPC 基本代码, 是实现您的服务端的时候了. 您应该记得, 我们在上面描述过, 我们的服务端应该实现一个 `sayHello` 方法,
+该方法接收 `HelloRequest` 对象并返回 `HelloReply` 对象. 因此您可以实现为:
 
 [source,java]
 ----
@@ -199,7 +199,7 @@ GreeterGrpc.GreeterImplBase service = new GreeterGrpc.GreeterImplBase() {
 };
 ----
 
-当您开心时，您就可以在服务端上提供您的服务。 Vert.x创建服务非常简单，您需要添加：
+只要您愿意，您就可以在服务端上提供您的服务。 Vert.x 创建服务非常简单，您需要添加：
 
 [source,java]
 ----
@@ -208,14 +208,14 @@ VertxServer rpcServer = VertxServerBuilder
   .addService(service)
   .build();
 
-// Start is asynchronous
+// 异步启动
 rpcServer.start();
 ----
 
 [[_using_vert_x_future_and_streams]]
 ==== 使用Vert.x future 和 streams
 
-上一个例子是使用gRPC异步构造， 如`io.grpc.stub.StreamObserver`去异步处理gRPC服务。
+上述例子是使用 gRPC 异步构造， 如 `io.grpc.stub.StreamObserver` 异步处理gRPC服务。
 此代码由 protoc 编译器生成.
 
 插件配置如下：
@@ -230,7 +230,7 @@ rpcServer.start();
 </protocPlugin>
 ```
 
-这是一个使用Vert.x异步构造，如`Future`或者`ReadStream`或者`WriteStream`的服务版本，在Vert.x体系中更方便。
+这将生成一个使用 Vert.x 异步构造的服务，例如 `Future` 或 `ReadStream` 或 `WriteStream` 的服务，在Vert.x体系中使用更方便。
 
 [source,java]
 ----
@@ -266,7 +266,7 @@ VertxGreeterGrpc.GreeterVertxImplBase service =
     .withCompression("gzip");
 ----
 
-withCompression配置由Vert.x gRPC protoc 插件生成。你也可以通过将ResponseObserver转换为ServerCallStreamObserver并在发送响应之前调用setCompression来启用默认服务的压缩。
+withCompression 配置由 Vert.x gRPC protoc 插件生成。你也可以通过将 ResponseObserver 转换为 ServerCallStreamObserver 并在发送响应之前调用 setCompression 来启用默认服务的压缩。
 
 [source,java]
 ----
@@ -309,7 +309,8 @@ VertxServerBuilder builder = VertxServerBuilder.forPort(vertx, 8080)
 
 恭喜您刚刚完成第一个gRPC服务端。
 
-IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的服务端中进行https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
+IMPORTANT: 由于 gRPC 使用 HTTP/2 传输，SSL/TLS 设置需要在您的服务端中开展 https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[
+应用层协议协商]
 
 [[_server_scaling]]
 ==== Server 扩展
@@ -320,7 +321,7 @@ IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的服务端�
 ----
 vertx.deployVerticle(
 
-  // Verticle supplier - should be called 4 times
+  // Verticle 供应器 - 应该被调用 4 次
   () -> new AbstractVerticle() {
 
     BindableService service = new GreeterGrpc.GreeterImplBase() {
@@ -348,7 +349,7 @@ vertx.deployVerticle(
     }
   },
 
-  // Deploy 4 instances, i.e the service is scaled on 4 event-loops
+  // 部署 4 个实例，即服务在 4 个事件循环上扩展
   new DeploymentOptions()
     .setInstances(4));
 ----
@@ -356,8 +357,8 @@ vertx.deployVerticle(
 [[_blockingserverinterceptor]]
 ==== 阻塞型服务端拦截器
 
-gRPC https://grpc.io/grpc-java/javadoc/io/grpc/ServerInterceptor.html[ServerInterceptor]是一种机制，用于传入的调用在发送到服务之前拦截它们。
-它具有同步行为，将在Vert.x event loop上执行。
+gRPC https://grpc.io/grpc-java/javadoc/io/grpc/ServerInterceptor.html[服务端拦截器]是一种机制，用于传入的调用在发送到服务之前拦截它们。
+它具有同步行为，将在 Vert.x event loop 上执行。
 
 [source,java]
 ----
@@ -375,7 +376,7 @@ class MyInterceptor implements ServerInterceptor {
   @Override
   public <Q, A> ServerCall.Listener<Q> interceptCall(
     ServerCall<Q, A> call, Metadata headers, ServerCallHandler<Q, A> next) {
-    // do something hard and update the metadata, for example
+    // 做一些困难的事情并更新元数据，例如
     return next.startCall(call, headers);
   }
 }
@@ -389,13 +390,13 @@ MyInterceptor myInterceptor = new MyInterceptor();
 ServerInterceptor wrapped =
   BlockingServerInterceptor.wrap(vertx, myInterceptor);
 
-// Create the server
+// 创建服务器
 VertxServer rpcServer = VertxServerBuilder
   .forAddress(vertx, "my.host", 8080)
   .addService(ServerInterceptors.intercept(service, wrapped))
   .build();
 
-// Start it
+// 将其启动
 rpcServer.start();
 ----
 
@@ -439,7 +440,7 @@ ServerInterceptor contextInterceptor = new ContextServerInterceptor() {
   }
 };
 
-// Create the server
+// 创建服务器
 VertxServer rpcServer = VertxServerBuilder
   .forAddress(vertx, "my.host", 8080)
   .addService(ServerInterceptors.intercept(service, contextInterceptor))
@@ -450,7 +451,7 @@ VertxServer rpcServer = VertxServerBuilder
 === gRPC 客户端
 
 没有客户端的服务端是没用的，所以我们来创建一个客户端。为了做到这一点，一些步骤与服务端类似。
-首先，我们需要有RPC定义，这应该已经完成，否则将没有服务端，并且应该编译相同的定义。
+首先，我们需要有 RPC 定义，这应该已经完成，否则将没有服务端，并且应该编译相同的定义。
 
 请注意，编译器将始终生成基础服务端和客户端存根，因此如果您已经编译过一次，则不需要再次编译。
 
@@ -463,7 +464,7 @@ ManagedChannel channel = VertxChannelBuilder
   .usePlaintext()
   .build();
 
-// Get a stub to use for interacting with the remote service
+// 获取调用远程服务的存根
 GreeterGrpc.GreeterStub stub = GreeterGrpc.newStub(channel);
 ----
 
@@ -473,7 +474,7 @@ GreeterGrpc.GreeterStub stub = GreeterGrpc.newStub(channel);
 ----
 HelloRequest request = HelloRequest.newBuilder().setName("Julien").build();
 
-// Call the remote service
+// 调用远程服务
 stub.sayHello(request, new StreamObserver<HelloReply>() {
   private HelloReply helloReply;
 
@@ -497,7 +498,7 @@ stub.sayHello(request, new StreamObserver<HelloReply>() {
 [[_using_vert_x_future_and_streams_2]]
 ==== 使用 Vert.x future 和 streams
 
-上一个例子是使用gRPC异步构造， 如`io.grpc.stub.StreamObserver`去异步处理gRPC客户端。  此代码由 protoc 编译器生成.
+上一个例子是使用 gRPC 异步构造， 如使用 `io.grpc.stub.StreamObserver` 异步处理 gRPC 客户端。此代码由 protoc 编译器生成.
 
 插件配置如下：
 
@@ -511,16 +512,16 @@ stub.sayHello(request, new StreamObserver<HelloReply>() {
 </protocPlugin>
 ```
 
-这是一个使用Vert.x异步构造，如`Future`或者`ReadStream`或者`WriteStream`的客户端版本，在Vert.x生态系统更方便。
+这将生成一个使用 Vert.x 异步构造的客户端，例如 `Future` 或 `ReadStream` 或 `WriteStream` 客户端服务，在Vert.x体系中使用更方便。
 
 [source,java]
 ----
 HelloRequest request = HelloRequest.newBuilder().setName("Julien").build();
 
-// Call the remote service
+// 调用远程服务
 Future<HelloReply> future = stub.sayHello(request);
 
-// Listen to completion events
+// 监听完成事件
 future
   .onSuccess(helloReply -> System.out.println("Got the server response: " + helloReply.getMessage())).onFailure(err -> System.out.println("Coult not reach server " + err));
 ----
@@ -557,7 +558,7 @@ ManagedChannel channel = VertxChannelBuilder.
   .build();
 ----
 
-IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的客户端中进行https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
+IMPORTANT: 由于gRPC使用 HTTP/2 传输，SSL/TLS 设置需要在您的客户端中实行 https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[应用层协议协商]
 
 [[_advanced_configuration]]
 == 高级的配置
