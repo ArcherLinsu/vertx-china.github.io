@@ -36,7 +36,7 @@ Vert.x gRPC 是一个使 Google gRPC 编程风格与 Vert.x 风格一致的模�
 [[_a_simple_hello_world]]
 == 一个简单的Hello World
 
-为了开始您的第一个 hello world 示例，需要定义协议。gRPC 要求您使用 `protobuffer` 格式定义此协议.
+为了开始您的第一个 hello world 示例，需要定义协议。gRPC 要求您使用 `protobuffer` 格式定义协议。
 
 [source,proto]
 ----
@@ -265,7 +265,7 @@ VertxGreeterGrpc.GreeterVertxImplBase service =
     .withCompression("gzip");
 ----
 
-withCompression 配置由 Vert.x gRPC protoc 插件生成。你也可以通过将 ResponseObserver 转换为 ServerCallStreamObserver 并在发送响应之前调用 setCompression 来启用默认服务的压缩。
+`withCompression` 配置由 Vert.x gRPC protoc 插件生成。您也可以通过将 `ResponseObserver` 转换为 `ServerCallStreamObserver` 并在发送响应之前调用 `setCompression` 来启用默认服务的压缩。
 
 [source,java]
 ----
