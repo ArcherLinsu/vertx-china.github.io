@@ -33,6 +33,7 @@ Vert.x gRPC 是一个使 Google gRPC编程风格与Vert.x风格一致的模块�
 虽然在初次接触的人看来, 这可能与其他基于HTTP的RPC方法没有什么不同, 但您应该了解HTTP/2协议中, 请求不需要在响应到达之前结束。
 这意味着您的通信通道是全双工的。全双工可以让您减少响应时延并提高吞吐量。
 
+[[_a_simple_hello_world]]
 == 一个简单的Hello World
 
 为了开始您的第一个 hello world 示例，需要定义协议。gRPC 要求您使用 `protobuffer` 格式定义此协议.
