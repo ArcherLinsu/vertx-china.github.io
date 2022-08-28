@@ -553,6 +553,7 @@ ManagedChannel channel = VertxChannelBuilder.
 
 IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的客户端中进行https://wikipedia.org/wiki/Application-Layer_Protocol_Negotiation[Application-Layer Protocol Negotiation]
 
+[[_advanced_configuration]]
 == 高级的配置
 
 到目前为止，所有gRPC示例都使用了合理的默认值，但还有更多，如果您需要完全控制服务端配置，您应该参考文档：`link:../../apidocs/io/vertx/grpc/VertxServerBuilder.html[VertxServerBuilder]`，
