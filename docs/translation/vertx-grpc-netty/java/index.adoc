@@ -353,6 +353,7 @@ vertx.deployVerticle(
     .setInstances(4));
 ----
 
+[[_blockingserverinterceptor]]
 ==== 阻塞型服务端拦截器
 
 gRPC https://grpc.io/grpc-java/javadoc/io/grpc/ServerInterceptor.html[ServerInterceptor]是一种机制，用于传入的调用在发送到服务之前拦截它们。
