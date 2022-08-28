@@ -561,6 +561,7 @@ IMPORTANT: 由于gRPC使用HTTP/2传输，SSL/TLS设置需要在您的客户端�
 Vert.x gRPC扩展了grpc-java项目（Netty transport），因此推荐阅读http://www.grpc.io/grpc-java/javadoc/[文档]。
 recommended.
 
+[[_native_transports]]
 == 原生传输
 
 客户端和服务端可以使用 Netty 的原生传输，这是在创建 Vert.x 实例时设置的。
