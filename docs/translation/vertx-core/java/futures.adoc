@@ -39,7 +39,7 @@ NOTE: Vert.x 3的API只提供了回调模式；为了减少从Vert.x 3迁移到V
 在大多数情况下，您不需要在 Vert.x 应用程序中自行创建 promise。
 <<_future_composition>> 和 <<_future_coordination>> 为您提供了转换和合并异步结果的工具。
 
-但是，如果，在您的代码库中，有使用回调的历史遗留方法，那么您可以利用 promise 来扩展 `link:../../apidocs/io/vertx/core/Handler.html[io.vertx. core.Handler<io.vertx.core.AsyncResult>]`：
+但是，如果，在您的代码库中，有使用回调的历史遗留方法，那么您可以利用 promise 来扩展 `link:../../apidocs/io/vertx/core/Handler.html[io.vertx.core.Handler<io.vertx.core.AsyncResult>]`：
 
 [source,java]
 ----
@@ -47,6 +47,22 @@ Promise<String> promise = Promise.promise();
 legacyGreetAsync(promise);
 Future<String> greeting = promise.future();
 ----
+====
+
+[CAUTION]
+====
+诸如 `onSuccess`、`onFailure` 和 `onComplete` 之类的终端操作并不能保证回调的调用顺序。
+
+考虑注册 2 个回调的 future：
+
+[source,$lang]
+----
+{@link examples.CoreExamples#promiseCallbackOrder}
+----
+
+第二个回调完全有可能在第一个回调之前被调用。
+
+如您需要保证顺序，考虑将 <<_future_composition>> 与 {@link io.vertx.core.Future#andThen} 一起使用。
 ====
 
 [#_future_composition]
