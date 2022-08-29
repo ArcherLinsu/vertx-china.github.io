@@ -32,7 +32,7 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mssql-client</artifactId>
- <version>4.3.2</version>
+ <version>4.3.3</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -40,7 +40,7 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mssql-client:4.3.2'
+ compile 'io.vertx:vertx-mssql-client:4.3.3'
 }
 ----
 
@@ -423,6 +423,20 @@ client.query("SELECT * FROM users")
       System.out.println("Failure: " + ar.cause().getMessage());
     }
   });
+----
+
+== Information messages
+
+SQL Server can send information messages to the client as part of responses to queries.
+By default, they are logged at `WARN` level.
+
+You can set a handler on a connection to catch them and do something useful with them.
+
+[source,java]
+----
+connection.infoHandler(info -> {
+  System.out.println("Received info " + info.getSeverity() + "" + info.getMessage());
+});
 ----
 
 [[_using_ssltls]]

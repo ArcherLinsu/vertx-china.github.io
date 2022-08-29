@@ -23,7 +23,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-service-proxy</artifactId>
- <version>4.3.2</version>
+ <version>4.3.3</version>
 </dependency>
 ----
 
@@ -31,7 +31,7 @@
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-service-proxy:4.3.2'
+compile 'io.vertx:vertx-service-proxy:4.3.3'
 ----
 
 为了 *实现* 服务代理, 您还需要添加：
@@ -43,7 +43,7 @@ compile 'io.vertx:vertx-service-proxy:4.3.2'
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-codegen</artifactId>
- <version>4.3.2</version>
+ <version>4.3.3</version>
  <scope>provided</scope>
 </dependency>
 ----
@@ -52,14 +52,14 @@ compile 'io.vertx:vertx-service-proxy:4.3.2'
 
 [source,groovy,subs="+attributes"]
 ----
-compileOnly 'io.vertx:vertx-codegen:4.3.2'
+compileOnly 'io.vertx:vertx-codegen:4.3.3'
 ----
 * Gradle >= 5（在您的 `build.gradle` 文件中）：
 
 [source,groovy,subs="+attributes"]
 ----
-annotationProcessor 'io.vertx:vertx-codegen:4.3.2:processor'
-annotationProcessor 'io.vertx:vertx-service-proxy:4.3.2'
+annotationProcessor 'io.vertx:vertx-codegen:4.3.3:processor'
+annotationProcessor 'io.vertx:vertx-service-proxy:4.3.3'
 ----
 
 注意：因为服务代理类是由代码自动生成的，因此每当您修改了 _服务接口_ 您必须重新编译源码，
@@ -89,8 +89,8 @@ vertx.eventBus()
   .onSuccess(msg -> {
     // 完成
   }).onFailure(err -> {
-  // 失败
-});
+    // 失败
+  });
 ----
 
 当创建服务的时候，会有一定数量的样本代码在事件总线接收信息，
@@ -295,21 +295,16 @@ new ServiceBinder(vertx)
   // 保护传输中的信息
   .addInterceptor(
     "action",
-    new ServiceAuthInterceptor()
-      // 使用JWT认证进行校验令牌
-      .setAuthenticationProvider(JWTAuth.create(vertx, new JWTAuthOptions()))
+    // 使用JWT认证进行校验令牌
+    AuthenticationInterceptor.create(
+      JWTAuth.create(vertx, new JWTAuthOptions())))
+  .addInterceptor(
+    AuthorizationInterceptor.create(JWTAuthorization.create("permissions"))
       // 我们可以选择部分权限进行保护：
-
       // 比如admin组
       .addAuthorization(RoleBasedAuthorization.create("admin"))
       // 比如打印权限
-      .addAuthorization(PermissionBasedAuthorization.create("print"))
-
-      // 或者从令牌种加载权限
-      // 如果有需要您也可以从数据库或文件加载中权限
-      .setAuthorizationProvider(
-        JWTAuthorization.create("permissions")))
-
+      .addAuthorization(PermissionBasedAuthorization.create("print")))
   .register(SomeDatabaseService.class, service);
 ----
 
@@ -341,13 +336,13 @@ _codegen_ 注释处理器在编译时生成这些类
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-codegen</artifactId>
- <version>4.3.2</version>
+ <version>4.3.3</version>
  <classifier>processor</classifier>
 </dependency>
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-service-proxy</artifactId>
- <version>4.3.2</version>
+ <version>4.3.3</version>
 </dependency>
 ----
 
@@ -355,8 +350,8 @@ _codegen_ 注释处理器在编译时生成这些类
 
 [source]
 ----
-compile "io.vertx:vertx-codegen:4.3.2:processor"
-compile "io.vertx:vertx-service-proxy:4.3.2"
+compile "io.vertx:vertx-codegen:4.3.3:processor"
+compile "io.vertx:vertx-service-proxy:4.3.3"
 ----
 
 IDE 通常为注释处理器提供支持。
@@ -629,7 +624,7 @@ public Future<JsonObject> foo(String shoeSize) {
 异步结果可建模为
 
 * `Future<R>`
-* 用于回调样式的 `Handler<AsyncResult<R>>` 
+* 用于回调样式的 `Handler<AsyncResult<R>>`
 
 `R` 的类型可以是：
 

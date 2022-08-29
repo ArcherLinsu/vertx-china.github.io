@@ -3,7 +3,7 @@
 
 Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x HTTP Client 替换了原有的 gRPC Netty client
 
-此客户端不但提供我们熟悉的 请求/响应 式的客户端接口，也提供 gRPC Channel 方式的接口调用桩
+此客户端不但提供面向 请求/响应 式的客户端接口，也提供 gRPC Channel 方式的接口调用桩
 
 [[_using_vert_x_grpc_client]]
 === 集成 Vert.x gRPC 客户端
@@ -17,7 +17,7 @@ Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-grpc-client</artifactId>
- <version>4.3.2</version>
+ <version>4.3.3</version>
 </dependency>
 ----
 
@@ -26,7 +26,7 @@ Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-grpc-client:4.3.2'
+ compile 'io.vertx:vertx-grpc-client:4.3.3'
 }
 ----
 
@@ -173,23 +173,7 @@ performAsyncOperation().onComplete(ar -> {
 
 [source,java]
 ----
-client
-  .request(server, StreamingGrpc.getSourceMethod())
-  .compose(request -> {
-    request.end(Empty.getDefaultInstance());
-    return request.response();
-  })
-  .onSuccess(response -> {
-    response.handler(item -> {
-      // Process item
-    });
-    response.endHandler(v -> {
-      // Done
-    });
-    response.exceptionHandler(err -> {
-      // Something went bad
-    });
-  });
+request.cancel();
 ----
 
 NOTE: 取消指令会发送一个 HTTP/2 reset 帧到服务端

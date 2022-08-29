@@ -3,7 +3,7 @@
 
 Vert.x gRPC Server 是一个新的 gRPC 服务端， 内核部分使用 Vert.x HTTP server 替换了原有的 grpc Netty Server
 
-此服务端不但提供我们熟知的 请求/响应 式的服务端接口，也提供服务桥接的接口调用桩
+此服务端不但提供面向 请求/响应 式的服务端接口，也提供服务桥接的接口调用桩
 
 [[_using_vert_x_grpc_server]]
 === 集成 Vert.x gRPC 服务器
@@ -17,7 +17,7 @@ Vert.x gRPC Server 是一个新的 gRPC 服务端， 内核部分使用 Vert.x H
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-grpc-server</artifactId>
- <version>4.3.2</version>
+ <version>4.3.3</version>
 </dependency>
 ----
 
@@ -26,7 +26,7 @@ Vert.x gRPC Server 是一个新的 gRPC 服务端， 内核部分使用 Vert.x H
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-grpc-server:4.3.2'
+ compile 'io.vertx:vertx-grpc-server:4.3.3'
 }
 ----
 

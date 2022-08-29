@@ -21,7 +21,7 @@ shell服务可以直接以命令行的方式启动，也可以通过 Vert.x 发�
 .启动一个基于 Telnet 的 shell 服务
 [source,subs="+attributes"]
 ----
-vertx run -conf '{"telnetOptions":{"port":5000}}' maven:io.vertx:vertx-shell:4.3.2
+vertx run -conf '{"telnetOptions":{"port":5000}}' maven:io.vertx:vertx-shell:4.3.3
 ----
 
 或者
@@ -34,7 +34,7 @@ keytool -genkey -keyalg RSA -keystore ssh.jks -keysize 2048 -validity 1095 -dnam
 # 创建授权配置文件
 echo user.admin=password > auth.properties
 # 启动 shell
-vertx run -conf '{"sshOptions":{"port":4000,"keyPairOptions":{"path":"ssh.jks","password":"secret"},"authOptions":{"provider":"shiro","config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.2
+vertx run -conf '{"sshOptions":{"port":4000,"keyPairOptions":{"path":"ssh.jks","password":"secret"},"authOptions":{"provider":"shiro","config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.3
 ----
 
 或者
@@ -46,66 +46,69 @@ vertx run -conf '{"sshOptions":{"port":4000,"keyPairOptions":{"path":"ssh.jks","
 keytool -genkey -keyalg RSA -keystore keystore.jks -keysize 2048 -validity 1095 -dname CN=localhost -keypass secret -storepass secret
 # 创建授权配置文件
 echo user.admin=password > auth.properties
-vertx run -conf '{"httpOptions":{"port":8080,"ssl":true,"keyStoreOptions":{"path":"keystore.jks","password":"secret"},"authOptions":{"provider":""shiro,"config":{"properties_path":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.2
+vertx run -conf '{"httpOptions":{"port":8080,"ssl":true,"keyStoreOptions":{"path":"keystore.jks","password":"secret"},"authOptions":{"provider":""properties,"config":{"file":"file:auth.properties"}}}}' maven:io.vertx:vertx-shell:4.3.3
 ----
 
 你也可以在你的 verticle 中发布 shell 服务:
 
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(
-    new JsonObject().put("telnetOptions",
-      new JsonObject().
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(
+      new JsonObject().put("telnetOptions",
+        new JsonObject().
+          put("host", "localhost").
+          put("port", 4000))
+    )
+  );
+----
+
+或者
+
+[source,java,subs="+attributes"]
+----
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("sshOptions", new JsonObject().
         put("host", "localhost").
-        put("port", 4000))
-  )
-);
+        put("port", 5000).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/ssh.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "properties").
+          put("config", new JsonObject().
+            put("file", "file:/path/to/my/auth.properties"))))
+    )
+  );
 ----
 
 或者
 
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("sshOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 5000).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/ssh.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "shiro").
-        put("config", new JsonObject().
-          put("properties_path", "file:/path/to/my/auth.properties"))))
-  )
-);
-----
-
-或者
-
-[source,java,subs="+attributes"]
-----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("httpOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 8080).
-      put("ssl", true).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/server-keystore.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "shiro").
-        put("config", new JsonObject().
-          put("properties_path", "file:/path/to/my/auth.properties"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("httpOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 8080).
+        put("ssl", true).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/server-keystore.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "properties").
+          put("config", new JsonObject().
+            put("file", "file:/path/to/my/auth.properties"))))
+    )
+  );
 ----
 
 NOTE: 当你的 classpath 中已经包含了Vert.x Shell ，
-你可以使用 `service:io.vertx.ext.shell` 来代替 `maven:io.vertx:vertx-shell:4.3.2`
+你可以使用 `service:io.vertx.ext.shell` 来代替 `maven:io.vertx:vertx-shell:4.3.3`
 
 [[_programmatic_service]]
 === 可编码的服务
@@ -127,7 +130,7 @@ ShellService service = ShellService.create(vertx,
       ).
       setAuthOptions(
         new JsonObject()
-          .put("provider", "shiro")
+          .put("provider", "properties")
           .put("type", "PROPERTIES")
           .put("config", new JsonObject().
             put("properties_path", "file:/path/to/my/auth.properties"))
@@ -176,15 +179,17 @@ service.start();
 SSH 和 HTTP 连接管理器提供了一套基于 _vertx-auth_ 的身份认证机制，
 并支持以下授权方式：
 
-- _shiro_ : 正如演示中看到的，提供了 `.properties` 配置文件 和 _LDAP_ 这两种认证方式
-- _jdbc_ : 基于 JDBC 的身份认证
+- _properties_: provides `.properties` backend
+- _ldap_: provides `LDAP` backend
 - _mongo_ : 基于 MongoDB 的身份认证
+- _jdbc_ : 基于 JDBC 的身份认证
+- _shiro_ : （_已过时_） 正如演示中看到的，提供了 `.properties` 配置文件 和 _LDAP_ 这两种认证方式
 
 可以使用相关的类来直接创建配置项：
 
-- Shiro 的配置 `link:../../apidocs/io/vertx/ext/auth/shiro/ShiroAuthOptions.html[ShiroAuthOptions]`
-- JDBC 的配置 `link:../../apidocs/io/vertx/ext/auth/jdbc/JDBCAuthOptions.html[JDBCAuthOptions]`
-- Mongo 的配置 `link:../../apidocs/io/vertx/ext/auth/mongo/MongoAuthOptions.html[MongoAuthOptions]`
+- LDAP 的配置 `link:../../apidocs/io/vertx/ext/auth/ldap/LdapAuthenticationOptions.html[LdapAuthenticationOptions]`
+- JDBC 的配置 `link:../../apidocs/io/vertx/ext/auth/jdbc/JDBCAuthenticationOptions.html[JDBCAuthenticationOptions]`
+- Mongo 的配置 `link:../../apidocs/io/vertx/ext/auth/mongo/MongoAuthenticationOptions.html[MongoAuthenticationOptions]`
 
 对于使用 Json 的外部服务配置，使用 `authOptions` 对象来表示授权的基本配置， 其 `provider` 属性用来区分不同的授权方式：
 
@@ -192,9 +197,9 @@ SSH 和 HTTP 连接管理器提供了一套基于 _vertx-auth_ 的身份认证�
 {
  ...
  "authOptions": {
-   "provider":"shiro",
+   "provider":"properties",
    "config": {
-     "properties_path":"file:auth.properties"
+     "file":"file:auth.properties"
    }
  }
  ...
@@ -231,20 +236,21 @@ SSH 终端通过 `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.html
 .在 SSH 上发布基于 Mongo 身份授权的 Shell 服务
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("sshOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 5000).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/ssh.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "mongo").
-        put("config", new JsonObject().
-          put("connection_string", "mongodb://localhost:27018"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("sshOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 5000).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/ssh.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "mongo").
+          put("config", new JsonObject().
+            put("connection_string", "mongodb://localhost:27018"))))
+    )
+  );
 ----
 
 .在 SSH 上运行基于  Mongo 身份授权的 Shell 服务
@@ -261,7 +267,8 @@ ShellService service = ShellService.create(vertx,
       ).
       setAuthOptions(new JsonObject()
         .put("provider", "mongo")
-        .put("config", new JsonObject().put("connection_string", "mongodb://localhost:27018"))
+        .put("config", new JsonObject()
+          .put("connection_string", "mongodb://localhost:27018"))
       )
   )
 );
@@ -271,21 +278,22 @@ service.start();
 .在 SSH 上发布基于 JDBC 身份授权的 Shell 服务
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("sshOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 5000).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/ssh.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "jdbc").
-        put("config", new JsonObject()
-          .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
-          .put("driver_class", "org.hsqldb.jdbcDriver"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("sshOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 5000).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/ssh.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "jdbc").
+          put("config", new JsonObject()
+            .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
+            .put("driver_class", "org.hsqldb.jdbcDriver"))))
+    )
+  );
 ----
 
 .在 SSH 上运行基于 JDBC 身份授权的 Shell 服务
@@ -326,21 +334,22 @@ HTTP 终端通过 `link:../../apidocs/io/vertx/ext/shell/ShellServiceOptions.htm
 .在 HTTP 上发布基于 Mongo 身份授权的 Shell 服务
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("httpOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 8080).
-      put("ssl", true).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/server-keystore.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "mongo").
-        put("config", new JsonObject().
-          put("connection_string", "mongodb://localhost:27018"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("httpOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 8080).
+        put("ssl", true).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/server-keystore.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "mongo").
+          put("config", new JsonObject().
+            put("connection_string", "mongodb://localhost:27018"))))
+    )
+  );
 ----
 
 .在 HTTP 上运行基于 Mongo 身份授权的 Shell 服务
@@ -364,22 +373,23 @@ service.start();
 .在 HTTP 上发布基于 JDBC 身份授权的 Shell 服务
 [source,java,subs="+attributes"]
 ----
-vertx.deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
-  new DeploymentOptions().setConfig(new JsonObject().
-    put("httpOptions", new JsonObject().
-      put("host", "localhost").
-      put("port", 8080).
-      put("ssl", true).
-      put("keyPairOptions", new JsonObject().
-        put("path", "src/test/resources/server-keystore.jks").
-        put("password", "wibble")).
-      put("authOptions", new JsonObject().
-        put("provider", "jdbc").
-        put("config", new JsonObject()
-          .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
-          .put("driver_class", "org.hsqldb.jdbcDriver"))))
-  )
-);
+vertx
+  .deployVerticle("maven:{maven-groupId}:{maven-artifactId}:{maven-version}",
+    new DeploymentOptions().setConfig(new JsonObject().
+      put("httpOptions", new JsonObject().
+        put("host", "localhost").
+        put("port", 8080).
+        put("ssl", true).
+        put("keyPairOptions", new JsonObject().
+          put("path", "src/test/resources/server-keystore.jks").
+          put("password", "wibble")).
+        put("authOptions", new JsonObject().
+          put("provider", "jdbc").
+          put("config", new JsonObject()
+            .put("url", "jdbc:hsqldb:mem:test?shutdown=true")
+            .put("driver_class", "org.hsqldb.jdbcDriver"))))
+    )
+  );
 ----
 
 .在 HTTP 上运行基于 JDBC 身份授权的 Shell 服务
@@ -549,7 +559,8 @@ command.processHandler(process -> {
 
   String argValue = commandLine.getArgumentValue(0);
   String optValue = commandLine.getOptionValue("my-option");
-  process.write("The argument is " + argValue + " and the option is " + optValue);
+  process
+    .write("The argument is " + argValue + " and the option is " + optValue);
 
   process.end();
 });
@@ -562,7 +573,11 @@ shell 将负责在该选项激活时生成命令的帮助文档：
 ----
 CLI cli = CLI.create("my-command").
   addArgument(new Argument().setArgName("my-arg")).
-  addOption(new Option().setArgName("help").setShortName("h").setLongName("help"));
+  addOption(new Option()
+    .setArgName("help")
+    .setShortName("h")
+    .setLongName("help"));
+
 CommandBuilder command = CommandBuilder.command(cli);
 command.processHandler(process -> {
   // ...
@@ -584,9 +599,7 @@ command.processHandler(process -> {
 
 [source,java]
 ----
-tty.stdinHandler(data -> {
-  System.out.println("Received " + data);
-});
+tty.stdinHandler(data -> System.out.println("Received " + data));
 ----
 
 命令可以使用 `link:../../apidocs/io/vertx/ext/shell/term/Tty.html#write-java.lang.String-[write]` 写入数据到标准输出流中。
@@ -616,9 +629,8 @@ tty.write("Current terminal size: (" + tty.width() + ", " + tty.height() + ")");
 
 [source,java]
 ----
-tty.resizehandler(v -> {
-  System.out.println("terminal resized : " + tty.width() + " " + tty.height());
-});
+tty.resizehandler(v ->
+  System.out.println("terminal resized : " + tty.width() + " " + tty.height()));
 ----
 
 [[_terminal_type]]
@@ -690,9 +702,7 @@ command.processHandler(process -> {
   Vertx vertx = process.vertx();
 
   // 在控制台每隔1s打印一次信息
-  long periodicId = vertx.setPeriodic(1000, id -> {
-    process.write("tick\n");
-  });
+  long periodicId = vertx.setPeriodic(1000, id -> process.write("tick\n"));
 
   // 当用户按下 Ctrl+C：取消定时器的并结束当前进程
   process.interruptHandler(v -> {
@@ -727,14 +737,10 @@ command.processHandler(process -> {
 command.processHandler(process -> {
 
   // 命令被挂起
-  process.suspendHandler(v -> {
-    System.out.println("Suspended");
-  });
+  process.suspendHandler(v -> System.out.println("Suspended"));
 
   // 命令恢复
-  process.resumeHandler(v -> {
-    System.out.println("Resumed");
-  });
+  process.resumeHandler(v -> System.out.println("Resumed"));
 });
 ----
 
@@ -750,9 +756,7 @@ command.processHandler(process -> {
 command.processHandler(process -> {
 
   // 命令终止
-  process.endHandler(v -> {
-    System.out.println("Terminated");
-  });
+  process.endHandler(v -> System.out.println("Terminated"));
 });
 ----
 
@@ -832,15 +836,12 @@ Job job = shell.createJob("my-command 1234");
 
 // 创建一个伪终端
 Pty pty = Pty.create();
-pty.stdoutHandler(data -> {
-  System.out.println("Command wrote " + data);
-});
+pty.stdoutHandler(data -> System.out.println("Command wrote " + data));
 
 // 运行命令
 job.setTty(pty.slave());
-job.statusUpdateHandler(status -> {
-  System.out.println("Command terminated with status " + status);
-});
+job.statusUpdateHandler(status ->
+  System.out.println("Command terminated with status " + status));
 ----
 
 当 shell 运行时，
@@ -861,8 +862,8 @@ Vert.x Shell 还为那些需要写纯终端应用的开发者提供了裸终端�
 当用户连接时，这个 _处理器_ 将处理每个终端的数据。
 
 {@code Auth*Options} 可以通过 `link:../../apidocs/io/vertx/ext/shell/term/SSHTermOptions.html[SSHTermOptions]` 和 `link:../../apidocs/io/vertx/ext/shell/term/HttpTermOptions.html[HttpTermOptions]` 来设置。
-或者，在终端服务器启动之前通过 `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#authProvider-io.vertx.ext.auth.AuthProvider-[set]` 直接设置
-`link:../../apidocs/io/vertx/ext/auth/AuthProvider.html[AuthProvider]` 。
+或者，在终端服务器启动之前通过 `link:../../apidocs/io/vertx/ext/shell/term/TermServer.html#authenticationProvider-io.vertx.ext.auth.authentication.AuthenticationProvider-[set]` 直接设置
+`link:../../apidocs/io/vertx/ext/auth/authentication/AuthenticationProvider.html[AuthenticationProvider]` 。
 
 [[_ssh_term]]
 === SSH 终端
@@ -873,12 +874,11 @@ Vert.x Shell 还为那些需要写纯终端应用的开发者提供了裸终端�
 
 [source,java]
 ----
-TermServer server = TermServer.createSSHTermServer(vertx, new SSHTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createSSHTermServer(vertx,
+    new SSHTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
@@ -890,12 +890,11 @@ server.listen();
 
 [source,java]
 ----
-TermServer server = TermServer.createTelnetTermServer(vertx, new TelnetTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createTelnetTermServer(vertx,
+    new TelnetTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
@@ -907,12 +906,11 @@ server.listen();
 
 [source,java]
 ----
-TermServer server = TermServer.createHttpTermServer(vertx, new HttpTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createHttpTermServer(vertx,
+    new HttpTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
@@ -922,12 +920,12 @@ shell 可以在 `/shell.html` 中找到。
 
 [source,java]
 ----
-TermServer server = TermServer.createHttpTermServer(vertx, router, new HttpTermOptions().setPort(5000).setHost("localhost"));
-server.termHandler(term -> {
-  term.stdinHandler(line -> {
-    term.write(line);
-  });
-});
+TermServer server = TermServer
+  .createHttpTermServer(vertx,
+    router,
+    new HttpTermOptions().setPort(5000).setHost("localhost"));
+
+server.termHandler(term -> term.stdinHandler(term::write));
 server.listen();
 ----
 
