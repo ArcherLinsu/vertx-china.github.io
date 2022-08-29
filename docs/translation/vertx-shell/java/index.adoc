@@ -179,8 +179,8 @@ service.start();
 SSH 和 HTTP 连接管理器提供了一套基于 _vertx-auth_ 的身份认证机制，
 并支持以下授权方式：
 
-- _properties_: provides `.properties` backend
-- _ldap_: provides `LDAP` backend
+- _properties_: 提供 `.properties` 后端
+- _ldap_: 提供 `LDAP` 后端
 - _mongo_ : 基于 MongoDB 的身份认证
 - _jdbc_ : 基于 JDBC 的身份认证
 - _shiro_ : （_已过时_） 正如演示中看到的，提供了 `.properties` 配置文件 和 _LDAP_ 这两种认证方式

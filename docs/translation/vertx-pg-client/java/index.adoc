@@ -295,8 +295,7 @@ pool.getConnection(ar -> {
 
 您也可以使用 `setProperties` 或 `addProperty` 方法配置通用属性。注意 `setProperties` 将覆盖默认的客户端属性。
 
-NOTE: When using this client with CockroachDB DBaaS, the `cluster` option needs to be included using `addProperty("options", "--cluster=<cluster-id>")` or in the URL `...&options=--cluster%3D<cluster-id>`
-
+NOTE: 当将此客户端与 CockroachDB DBaaS 一起使用时，需包含 `cluster` 选项。用 `addProperty("options", "--cluster=<cluster-id>")` 或在 URL中 `...&options=--cluster%3D<cluster-id>`
 
 例如，您可以通过添加 `search_path` 属性来配置一个默认的 schema。
 
@@ -950,13 +949,14 @@ subscriber.reconnectPolicy(retries -> {
 
 默认的策略是不重连。
 
-== Notice messages
+[[_notice_messages]]
+== 通知消息
 
-PostgreSQL can send notice message during the lifetime of a connection.
+PostgreSQL 可以在连接的生命周期内发送通知消息。
 
-By default, such messages are logged on the console as warns.
+默认情况下，此类消息作为警告记录在控制台上。
 
-You can set a handler on a connection to catch them and do something useful with them.
+您可以在连接上设置一个处理器将它们捕获并做些有用操作。
 
 [source,java]
 ----

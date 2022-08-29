@@ -219,31 +219,31 @@ pool.getConnection(ar -> {
 
 除了使用 `link:../../apidocs/io/vertx/oracleclient/OracleConnectOptions.html[OracleConnectOptions]` 数据对象来配置连接，我们也支持使用连接 URI :
 
-Using the EZConnect format:
+使用 EZConnect 格式：
 
 [source,java]
 ----
 String connectionUri = "oracle:thin:@mydbhost1:5521/mydbservice?connect_timeout=10sec";
 
-// Connect options
+// 连接选项
 OracleConnectOptions connectOptions = OracleConnectOptions.fromUri(connectionUri)
   .setUser("user")
   .setPassword("secret");
 
-// Pool Options
+// 连接池选项
 PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 
-// Create the pool from the connection URI
+// 从连接 URI 创建连接池
 OraclePool pool = OraclePool.pool(vertx, connectOptions, poolOptions);
 ----
 
-Or, using the TNS Alias format:
+或者，使用 TNS 别名格式：
 
 [source,java]
 ----
 String connectionUri = "oracle:thin:@prod_db?TNS_ADMIN=/work/tns/";
 
-// Connect options
+// 连接选项
 OracleConnectOptions connectOptions = OracleConnectOptions.fromUri(connectionUri)
   .setUser("user")
   .setPassword("secret");
@@ -338,8 +338,8 @@ include::cursor.adoc[]
 
 Tuple（元组）解码在存储值时使用上述类型。
 
-`BLOB` data type is also supported with one caveat: it must be represented by an instance of `link:../../apidocs/io/vertx/oracleclient/data/Blob.html[Blob]` when writing or filtering.
-However, when reading `BLOB` data, the client returns a `link:../../apidocs/io/vertx/core/buffer/Buffer.html[Buffer]`.
+也支持 `BLOB` 数据类型，但请注意：在写入或过滤时，它必需由 `link:../../apidocs/io/vertx/oracleclient/data/Blob.html[Blob]` 的实例表示。
+然而，在读取 `BLOB` 数据时，客户端会返回 `link:../../apidocs/io/vertx/core/buffer/Buffer.html[Buffer]`。
 
 [source,java]
 ----
