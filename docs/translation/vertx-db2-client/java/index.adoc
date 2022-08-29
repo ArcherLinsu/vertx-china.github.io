@@ -39,7 +39,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-db2-client</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 * Gradle (在您的 `build.gradle` 文件中):
@@ -47,7 +47,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-db2-client:4.3.1'
+ compile 'io.vertx:vertx-db2-client:4.3.2'
 }
 ----
 
@@ -265,18 +265,18 @@ DB2Connection.connect(vertx, connectionUri, res -> {
 连接字符串的URI格式为：
 
 ----
-db2://<USERNAME>:<PASSWORD>@<HOSTNAME>:<PORT>/<DBNAME>
+db2://[user[:[password]]@]host[:port][/database][?<key1>=<value1>[&<key2>=<value2>]]
 ----
 
 目前，客户端支持以下的连接 uri 参数关键字：
 
-* host
-* port
-* user
-* password
-* dbname
+* `host`
+* `port`
+* `user`
+* `password`
+* `database`
 
-Note: 连接URI中配置的配置项会覆盖默认配置。
+Note: 连接 URI 中配置的参数项会覆盖默认参数。
 
 [[_connect_retries]]
 == 连接重试

@@ -34,7 +34,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mysql-client</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 * Gradle (在您的 `build.gradle` 文件中):
@@ -42,7 +42,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mysql-client:4.3.1'
+ compile 'io.vertx:vertx-mysql-client:4.3.2'
 }
 ----
 
@@ -378,7 +378,7 @@ connectOptions.setProperties(attributes);
 
 [source,java]
 ----
-String connectionUri = "mysql://dbuser:secretpassword@database.server.com:3211/mydb";
+String connectionUri = "mysql://dbuser:secretpassword@database.server.com:3306/mydb";
 
 // 从连接URI创建连接池
 MySQLPool pool = MySQLPool.pool(connectionUri);
@@ -393,13 +393,15 @@ MySQLConnection.connect(vertx, connectionUri, res -> {
 
 目前，客户端支持以下的连接 uri 参数关键字（不区分大小写）：
 
-* host
-* port
-* user
-* password
-* schema
-* socket
-* useAffectedRows
+* `host`
+* `port`
+* `user`
+* `password`
+* `schema`
+* `socket`
+* `useAffectedRows`
+
+NOTE: Configuring parameters in connection URI will override the default properties.
 
 [[_connect_retries]]
 == 连接重试

@@ -32,7 +32,7 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mssql-client</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -40,7 +40,7 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mssql-client:4.3.1'
+ compile 'io.vertx:vertx-mssql-client:4.3.2'
 }
 ----
 
@@ -214,7 +214,7 @@ pool.getConnection(ar -> {
 
 [source,java]
 ----
-String connectionUri = "sqlserver://dbuser:secretpassword@database.server.com:3211/mydb";
+String connectionUri = "sqlserver://dbuser:secretpassword@database.server.com:1433/mydb";
 
 // 从连接 URI 创建池
 MSSQLPool pool = MSSQLPool.pool(connectionUri);
@@ -225,15 +225,15 @@ MSSQLConnection.connect(vertx, connectionUri, res -> {
 });
 ----
 
-连接 URI 格式由客户端以惯用方式定义： `sqlserver://[user[:[password]]@]host[:port][/database][?attribute1=value1&attribute2=value2...]`
+连接 URI 格式由客户端以惯用方式定义：
+
+----
+sqlserver://[user[:[password]]@]host[:port][/database][?<key1>=<value1>[&<key2>=<value2>]]
+----
 
 当前，客户端在连接 uri 中支持以下参数关键字（key不区分大小写）：
 
-* host
-* port
-* user
-* password
-* database
+NOTE: Configuring parameters in connection URI will override the default properties.
 
 [[_connect_retries]]
 == 连接重试

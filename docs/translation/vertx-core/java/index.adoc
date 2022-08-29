@@ -1602,6 +1602,7 @@ Linux下的本地传输可以设置更多的网络选项：
 * `TCP_QUICKACK`
 * `TCP_CORK`
 * `TCP_FASTOPEN`
+* `TCP_USER_TIMEOUT`
 
 [source,java]
 ----

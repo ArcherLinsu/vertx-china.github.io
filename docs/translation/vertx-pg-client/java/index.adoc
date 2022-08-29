@@ -33,7 +33,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-pg-client</artifactId>
- <version>4.3.1</version>
+ <version>4.3.2</version>
 </dependency>
 ----
 * Gradle（在您的 `build.gradle` 文件里）：
@@ -41,7 +41,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-pg-client:4.3.1'
+ compile 'io.vertx:vertx-pg-client:4.3.2'
 }
 ----
 
@@ -295,6 +295,9 @@ pool.getConnection(ar -> {
 
 您也可以使用 `setProperties` 或 `addProperty` 方法配置通用属性。注意 `setProperties` 将覆盖默认的客户端属性。
 
+NOTE: When using this client with CockroachDB DBaaS, the `cluster` option needs to be included using `addProperty("options", "--cluster=<cluster-id>")` or in the URL `...&options=--cluster%3D<cluster-id>`
+
+
 例如，您可以通过添加 `search_path` 属性来配置一个默认的 schema。
 
 [source,java]
@@ -310,13 +313,13 @@ connectOptions.setProperties(props);
 关于可用属性的更多信息可以在这里找到 https://www.postgresql.org/docs/current/runtime-config-client.html[PostgreSQL Manuals]。
 
 [[_connection_uri]]
-=== 连接uri
+=== 连接 URI
 
 除了使用 `PgConnectionOptions` 对象，我们也提供了另一种基于URI的可选配置方案：
 
 [source,java]
 ----
-String connectionUri = "postgresql://dbuser:secretpassword@database.server.com:3211/mydb";
+String connectionUri = "postgresql://dbuser:secretpassword@database.server.com:5432/mydb";
 
 // 从连接 URI 创建连接池
 PgPool pool = PgPool.pool(connectionUri);
@@ -329,18 +332,22 @@ PgConnection.connect(vertx, connectionUri, res -> {
 
 关于连接uri字符串格式的更多信息可以在这里找到 https://www.postgresql.org/docs/9.6/static/libpq-connect.html#LIBPQ-CONNSTRING[PostgreSQL 手册]。
 
-当前版本的客户端支持在连接uri里使用如下参数
+目前，客户端支持以下参数：
 
-* host
-* hostaddr
-* port
-* user
-* password
-* dbname
-* sslmode
-* properties including(application_name, fallback_application_name, search_path)
+* `host`
+* `hostaddr`
+* `port`
+* `user`
+* `password`
+* `dbname`
+* `sslmode`
+* additional properties, including:
+** `application_name`
+** `fallback_application_name`
+** `search_path`
+** `options`
 
-NOTE: 通过URI配置的属性将会覆盖默认的配置属性。
+NOTE: 通过URI配置的参数将会覆盖默认的配置参数。
 
 [[_environment_variables]]
 === 环境变量
@@ -942,6 +949,21 @@ subscriber.reconnectPolicy(retries -> {
 ----
 
 默认的策略是不重连。
+
+== Notice messages
+
+PostgreSQL can send notice message during the lifetime of a connection.
+
+By default, such messages are logged on the console as warns.
+
+You can set a handler on a connection to catch them and do something useful with them.
+
+[source,java]
+----
+connection.noticeHandler(notice -> {
+  System.out.println("Received notice " + notice.getSeverity() + "" + notice.getMessage());
+});
+----
 
 [[_cancelling_request]]
 == 取消请求
