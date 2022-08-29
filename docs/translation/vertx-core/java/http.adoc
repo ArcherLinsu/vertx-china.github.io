@@ -972,7 +972,7 @@ new HttpServerOptions()
   .addCompressor(io.netty.handler.codec.compression.StandardCompressionOptions.zstd());
 ----
 
-NOTE: 使用 {@code io.netty.handler.codec.compression.StandardCompressionOptions} 静态方法创建 {@code io.netty.handler.codec.compression.CompressionOptions}
+NOTE: 使用 `link:../../apidocs/io/netty/handler/codec/compression/StandardCompressionOptions.html[StandardCompressionOptions]` 静态方法创建 `link:../../apidocs/io/netty/handler/codec/compression/CompressionOptions.html[CompressionOptions]`
 
 Brotli 和 zstandard 库需要添加到类路径classpath中。
 

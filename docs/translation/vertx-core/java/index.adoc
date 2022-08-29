@@ -243,7 +243,27 @@ NOTE: Vert.x 3的API只提供了回调模式；为了减少从Vert.x 3迁移到V
 如上面样例代码的 `props` 方法，提供了带回调参数的版本
 `link:../../apidocs/io/vertx/core/file/FileSystem.html#props-java.lang.String-io.vertx.core.Handler-[props]`
 
-[[_future_composition]]
+[CAUTION]
+====
+Do not confuse _futures_ with _promises_.
+
+If futures represent the "read-side" of an asynchronous result, promises are the "write-side".
+They allow you to defer the action of providing a result.
+
+In most cases, you don't need to create promises yourself in a Vert.x application.
+<<_future_composition>> and <<_future_coordination>> provide you with the tools to transform and merge asynchronous results.
+
+However, if, in your codebase, you have legacy methods which use callbacks, you can leverage the fact that a promise extends `link:../../apidocs/io/vertx/core/Handler.html[io.vertx.core.Handler<io.vertx.core.AsyncResult>]`:
+
+[source,java]
+----
+Promise<String> promise = Promise.promise();
+legacyGreetAsync(promise);
+Future<String> greeting = promise.future();
+----
+====
+
+[#_future_composition]
 == Future组合
 
 `link:../../apidocs/io/vertx/core/Future.html#compose-java.util.function.Function-[compose]` 方法作用于顺序组合 future：
@@ -278,7 +298,7 @@ Future<Void> future = fs
 
 除了上述方法， `link:../../apidocs/io/vertx/core/Future.html[Future]` 还提供了更多方法：`map`，`recover`，`otherwise`，以及 `flatMap` （等同 `compose` 方法）。
 
-[[_future_coordination]]
+[#_future_coordination]
 == Future协作
 
 Vert.x 中的 `link:../../apidocs/io/vertx/core/Future.html[futures]` 支持协调多个Future，
@@ -1861,4 +1881,4 @@ IMPORTANT: 该目录必须是 **可写的** 。
 
 最后，您可以使用 `-Dvertx.disableFileCPResolving=true` 完全禁用缓存。
 这个设置的副作用是：Vert.x将无法从类路径中读取任何文件（仅从文件系统中读取）。
-使用此设置时要非常小心。 
+使用此设置时要非常小心。

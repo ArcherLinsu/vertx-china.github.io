@@ -34,7 +34,7 @@ Web Client使得发送 HTTP 请求以及从 Web 服务器接收 HTTP 响应变�
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-web-client</artifactId>
- <version>4.3.0</version>
+ <version>4.3.1</version>
 </dependency>
 ----
 
@@ -43,7 +43,7 @@ Web Client使得发送 HTTP 请求以及从 Web 服务器接收 HTTP 响应变�
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-web-client:4.3.0'
+ compile 'io.vertx:vertx-web-client:4.3.1'
 }
 ----
 
@@ -900,6 +900,8 @@ WebClient sessionClient = WebClientSession.create(cachingWebClient);
 
 URI模板基于https://datatracker.ietf.org/doc/html/rfc6570[URI Template RFC 6570]提供Http请求字符串URI替代方案。
 
+You can read the Vert.x URI template link:{../../vertx-uri-template/java/}[documentation] to learn more about it.
+
 您可以使用`UriTemplate`URI替代java字符串URI创建`HttpRequest`，
 
 首先将模板字符串解析为 `UriTemplate`
@@ -1005,7 +1007,7 @@ Future<HttpResponse<Buffer>> fut = client.getAbs(template)
   .send();
 ----
 
-表单查询方式扩展将根据变量`{?query*}`扩展为`?color=red&width=30&height=50` 
+表单查询方式扩展将根据变量`{?query*}`扩展为`?color=red&width=30&height=50`
 
 [[_using_https]]
 == 使用 HTTPS
