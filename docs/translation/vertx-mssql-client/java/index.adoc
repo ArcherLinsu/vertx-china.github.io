@@ -233,7 +233,7 @@ sqlserver://[user[:[password]]@]host[:port][/database][?<key1>=<value1>[&<key2>=
 
 当前，客户端在连接 uri 中支持以下参数关键字（key不区分大小写）：
 
-NOTE: Configuring parameters in connection URI will override the default properties.
+NOTE: 通过 URI 配置的参数将会覆盖默认的配置参数。
 
 [[_connect_retries]]
 == 连接重试

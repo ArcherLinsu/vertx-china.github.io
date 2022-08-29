@@ -401,7 +401,7 @@ MySQLConnection.connect(vertx, connectionUri, res -> {
 * `socket`
 * `useAffectedRows`
 
-NOTE: Configuring parameters in connection URI will override the default properties.
+NOTE: 通过 URI 配置的参数将会覆盖默认的配置参数。
 
 [[_connect_retries]]
 == 连接重试
