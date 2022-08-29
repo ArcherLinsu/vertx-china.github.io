@@ -55,14 +55,19 @@ Future<String> greeting = promise.future();
 
 考虑注册 2 个回调的 future：
 
-[source,$lang]
+[source,java]
 ----
-{@link examples.CoreExamples#promiseCallbackOrder}
+future.onComplete(ar -> {
+  // 做些什么
+});
+future.onComplete(ar -> {
+  // 可能先被调用
+});
 ----
 
 第二个回调完全有可能在第一个回调之前被调用。
 
-如您需要保证顺序，考虑将 <<_future_composition>> 与 {@link io.vertx.core.Future#andThen} 一起使用。
+如您需要保证顺序，考虑将 <<_future_composition>> 与 `link:../../apidocs/io/vertx/core/Future.html#andThen-io.vertx.core.Handler-[andThen]` 一起使用。
 ====
 
 [#_future_composition]
