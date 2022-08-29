@@ -432,12 +432,13 @@ client.query("SELECT * FROM users")
   });
 ----
 
-== Information messages
+[[_information_messages]]
+== 信息消息
 
-SQL Server can send information messages to the client as part of responses to queries.
-By default, they are logged at `WARN` level.
+SQL Server 可以将信息消息作为对查询响应的一部分发送给客户端。
+默认情况下，它们以 `WARN` 级别写入日志。
 
-You can set a handler on a connection to catch them and do something useful with them.
+您可以在连接上设置一个处理器将它们捕获并对做些有用的事。
 
 [source,java]
 ----
