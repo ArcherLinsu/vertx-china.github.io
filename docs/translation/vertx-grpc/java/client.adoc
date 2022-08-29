@@ -33,7 +33,6 @@ dependencies {
 [[_grpc_requestresponse_client_api]]
 === gRPC 请求/响应 客户端接口
 
-
 gRPC 请求/响应 客户端接口可以对服务直接进行调用，而不依赖于调用桩
 
 您可以快速的创建客户端实例
@@ -249,7 +248,8 @@ greeter.sayHello(HelloRequest.newBuilder().setName("Bob").build(), new StreamObs
 
 TIP: 客户端消息级接口可以和服务端消息级接口一起使用构建一个 gRPC 反向代理
 
-如果您对消息的内容不感兴趣，而是想将消息转发到其他服务，比方说您在写一个代理，这些接口就十分有用。
+如果您对消息的内容不感兴趣，而是想将消息转发到其他服务，
+比方说您在写一个代理，这些接口就十分有用。
 
 [source,java]
 ----
