@@ -1794,9 +1794,9 @@ router.route("/somepath/blah/").handler(ctx -> {
 session处理器会确保您的session会从session储存器中被自动地找出来(或者当session不存在时创建一个)，
 然后在到达您的应用程序处理器之前将其放置在路由上下文中
 
-By default, the session handler will always add a session cookie to the HTTP response, even if the session has not been
-accessed by your application. To create the session cookie only when the session has been used, use
-`sessionHandler.setLazySession(true)`.
+默认情况下，会话（session）处理程序将始终将会话的 cookie 添加到 HTTP 响应中， 即便会话未被您的应用程序所访问。
+如需仅在使用会话时创建会话 cookie，请使用
+`sessionHandler.setLazySession(true)`。
 
 [[_using_the_session]]
 === 使用session

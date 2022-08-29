@@ -900,7 +900,7 @@ WebClient sessionClient = WebClientSession.create(cachingWebClient);
 
 URI模板基于https://datatracker.ietf.org/doc/html/rfc6570[URI Template RFC 6570]提供Http请求字符串URI替代方案。
 
-You can read the Vert.x URI template link:{../../vertx-uri-template/java/}[documentation] to learn more about it.
+您可通过阅读 Vert.x URI link:{../../vertx-uri-template/java/}[文档] 以获取更多信息。
 
 您可以使用`UriTemplate`URI替代java字符串URI创建`HttpRequest`，
 
