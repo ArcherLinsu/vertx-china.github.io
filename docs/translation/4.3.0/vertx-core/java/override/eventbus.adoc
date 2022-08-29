@@ -1,0 +1,48 @@
+[[_message_codecs]]
+==== 消息编解码器
+
+您可以在 Event Bus 中发送任何对象，只需为这个对象类型注册一个编解码器 `link:../../apidocs/io/vertx/core/eventbus/MessageCodec.html[message codec]` 即可。
+
+每个消息编解码器都有一个名称，您需要在发送或发布消息时通过 `link:../../apidocs/io/vertx/core/eventbus/DeliveryOptions.html[DeliveryOptions]`
+来指定：
+
+[source,java]
+----
+eventBus.registerCodec(myCodec);
+
+DeliveryOptions options = new DeliveryOptions().setCodecName(myCodec.name());
+
+eventBus.send("orders", new MyPOJO(), options);
+----
+
+若您希望某个类总是使用特定的编解码器，那么您可以为这个类注册默认编解码器。
+这样您就不需要在每次发送的时候指定了：
+
+[source,java]
+----
+eventBus.registerDefaultCodec(MyPOJO.class, myCodec);
+
+eventBus.send("orders", new MyPOJO());
+----
+
+您可以通过 `link:../../apidocs/io/vertx/core/eventbus/EventBus.html#unregisterCodec-java.lang.String-[unregisterCodec]` 方法注销某个消息编解码器。
+
+消息编解码器的编码输入和解码输出不一定使用同一个类型。
+例如您可以编写一个编解码器来发送 MyPOJO 类的对象，但是当消息发送给处理器后解码成 MyOtherPOJO 对象。
+
+Vert.x 内置某些特定类型的编解码器：
+
+- 基础类型（字符串，字节数组，字节，整型，长整型，双精度浮点型，布尔值，短整型，字符），或者
+- 一些 Vert.x 的数据类型（buffers，JSON 数组，JSON 对象），或者
+- 实现 `link:../../apidocs/io/vertx/core/shareddata/ClusterSerializable.html[ClusterSerializable]` 接口的类型，或者
+- 实现 `java.io.Serializable` 接口的类型。
+
+[IMPORTANT]
+====
+在集群模式下，出于安全考虑，将会默认拒绝 `link:../../apidocs/io/vertx/core/shareddata/ClusterSerializable.html[ClusterSerializable]` 和 `java.io.Serializable` 对象。
+
+您可以通过提供检查类名称的函数来定义允许编码和解码的类：
+
+- `link:../../apidocs/io/vertx/core/eventbus/EventBus.html#clusterSerializableChecker-java.util.function.Function-[EventBus.clusterSerializableChecker()]`，以及
+- `link:../../apidocs/io/vertx/core/eventbus/EventBus.html#serializableChecker-java.util.function.Function-[EventBus.serializableChecker()]`。
+====
