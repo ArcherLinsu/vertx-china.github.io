@@ -31,15 +31,15 @@ NOTE: Vert.x 3的API只提供了回调模式；为了减少从Vert.x 3迁移到V
 
 [CAUTION]
 ====
-Do not confuse _futures_ with _promises_.
+请勿混淆 _futures_ 与 _promises_ 。
 
-If futures represent the "read-side" of an asynchronous result, promises are the "write-side".
-They allow you to defer the action of providing a result.
+如果 futures 代表的是异步结果的 "读取端"，那么 promise 就是 "写入端"。
+它们允许您推迟获取结果的操作。
 
-In most cases, you don't need to create promises yourself in a Vert.x application.
-<<_future_composition>> and <<_future_coordination>> provide you with the tools to transform and merge asynchronous results.
+在大多数情况下，您不需要在 Vert.x 应用程序中自行创建 promise。
+<<_future_composition>> 和 <<_future_coordination>> 为您提供了转换和合并异步结果的工具。
 
-However, if, in your codebase, you have legacy methods which use callbacks, you can leverage the fact that a promise extends `link:../../apidocs/io/vertx/core/Handler.html[io.vertx.core.Handler<io.vertx.core.AsyncResult>]`:
+但是，如果，在您的代码库中，有使用回调的历史遗留方法，那么您可以利用 promise 来扩展 `link:../../apidocs/io/vertx/core/Handler.html[io.vertx. core.Handler<io.vertx.core.AsyncResult>]`：
 
 [source,java]
 ----
