@@ -5,8 +5,7 @@ Vert.x 4 use futures to represent asynchronous results.
 Any asynchronous method returns a `link:../../apidocs/io/vertx/core/Future.html[Future]` object for the result of the call:
 a _success_ or a _failure_.
 
-You cannot interact directly with the result of a future, instead you need to set a handler that will be called when the future
-completes and the result is available, like any other kind of event.
+You cannot interact directly with the result of a future, instead you need to set a handler that will be called when the future completes and the result is available, like any other kind of event.
 
 [source,java]
 ----
@@ -48,12 +47,34 @@ Future<String> greeting = promise.future();
 ----
 ====
 
+[CAUTION]
+====
+Terminal operations like `onSuccess`, `onFailure` and `onComplete` provide no guarantee whatsoever regarding the invocation order of callbacks.
+
+Consider a future on which 2 callbacks are registered:
+
+[source,java]
+----
+future.onComplete(ar -> {
+  // Do something
+});
+future.onComplete(ar -> {
+  // May be invoked first
+});
+----
+
+It is possible that the second callback is invoked before the first one.
+
+If you need such guarantee, consider using <<_future_composition>> with `link:../../apidocs/io/vertx/core/Future.html#andThen-io.vertx.core.Handler-[andThen]`.
+====
+
 [#_future_composition]
 == Future composition
 
 `link:../../apidocs/io/vertx/core/Future.html#compose-java.util.function.Function-[compose]` can be used for chaining futures:
 
-- when the current future succeeds, apply the given function, that returns a future. When this returned future completes, the composition succeeds.
+- when the current future succeeds, apply the given function, that returns a future.
+When this returned future completes, the composition succeeds.
 - when the current future fails, the composition fails
 
 [source,java]
@@ -78,17 +99,16 @@ In this example, 3 operations are chained together:
 2. data is written in this file
 3. the file is moved
 
-When these 3 steps are successful, the final future (`future`) will succeed. However, if one
-of the steps fails, the final future will fail.
+When these 3 steps are successful, the final future (`future`) will succeed.
+However, if one of the steps fails, the final future will fail.
 
-Beyond this, `link:../../apidocs/io/vertx/core/Future.html[Future]` offers more: `map`, `recover`, `otherwise` and even a `flatMap` which is an alias of `compose`
+Beyond this, `link:../../apidocs/io/vertx/core/Future.html[Future]` offers more: `map`, `recover`, `otherwise`, `andThen` and even a `flatMap` which is an alias of `compose`
 
 [#_future_coordination]
 == Future coordination
 
-Coordination of multiple futures can be achieved with Vert.x `link:../../apidocs/io/vertx/core/Future.html[futures]`. It
-supports concurrent composition (run several async operations in parallel) and sequential composition
-(chain async operations).
+Coordination of multiple futures can be achieved with Vert.x `link:../../apidocs/io/vertx/core/Future.html[futures]`.
+It supports concurrent composition (run several async operations in parallel) and sequential composition (chain async operations).
 
 `link:../../apidocs/io/vertx/core/CompositeFuture.html#all-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.all]` takes several futures arguments (up to 6) and returns a future that is
 _succeeded_ when all the futures are _succeeded_ and _failed_ when at least one of the futures is failed:
@@ -108,10 +128,9 @@ CompositeFuture.all(httpServerFuture, netServerFuture).onComplete(ar -> {
 });
 ----
 
-The operations run concurrently, the `link:../../apidocs/io/vertx/core/Handler.html[Handler]` attached to the returned future is invoked upon
-completion of the composition. When one of the operation fails (one of the passed future is marked as a failure),
-the resulting future is marked as failed too. When all the operations succeed, the resulting future is completed
-with a success.
+The operations run concurrently, the `link:../../apidocs/io/vertx/core/Handler.html[Handler]` attached to the returned future is invoked upon completion of the composition.
+When one of the operation fails (one of the passed future is marked as a failure), the resulting future is marked as failed too.
+When all the operations succeed, the resulting future is completed with a success.
 
 Alternatively, you can pass a list (potentially empty) of futures:
 
@@ -121,9 +140,7 @@ CompositeFuture.all(Arrays.asList(future1, future2, future3));
 ----
 
 While the `all` composition _waits_ until all futures are successful (or one fails), the `any` composition
-_waits_ for the first succeeded future. `link:../../apidocs/io/vertx/core/CompositeFuture.html#any-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.any]` takes several futures
-arguments (up to 6) and returns a future that is succeeded when one of the futures is, and failed when
-all the futures are failed:
+_waits_ for the first succeeded future. `link:../../apidocs/io/vertx/core/CompositeFuture.html#any-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.any]` takes several futures arguments (up to 6) and returns a future that is succeeded when one of the futures is, and failed when all the futures are failed:
 
 [source,java]
 ----
@@ -144,9 +161,7 @@ CompositeFuture.any(Arrays.asList(f1, f2, f3));
 ----
 
 The `join` composition _waits_ until all futures are completed, either with a success or a failure.
-`link:../../apidocs/io/vertx/core/CompositeFuture.html#join-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.join]` takes several futures arguments (up to 6) and returns a future that is
-succeeded when all the futures are succeeded, and failed when all the futures are completed and at least one of
-them is failed:
+`link:../../apidocs/io/vertx/core/CompositeFuture.html#join-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.join]` takes several futures arguments (up to 6) and returns a future that is succeeded when all the futures are succeeded, and failed when all the futures are completed and at least one of them is failed:
 
 [source,java]
 ----
@@ -168,8 +183,7 @@ CompositeFuture.join(Arrays.asList(future1, future2, future3));
 
 === CompletionStage interoperability
 
-The Vert.x `Future` API offers compatibility _from_ and _to_ `CompletionStage` which is the JDK interface for composable
-asynchronous operations.
+The Vert.x `Future` API offers compatibility _from_ and _to_ `CompletionStage` which is the JDK interface for composable asynchronous operations.
 
 We can go from a Vert.x `Future` to a `CompletionStage` using the `link:../../apidocs/io/vertx/core/Future.html#toCompletionStage--[toCompletionStage]` method, as in:
 
@@ -192,8 +206,7 @@ There are 2 variants:
 . the first variant takes just a `CompletionStage` and calls the `Future` methods from the thread that resolves the `CompletionStage` instance, and
 . the second variant takes an extra `link:../../apidocs/io/vertx/core/Context.html[Context]` parameter to call the `Future` methods on a Vert.x context.
 
-IMPORTANT: In most cases the variant with a `CompletionStage` and a `Context` is the one you will want to use to respect the Vert.x threading model,
-since Vert.x `Future` are more likely to be used with Vert.x code, libraries and clients.
+IMPORTANT: In most cases the variant with a `CompletionStage` and a `Context` is the one you will want to use to respect the Vert.x threading model, since Vert.x `Future` are more likely to be used with Vert.x code, libraries and clients.
 
 Here is an example of going from a `CompletionStage` to a Vert.x `Future` and dispatching on a context:
 
