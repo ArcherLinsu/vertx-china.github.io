@@ -11,7 +11,7 @@ Vert.x Shell 可以使用任何 Vert.x 支持的语言来扩展自定义命令
 == 使用 Vert.x Shell
 
 Vert.x Shell 是一个Vert.x服务，既可以通过 `link:../../apidocs/io/vertx/ext/shell/ShellService.html[ShellService]` 以编码的方式启动，
-，也可以作为一个服务来发布。
+也可以作为一个服务发布。
 
 [[_shell_service]]
 === Shell 服务
