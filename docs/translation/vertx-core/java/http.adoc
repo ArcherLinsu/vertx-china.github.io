@@ -2715,8 +2715,8 @@ client.request(new RequestOptions()
   });
 ----
 
-NOTE: A given host should always use the same proxy options: as HTTP requests are pooled, per request proxy
-options are used when establishing the connection
+NOTE: client connection pooling is aware of proxies (including authentication), consequently two requests to the same host through different proxies
+do not share the same pooled connection
 
 You can use `link:../../apidocs/io/vertx/core/http/HttpClientOptions.html#setNonProxyHosts-java.util.List-[setNonProxyHosts]` to configure a list of host bypassing
 the proxy. The lists accept `*` wildcard for matching domains:

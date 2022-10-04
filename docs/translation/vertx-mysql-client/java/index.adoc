@@ -34,7 +34,7 @@ To use the Reactive MySQL Client add the following dependency to the _dependenci
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mysql-client</artifactId>
- <version>4.3.3</version>
+ <version>4.3.4</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -42,7 +42,7 @@ To use the Reactive MySQL Client add the following dependency to the _dependenci
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mysql-client:4.3.3'
+ compile 'io.vertx:vertx-mysql-client:4.3.4'
 }
 ----
 
@@ -191,6 +191,12 @@ MySQLPool pool = MySQLPool.pool(vertx, connectOptions.setPipeliningLimit(16), po
 ----
 
 The default pipelining limit is `1` which disables pipelining.
+
+[CAUTION]
+====
+Do not enable pipelining if you use a proxy that does not support it.
+Otherwise, the proxy might close client connections abruptly.
+====
 
 == Pool versus pooled client
 
