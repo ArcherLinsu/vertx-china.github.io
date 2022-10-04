@@ -18,7 +18,7 @@ async function getTranslationSha(extractedPath) {
 }
 
 function makeCompiledSha(sourceSha, isLatestBugfixVersion) {
-  let o = { sourceSha, isLatestBugfixVersion }
+  let o = { sourceSha, isLatestBugfixVersion, version: 3 }
   let s = JSON.stringify(o)
   return crypto.createHash("sha256").update(s).digest("base64")
 }

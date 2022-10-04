@@ -34,7 +34,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mysql-client</artifactId>
- <version>4.3.3</version>
+ <version>4.3.4</version>
 </dependency>
 ----
 * Gradle (在您的 `build.gradle` 文件中):
@@ -42,7 +42,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mysql-client:4.3.3'
+ compile 'io.vertx:vertx-mysql-client:4.3.4'
 }
 ----
 
@@ -194,6 +194,12 @@ MySQLPool pool = MySQLPool.pool(vertx, connectOptions.setPipeliningLimit(16), po
 ----
 
 默认管线上限为 `1` 也就是禁用管线。
+
+[CAUTION]
+====
+Do not enable pipelining if you use a proxy that does not support it.
+Otherwise, the proxy might close client connections abruptly.
+====
 
 [[_pool_versus_pooled_client]]
 == 连接池以及池化的客户端

@@ -25,7 +25,7 @@ Circuit Breaker 是Vert.x 断路 _模式_ 的实现。
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-circuit-breaker</artifactId>
- <version>4.3.3</version>
+ <version>4.3.4</version>
 </dependency>
 ----
 
@@ -33,7 +33,7 @@ Circuit Breaker 是Vert.x 断路 _模式_ 的实现。
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-circuit-breaker:4.3.3'
+compile 'io.vertx:vertx-circuit-breaker:4.3.4'
 ----
 
 [[_using_the_circuit_breaker]]
@@ -258,15 +258,39 @@ breaker.<String>execute(
 options.setNotificationAddress(CircuitBreakerOptions.DEFAULT_NOTIFICATION_ADDRESS);
 ----
 
-NOTE: 启用后，默认情况下，通知仅传递给本地消费者。
+The event contains circuit breaker metrics which computation requires the following dependency to be added the _dependencies_ section of your build descriptor:
+
+* Maven (in your `pom.xml`):
+
+[source,xml,subs="+attributes"]
+----
+<dependency>
+ <groupId>org.hdrhistogram</groupId>
+ <artifactId>HdrHistogram</artifactId>
+ <version>2.1.12</version>
+</dependency>
+----
+
+* Gradle (in your `build.gradle` file):
+
+[source,groovy,subs="+attributes"]
+----
+compile 'org.hdrhistogram:HdrHistogram:2.1.12'
+----
+
+[NOTE]
+====
+启用后，默认情况下，通知仅传递给本地消费者。
 如果必须将通知发送给集群中的所有消费者，您可通过设置 `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreakerOptions.html#setNotificationLocalOnly-boolean-[setNotificationLocalOnly]` 以更改此行为。
+====
 
 每个总线通知都会包含一个 Json Object 对象，该对象包括以下字段：
 
-* `state` : 断路器最新的状态（`OPEN`, `CLOSED`, `HALF_OPEN`）
-* `name` : 断路器的名称
-* `failures` : 错误次数
-* `node` : 节点标识 (如果事件总线并非运行在集群模式中，那么该值为：`local`)
+* `state`: 断路器最新的状态（`OPEN`, `CLOSED`, `HALF_OPEN`）
+* `name`: 断路器的名称
+* `failures`: 错误次数
+* `node`: 节点标识 (如果事件总线并非运行在集群模式中，那么该值为：`local`)
+* metrics
 
 [[_the_half_open_state]]
 == 半开状态

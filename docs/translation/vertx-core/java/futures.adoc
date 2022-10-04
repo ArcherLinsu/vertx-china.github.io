@@ -133,6 +133,9 @@ CompositeFuture.all(httpServerFuture, netServerFuture).onComplete(ar -> {
 只要有一个操作失败（其中的某一个 `Future` 的状态被标记成失败），则返回的 `Future` 会被标记为失败。
 如果所有的操作都成功，则返回的 `Future` 将会成功完成。
 
+On success, the `resultAt` method guarantees the results in the same order specified in the call to `CompositeFuture.all`. In the example above, regardless of which
+item completed first, the `httpServer` result can be accessed using `resultAt(0)` and the `netServer` result can be accessed using `resultAt(1)`.
+
 您可以传入一个 `Future` 列表（可能为空）：
 
 [source,java]

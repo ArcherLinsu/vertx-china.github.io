@@ -14,7 +14,7 @@ JDBC 客户端 API 接口描述请参考 `link:../../apidocs/io/vertx/ext/jdbc/J
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-jdbc-client</artifactId>
- <version>4.3.3</version>
+ <version>4.3.4</version>
 </dependency>
 ----
 
@@ -22,7 +22,7 @@ JDBC 客户端 API 接口描述请参考 `link:../../apidocs/io/vertx/ext/jdbc/J
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-jdbc-client:4.3.3'
+compile 'io.vertx:vertx-jdbc-client:4.3.4'
 ----
 
 [[_using_the_sql_client_api]]
@@ -39,6 +39,13 @@ SQL 客户端是使用 SQL 数据库通信的 vert.x 响应式 API，
 
 [source,java]
 ----
+final JsonObject config = new JsonObject()
+  .put("jdbcUrl", "jdbc:h2:~/test")
+  .put("datasourceName", "pool-name")
+  .put("username", "sa")
+  .put("password", "")
+  .put("max_pool_size", 16);
+
 JDBCPool pool = JDBCPool.pool(vertx, config);
 ----
 
@@ -64,6 +71,7 @@ JDBCPool pool = JDBCPool.pool(
   // configure the pool
   new PoolOptions()
     .setMaxSize(16)
+    .setName("pool-name")
 );
 ----
 [[_using_the_pool]]
@@ -890,9 +898,12 @@ endif::[]
 以下配置属性通常适用：
 
 `provider_class`:: 实际用于管理数据库连接的类的类名。
-默认情况下是， `io.vertx.ext.jdbc.spi.impl.C3P0DataSourceProvider` 但是如果您要使用其他提供程序，则可以覆盖此属性并提供您的实现。
+默认情况下是， `io.vertx.ext.jdbc.spi.impl.C3P0DataSourceProvider` 但是如果您要使用其他提供程序，
+则可以覆盖此属性并提供您的实现。
 `row_stream_fetch_size`::  `SQLRowStream` 内部缓存的大小，
 曾经用来提高性能。默认情况下等于128
+`datasourceName`:: Name of the data source. Pool metrics will be reported under this name. By default, random
+UUID is generated.
 
 假设正在使用C3P0实现(默认设置)，则将应用以下额外的配置属性：
 

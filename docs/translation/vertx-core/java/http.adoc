@@ -2809,8 +2809,8 @@ client.request(new RequestOptions()
   });
 ----
 
-NOTE: 对于一个固定的主机应始终使用相同的代理选项：
-因为 HTTP 请求被池化了（译者注：也就是连接会被缓存到连接池里，连接使用完之后不会马上销毁，再次使用的时候，先去池里找有没有已建立好的连接），所以在根据请求设置的代理选项其实是在连接建立时使用
+NOTE: client connection pooling is aware of proxies (including authentication), consequently two requests to the same host through different proxies
+do not share the same pooled connection
 
 您可以使用 `link:../../apidocs/io/vertx/core/http/HttpClientOptions.html#setNonProxyHosts-java.util.List-[setNonProxyHosts]` 来配置主机列表绕过代理。
 列表接受可用于匹配域名的 `*` 通配符：
