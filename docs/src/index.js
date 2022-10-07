@@ -176,7 +176,7 @@ async function main() {
     } else {
       // skip compiling asciidoc - just write the SHA file
       await fs.mkdir(path.join(compiledPath, version), { recursive: true })
-      await writeCompiledSha(version, artifactVersion, downloadPath, compiledPath, false)
+      await writeCompiledSha(version, artifactVersion, downloadPath, compiledPath, false, extractedPath)
       asciidoctorBar?.increment(100)
     }
   }
