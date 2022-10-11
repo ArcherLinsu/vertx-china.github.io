@@ -195,10 +195,10 @@ MySQLPool pool = MySQLPool.pool(vertx, connectOptions.setPipeliningLimit(16), po
 
 默认管线上限为 `1` 也就是禁用管线。
 
-[CAUTION]
+[注意]
 ====
-Do not enable pipelining if you use a proxy that does not support it.
-Otherwise, the proxy might close client connections abruptly.
+当您使用了不支持管线化的代理时，请不要开启管线化。
+否则, 代理可能会突然关闭客户端连接。
 ====
 
 [[_pool_versus_pooled_client]]
