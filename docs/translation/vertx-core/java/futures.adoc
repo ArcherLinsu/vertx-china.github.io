@@ -133,8 +133,8 @@ CompositeFuture.all(httpServerFuture, netServerFuture).onComplete(ar -> {
 只要有一个操作失败（其中的某一个 `Future` 的状态被标记成失败），则返回的 `Future` 会被标记为失败。
 如果所有的操作都成功，则返回的 `Future` 将会成功完成。
 
-On success, the `resultAt` method guarantees the results in the same order specified in the call to `CompositeFuture.all`. In the example above, regardless of which
-item completed first, the `httpServer` result can be accessed using `resultAt(0)` and the `netServer` result can be accessed using `resultAt(1)`.
+当操作成功时，您需要按照 `CompositeFuture.all` 的参数顺序来调用 `resultAt` 方法以获取操作的执行结果。以上面的代码为例，无论是哪个操作
+先完成，您通过 `resultAt(0)` 获取到的都是 `httpServer` 的结果，而通过 `resultAt(1)` 可以获取到 `netServer` 的结果。
 
 您可以传入一个 `Future` 列表（可能为空）：
 
@@ -144,7 +144,7 @@ CompositeFuture.all(Arrays.asList(future1, future2, future3));
 ----
 
 `all` 方法的合并会 _等待_ 所有的 Future 成功执行（或任一失败），而 `any` 方法的合并会
-_等待_ 第一个成功执行的Future。`link:../../apidocs/io/vertx/core/CompositeFuture.html#any-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.any]` 方法接受多个 `Future` 作为参数（最多6个，或传入 `List`）。当任意一个 `Future` 成功得到结果，则该 `Future` 成功；当所有的 `Future` 都执行失败，则该 `Future` 失败。
+_等待_ 第一个成功执行的 Future。`link:../../apidocs/io/vertx/core/CompositeFuture.html#any-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.any]` 方法接受多个 `Future` 作为参数（最多6个，或传入 `List`）。当任意一个 `Future` 成功得到结果，则该 `Future` 成功；当所有的 `Future` 都执行失败，则该 `Future` 失败。
 
 [source,java]
 ----

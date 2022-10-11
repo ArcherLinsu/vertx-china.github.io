@@ -2774,10 +2774,10 @@ HttpClientOptions options = new HttpClientOptions()
 HttpClient client = vertx.createHttpClient(options);
 ----
 
-当客户端连接到HTTP URL时，它会连接到代理服务器，并在HTTP请求中提供完整URL
+当客户端连接到 HTTP URL 时，它会连接到代理服务器，并在 HTTP 请求中提供完整 URL
 （ "GET http://www.somehost.com/path/file.html HTTP/1.1" ）。
 
-当客户端连接到HTTPS URL时，它要求代理使用 CONNECT
+当客户端连接到 HTTPS URL 时，它要求代理使用 CONNECT
 方法创建到远程主机的通道。
 
 对于 SOCKS5 代理：
@@ -2809,8 +2809,8 @@ client.request(new RequestOptions()
   });
 ----
 
-NOTE: client connection pooling is aware of proxies (including authentication), consequently two requests to the same host through different proxies
-do not share the same pooled connection
+NOTE: 客户端连接池会感知到代理（包含认证）的存在，因此两个使用不同代理的请求即使是发送到同一个主机的
+也不会共享池化连接
 
 您可以使用 `link:../../apidocs/io/vertx/core/http/HttpClientOptions.html#setNonProxyHosts-java.util.List-[setNonProxyHosts]` 来配置主机列表绕过代理。
 列表接受可用于匹配域名的 `*` 通配符：
