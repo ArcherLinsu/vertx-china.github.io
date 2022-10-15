@@ -902,13 +902,13 @@ endif::[]
 则可以覆盖此属性并提供您的实现。
 `row_stream_fetch_size`::  `SQLRowStream` 内部缓存的大小，
 曾经用来提高性能。默认情况下等于128
-`datasourceName`:: Name of the data source. Pool metrics will be reported under this name. By default, random
-UUID is generated.
+`datasourceName`:: 数据源的名称。数据库连接池的度量工具会使用该名称上报。默认情况下会使用随机
+生成的 UUID
 
 假设正在使用C3P0实现(默认设置)，则将应用以下额外的配置属性：
 
-`url`:: 数据库的JDBC连接URL
-`driver_class`:: JDBC驱动程序的类
+`url`:: 数据库的 JDBC 连接 URL
+`driver_class`:: JDBC 驱动程序的类
 `user`:: 数据库的用户名
 `password`:: 数据库的密码
 `max_pool_size`:: 池的最大连接数 ， 默认为 `15`
@@ -923,10 +923,10 @@ UUID is generated.
 * Hikari
 * Agroal
 
-与C3P0类似，它们可以通过在JSON配置对象上传递配置值来进行配置。
+与 C3P0 类似，它们可以通过在 JSON 配置对象上传递配置值来进行配置。
 对于特殊情况，您不想将应用程序部署为 _fat jar_ ，而是使用 vert.x 发行版运行，
-如果您没有写权限将JDBC驱动程序添加到vert.x lib目录，
-并使用 `-cp` 命令行标志传递它，则建议使用Agroal。
+如果您没有写权限将 JDBC 驱动程序添加到 vert.x lib 目录，
+并使用 `-cp` 命令行标志传递它，则建议使用 Agroal。
 
 如果要配置任何其他C3P0属性，可以将文件 `c3p0.properties` 添加到类路径。
 
@@ -951,13 +951,13 @@ Hikari使用一组不同的属性：
 
 有关更多详细信息，
 请参阅 https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby[Hikari documentation] 。
-另请参阅  https://agroal.github.io/[Agroal documentation] 以配置Agroal。
+另请参阅  https://agroal.github.io/[Agroal documentation] 以配置 Agroal。
 
 [[_jdbc_drivers]]
 JDBC驱动程序
 
-如果使用默认值 `DataSourceProvider`(依赖于c3p0)，则需要在类路径中复制JDBC驱动程序类。
-如果您的应用程序打包为  _fat jar_ ，请确保嵌入jdbc驱动程序。如果您的应用程序是通过 `vertx` 命令行启动的，请将JDBC驱动程序复制到 `${VERTX_HOME}/lib` 。
+如果使用默认值 `DataSourceProvider`(依赖于c3p0)，则需要在类路径中复制 JDBC 驱动程序类。
+如果您的应用程序打包为  _fat jar_ ，请确保嵌入 jdbc 驱动程序。如果您的应用程序是通过 `vertx` 命令行启动的，请将JDBC驱动程序复制到 `${VERTX_HOME}/lib` 。
 
 使用不同的连接池时，行为可能会有所不同。
 
