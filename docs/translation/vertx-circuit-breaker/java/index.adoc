@@ -271,7 +271,7 @@ options.setNotificationAddress(CircuitBreakerOptions.DEFAULT_NOTIFICATION_ADDRES
 </dependency>
 ----
 
-* Gradle (在您的 `build.gradle` 文件中):
+* Gradle （在您的 `build.gradle` 文件中）：
 
 [source,groovy,subs="+attributes"]
 ----
