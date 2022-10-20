@@ -260,7 +260,7 @@ options.setNotificationAddress(CircuitBreakerOptions.DEFAULT_NOTIFICATION_ADDRES
 
 该事件中包含了断路器的指标，其计算需要您将以下依赖项添加到构建描述符中的 _依赖管理_ 部分：
 
-* Maven (在您的 `pom.xml` 文件中):
+* Maven （在您的 `pom.xml` 文件中）：
 
 [source,xml,subs="+attributes"]
 ----
