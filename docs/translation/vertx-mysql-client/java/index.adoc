@@ -34,7 +34,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mysql-client</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 * Gradle (在您的 `build.gradle` 文件中):
@@ -42,7 +42,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mysql-client:4.3.4'
+ compile 'io.vertx:vertx-mysql-client:4.3.5'
 }
 ----
 
@@ -1159,7 +1159,6 @@ connection.setOption(MySQLSetOption.MYSQL_OPTION_MULTI_STATEMENTS_OFF, ar -> {
 
 当您要将数据批量插入到数据库中时，您可以使用 `PreparedQuery#executeBatch` ，它提供了一个简单的 API 来处理此问题。
 请记住，MySQL 原生不支持批处理协议，因此 API 只是语法糖，一个接一个执行预处理语句，这意味着比执行一个预处理语句插入多条带有值列表的记录，需要更多的网络往返耗时。
-为了在线上获得最佳性能，我们以管线/流水线模式执行批处理，这意味着执行请求在先前请求的响应返回之前发送，如果您的服务器或代理不支持此功能或您可能对此不感兴趣，您可以自行使用单个执行 API 编码。
 
 [[_tricky_date_time_data_types]]
 === 棘手的日期和时间数据类型

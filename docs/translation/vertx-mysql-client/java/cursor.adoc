@@ -1,6 +1,8 @@
 [[_cursors_and_streaming]]
 == 游标和流
 
+include::cursor_warning.adoc[opts=optional]
+
 默认情况下，执行预处理查询将获取所有行，您可以使用 `link:../../apidocs/io/vertx/sqlclient/Cursor.html[Cursor]` 控制想读取的行数：
 
 [source,java]

@@ -9,6 +9,7 @@
 * 事件驱动
 * 内置连接池
 * Java 8 Date 和 Time
+* SSL/TLS
 
 *暂不支持*
 
@@ -32,7 +33,7 @@ WARNING: 该模块处于 tech preview 阶段
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-oracle-client</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 * Gradle (在您的 `build.gradle` 文件中):
@@ -40,7 +41,7 @@ WARNING: 该模块处于 tech preview 阶段
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-oracle-client:4.3.4'
+ compile 'io.vertx:vertx-oracle-client:4.3.5'
 }
 ----
 
@@ -392,11 +393,9 @@ client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
   });
 ----
 
-collector 式查询获取的结果集处理过程中不能再拿到 `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` 的引用，因为
-oracle 数据库客户端在处理 collector 时，只会用一个 row 用于处理整个集合。
+collector 式查询获取的结果集处理过程中不能再拿到 `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` 的引用，因为oracle 数据库客户端在处理 collector 时，只会用一个 row 用于处理整个集合。
 
-Java 的 `Collectors` 类提供了很多有趣的预定义的 collector，比如您可以很容易
-从 row 集合里得到一个字符串：
+Java 的 `Collectors` 类提供了很多有趣的预定义的 collector，比如您可以很容易从 row 集合里得到一个字符串：
 
 [source,java]
 ----
@@ -417,4 +416,26 @@ client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
       System.out.println("Failure: " + ar.cause().getMessage());
     }
   });
+----
+
+== Using SSL/TLS
+
+To enable encryption in client options, use the `link:../../apidocs/io/vertx/oracleclient/OracleConnectOptions.html#setSsl-boolean-[setSsl]` method.
+By default, `ssl` is set to `false`.
+
+[source,java]
+----
+oracleConnectOptions.setSsl(true);
+----
+
+Encryption can be customized using properties.
+For example, to set a trust store:
+
+[source,java]
+----
+oracleConnectOptions
+  .setSsl(true)
+  .addProperty("javax.net.ssl.trustStore", pathToTrustStore)
+  .addProperty("javax.net.ssl.trustStoreType", "JKS")
+  .addProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
 ----

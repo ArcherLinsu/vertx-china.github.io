@@ -25,7 +25,7 @@ Circuit Breaker 是Vert.x 断路 _模式_ 的实现。
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-circuit-breaker</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 
@@ -33,7 +33,7 @@ Circuit Breaker 是Vert.x 断路 _模式_ 的实现。
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-circuit-breaker:4.3.4'
+compile 'io.vertx:vertx-circuit-breaker:4.3.5'
 ----
 
 [[_using_the_circuit_breaker]]
@@ -174,20 +174,24 @@ breaker.<String>execute(
 [[_retries]]
 == 重试
 
-还可以通过 `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreakerOptions.html#setMaxRetries-int-[setMaxRetries]`.
-设置重试次数,如设置大于0的数值，失败的情况下会重试，直到重试次数等于该数值，如果其中一次重试成功，
-那么会跳过剩下的重试。
+您还可以通过 `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreakerOptions.html#setMaxRetries-int-[setMaxRetries]` 方法设置重试频率。
+如果您 设置大于0的数值，失败的情况下会重试，直到重试次数等于该数值，
+如果其中一次重试成功，那么会跳过剩下的重试。
+仅当断路器关闭时才会支持重试。
 
-*注意* 如您设置最大重试次数 `maxRetries` 为 2，那么您的代码在失败的情况将会执行3次，分别为初次请求，
-以及 2 次重试。
+NOTE: 如您设置最大重试次数 `maxRetries` 为 2，那么您的代码在失败的情况将会执行3次：分别为初次请求，以及 2 次重试。
 
-在默认情况下超时时间（timeout）和重试次数（retries）为0，那么将会无延时地一直请求下去，这会导致调用服务负载增加
-并导致服务恢复时间延长。所以为了减少这种情况，建议设置延时以及重试次数。
-方法 `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreaker.html#retryPolicy-java.util.function.Function-[retryPolicy]`
-用于设置重试策略。该方法接收一个Function<Integer,Long>的函数体（传入参数为重试次数，返回具体超时时间，单位：毫秒），
-允许用户定制更加复杂的延时策略，例如：带抖动的延时补偿。
+在默认情况下，多次重试之间的超时时间为0，这意味着重试将没有延时的一个接一个地执行，
+然而，这会导致调用服务负载增加，并导致服务恢复时间延长。
+所以为了减少这种情况，建议设置延时后再重试。
 
-下面是设置了重试策略的例子，重试超时时间与重试时间呈线指数增长。
+方法 `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreaker.html#retryPolicy-io.vertx.circuitbreaker.RetryPolicy-[retryPolicy]` 用于设置重试策略。
+重试策略是一个以接收操作失败和重试计数为参数的函数，并在重试前以毫秒为单位返回超时时间。
+
+它也允许用户定制更加复杂的延时策略，例如：使用Retry-After不可用服务发送的标头值。
+同时提供了一些通用策略：`link:../../apidocs/io/vertx/circuitbreaker/RetryPolicy.html#constantDelay-long-[RetryPolicy.constantDelay]` ， `link:../../apidocs/io/vertx/circuitbreaker/RetryPolicy.html#linearDelay-long-long-[RetryPolicy.linearDelay]` 和 `link:../../apidocs/io/vertx/circuitbreaker/RetryPolicy.html#exponentialDelayWithJitter-long-long-[RetryPolicy.exponentialDelayWithJitter]` 。
+
+下面是一个带有抖动的指数延迟示例：
 
 [source,java]
 ----
@@ -197,7 +201,7 @@ CircuitBreaker breaker = CircuitBreaker.create("my-circuit-breaker", vertx,
   System.out.println("Circuit opened");
 }).closeHandler(v -> {
   System.out.println("Circuit closed");
-}).retryPolicy(retryCount -> retryCount * 100L);
+}).retryPolicy(RetryPolicy.exponentialDelayWithJitter(50, 500));
 
 breaker.<String>execute(
   promise -> {

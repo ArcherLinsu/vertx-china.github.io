@@ -26,7 +26,7 @@ Vert.x Web Validation可以帮助您解析校验您的参数以及来自请求�
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-web-validation</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 
@@ -35,7 +35,7 @@ Vert.x Web Validation可以帮助您解析校验您的参数以及来自请求�
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-web-validation:4.3.4'
+ compile 'io.vertx:vertx-web-validation:4.3.5'
 }
 ----
 
@@ -79,8 +79,8 @@ Vert.x Web Validation 提供了非常好用的API来构建一个解析和校验�
 router
   .get("/user")
   .handler(
-    ValidationHandler
-      .builder(schemaParser)
+    ValidationHandlerBuilder
+      .create(schemaParser)
       .queryParameter(param(
         "aParam",
         intSchema().with(maximum(100))
@@ -100,7 +100,9 @@ router
 这个模块提供了一个简单好用的builder API 来创建 `link:../../apidocs/io/vertx/ext/web/validation/ValidationHandler.html[ValidationHandler]` ，
 这个 `link:../../apidocs/io/vertx/core/Handler.html[Handler]` 用于解析和校验请求。
 
-用 `link:../../apidocs/io/vertx/ext/web/validation/ValidationHandler.html#builder-io.vertx.json.schema.SchemaParser-[ValidationHandler.builder]` 创建这个 `builder`
+This module provides an easy to use builder API to create your `link:../../apidocs/io/vertx/ext/web/validation/ValidationHandler.html[ValidationHandler]`, the `link:../../apidocs/io/vertx/core/Handler.html[Handler]` that performs the parsing and validation of the request.
+To create this builder use `link:../../apidocs/io/vertx/ext/web/validation/builder/ValidationHandlerBuilder.html#create-io.vertx.json.schema.SchemaParser-[ValidationHandlerBuilder.create]`.
+The provided `link:../../apidocs/io/vertx/json/schema/SchemaParser.html[SchemaParser]` will be used to parse all schemas created with https://vertx.io/docs/vertx-json-schema/java/[Vert.x Json Schema DSL]
 
 `link:../../apidocs/io/vertx/json/schema/SchemaParser.html[SchemaParser]` 用来解析所有由 https://vertx.io/docs/vertx-json-schema/java/[Vert.x Json Schema DSL] 定义的schema
 
@@ -113,8 +115,8 @@ router
 
 [source,java]
 ----
-ValidationHandler
-  .builder(schemaParser)
+ValidationHandlerBuilder
+  .create(schemaParser)
   .pathParameter(Parameters.param("myPathParam", stringSchema()))
   .queryParameter(Parameters.optionalParam("myQueryParam", intSchema()));
 ----
@@ -125,8 +127,8 @@ ValidationHandler
 
 [source,java]
 ----
-ValidationHandler
-  .builder(schemaParser)
+ValidationHandlerBuilder
+  .create(schemaParser)
   .queryParameter(Parameters.explodedParam(
     "myArray",
     arraySchema().items(stringSchema())
@@ -152,8 +154,8 @@ ValidationHandler
 ObjectSchemaBuilder bodySchemaBuilder = objectSchema()
   .property("username", stringSchema())
   .property("password", stringSchema());
-ValidationHandler
-  .builder(schemaParser)
+ValidationHandlerBuilder
+  .create(schemaParser)
   .body(Bodies.json(bodySchemaBuilder))
   .body(Bodies.formUrlEncoded(bodySchemaBuilder));
 ----
@@ -169,8 +171,8 @@ ValidationHandler
 
 [source,java]
 ----
-ValidationHandler
-  .builder(schemaParser)
+ValidationHandlerBuilder
+  .create(schemaParser)
   .predicate(RequestPredicate.BODY_REQUIRED);
 ----
 
@@ -184,8 +186,8 @@ ValidationHandler
 router
   .get("/user")
   .handler(
-    ValidationHandler
-      .builder(schemaParser)
+    ValidationHandlerBuilder
+      .create(schemaParser)
       .build()
   );
 ----
@@ -200,8 +202,8 @@ router
 router
   .get("/user")
   .handler(
-    ValidationHandler
-      .builder(schemaParser)
+    ValidationHandlerBuilder
+      .create(schemaParser)
       .queryParameter(Parameters.explodedParam(
         "myArray",
         arraySchema().items(stringSchema())

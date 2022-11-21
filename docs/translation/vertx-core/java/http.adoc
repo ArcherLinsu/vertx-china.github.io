@@ -478,9 +478,12 @@ Vert.x 可以处理在客户端通过 _deflate_ 、 _gzip_ 或 _brotli_
 [source,groovy]
 ----
 dependencies {
- compile 'com.aayushatharva.brotli4j:brotli4j:${brotli4j.version}'
+ implementation 'com.aayushatharva.brotli4j:brotli4j:${brotli4j.version}'
+ runtimeOnly 'com.aayushatharva.brotli4j:native-$system-and-arch:${brotli4j.version}'
 }
 ----
+
+When using Gradle, you need to add the runtime native library manually depending on your OS and architecture. See https://github.com/hyperxpro/Brotli4j#gradle[the Gradle section of Brotli4j] for more details.
 
 默认情况下解压缩是并未被启用的。
 
@@ -996,10 +999,13 @@ Brotli 和 zstandard 库需要添加到类路径classpath中。
 [source,groovy]
 ----
 dependencies {
- compile 'com.aayushatharva.brotli4j:brotli4j:${brotli4j.version}'
- compile 'com.github.luben:zstd-jni:${zstd-jini.version}'
+ implementation 'com.aayushatharva.brotli4j:brotli4j:${brotli4j.version}'
+ runtimeOnly 'com.aayushatharva.brotli4j:native-$system-and-arch:${brotli4j.version}'
+ implementation 'com.github.luben:zstd-jni:${zstd-jini.version}'
 }
 ----
+
+When using Gradle, you need to add the runtime native library manually depending on your OS and architecture. See https://github.com/hyperxpro/Brotli4j#gradle[the Gradle section of Brotli4j] for more details.
 
 您可以根据需要配置压缩机
 
