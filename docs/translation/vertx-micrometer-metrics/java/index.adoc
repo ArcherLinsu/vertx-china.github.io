@@ -28,7 +28,7 @@ Maven users should add this to their project POM file:
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -41,13 +41,14 @@ And Gradle users, to their build file:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.3.4'
+compile 'io.vertx:vertx-micrometer-metrics:4.3.5'
 compile 'io.micrometer:micrometer-registry-influx:${micrometer.version}'
 ----
 
 === Configuration examples
 
-Vert.x does not enable SPI implementations by default. You must enable metric collection in the Vert.x options.
+Vert.x does not enable SPI implementations by default.
+You must enable metric collection in the Vert.x options.
 
 [source,java]
 ----
@@ -57,19 +58,48 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-==== Using a specific URI and database name
+==== Using a specific URI
 
 [source,java]
 ----
 Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
   new MicrometerMetricsOptions()
     .setInfluxDbOptions(new VertxInfluxDbOptions().setEnabled(true)
-      .setUri("http://influxdb.example.com:8888")
+      .setUri("http://influxdb.example.com:8888"))
+    .setEnabled(true)));
+----
+
+==== Connecting to InfluxDB V2
+
+Connecting to InfluxDB V2 requires that at least the `link:../../apidocs/io/vertx/micrometer/VertxInfluxDbOptions.html#setOrg-java.lang.String-[org]` property is set.
+
+[source,java]
+----
+Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+  new MicrometerMetricsOptions()
+    .setInfluxDbOptions(new VertxInfluxDbOptions().setEnabled(true)
+      .setOrg("my-org"))
+    .setEnabled(true)));
+----
+
+==== Using a specific database name or bucket
+
+To configure a specific database name:
+
+[source,java]
+----
+Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+  new MicrometerMetricsOptions()
+    .setInfluxDbOptions(new VertxInfluxDbOptions().setEnabled(true)
       .setDb("sales-department"))
     .setEnabled(true)));
 ----
 
+For InfluxDB V2, you can use `link:../../apidocs/io/vertx/micrometer/VertxInfluxDbOptions.html#setBucket-java.lang.String-[setBucket]` as well.
+
 ==== With authentication
+
+Authentication can be configured with a username and a password:
 
 [source,java]
 ----
@@ -78,6 +108,17 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setInfluxDbOptions(new VertxInfluxDbOptions().setEnabled(true)
       .setUserName("username")
       .setPassword("password"))
+    .setEnabled(true)));
+----
+
+Or it can be configured with a token:
+
+[source,java]
+----
+Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
+  new MicrometerMetricsOptions()
+    .setInfluxDbOptions(new VertxInfluxDbOptions().setEnabled(true)
+      .setToken(authToken))
     .setEnabled(true)));
 ----
 
@@ -99,7 +140,7 @@ Maven users should add this to their project POM file:
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -112,7 +153,7 @@ And Gradle users, to their build file:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.3.4'
+compile 'io.vertx:vertx-micrometer-metrics:4.3.5'
 compile 'io.micrometer:micrometer-registry-prometheus:${micrometer.version}'
 ----
 
@@ -171,7 +212,7 @@ Maven users should add this to their project POM file:
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -184,7 +225,7 @@ And Gradle users, to their build file:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.3.4'
+compile 'io.vertx:vertx-micrometer-metrics:4.3.5'
 compile 'io.micrometer:micrometer-registry-jmx:${micrometer.version}'
 ----
 

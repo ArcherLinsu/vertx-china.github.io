@@ -17,7 +17,7 @@ To use Vert.x Http Proxy, add the following dependency to the _dependencies_ sec
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-http-proxy</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 
@@ -26,7 +26,7 @@ To use Vert.x Http Proxy, add the following dependency to the _dependencies_ sec
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-http-proxy:4.3.4'
+ compile 'io.vertx:vertx-http-proxy:4.3.5'
 }
 ----
 
@@ -52,6 +52,53 @@ proxyServer.requestHandler(proxy).listen(8080);
 ----
 
 All user-agent requests are forwarded to the *origin server* conveniently.
+
+=== Origin server routing
+
+You can create a proxy that forwards all the traffic to a single server like seen before
+
+You can set an origin selector to route the traffic to a given server
+
+[source,java]
+----
+proxy.originSelector(request -> Future.succeededFuture(resolveOriginAddress(request)));
+----
+
+You can set a function to create the client request to the origin server for ultimate flexibility
+
+[source,java]
+----
+proxy.originRequestProvider((request, client) -> client.request(resolveOriginOptions(request)));
+----
+
+=== Headers forwarding
+
+End-to-end headers are forwarded by the proxy, hop-by-hop headers are ignored.
+
+==== Request authority
+
+As a transparent proxy, the request authority ({@code Host} header for HTTP/1.1, {@code :authority} pseudo header
+for HTTP/2) is preserved.
+
+You can override the request authority
+
+[source,java]
+----
+proxy.addInterceptor(new ProxyInterceptor() {
+  @Override
+  public Future<ProxyResponse> handleProxyRequest(ProxyContext context) {
+    ProxyRequest proxyRequest = context.request();
+    proxyRequest.setAuthority("example.com:80");
+    return ProxyInterceptor.super.handleProxyRequest(context);
+  }
+});
+----
+
+When the request authority is overridden, the {@code x-forwarded-host} header is set on the request to the origin server
+with the original authority value.
+
+WARNING: changing the request authority can have undesirable side effects and can affect the proxied web server that might
+rely on the original request authority to handle cookies, URL redirects and such.
 
 === WebSockets
 

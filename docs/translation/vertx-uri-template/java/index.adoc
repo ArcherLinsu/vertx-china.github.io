@@ -18,7 +18,7 @@ To use this component, add the following dependency to the dependencies section 
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-uri-template</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 
@@ -26,7 +26,7 @@ To use this component, add the following dependency to the dependencies section 
 
 [source,groovy,subs="+attributes"]
 ----
-compile io.vertx:vertx-uri-template:4.3.4
+compile io.vertx:vertx-uri-template:4.3.5
 ----
 
 == Templates

@@ -24,7 +24,7 @@ descriptor:
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-circuit-breaker</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 
@@ -32,7 +32,7 @@ descriptor:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-circuit-breaker:4.3.4'
+compile 'io.vertx:vertx-circuit-breaker:4.3.5'
 ----
 
 == Using the circuit breaker
@@ -172,21 +172,24 @@ breaker.<String>execute(
 
 == Retries
 
-You can also specify how often the circuit breaker should try your code before failing with
-`link:../../apidocs/io/vertx/circuitbreaker/CircuitBreakerOptions.html#setMaxRetries-int-[setMaxRetries]`.
-If you set this to something higher than 0 your code gets executed several times before finally failing
-in the last execution. If the code succeeded in one of the retries your handler gets notified and any
-retries left are skipped. Retries are only supported when the circuit is closed.
+You can also specify how often the circuit breaker should try your code before failing with `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreakerOptions.html#setMaxRetries-int-[setMaxRetries]`.
+If you set this to something higher than 0, your code gets executed several times before finally failing in the last execution.
+If the code succeeded in one of the retries your handler gets notified and any retries left are skipped.
+Retries are only supported when the circuit is closed.
 
-Notice that if you set `maxRetries` to 2 for instance, your operation may be called 3 times: the initial attempt
-and 2 retries.
+NOTE: If you set `maxRetries` to 2, your operation may be called 3 times: the initial attempt and 2 retries.
 
-By default the timeout between retries is set to 0 which means that retries will be executed one after another without
-any delay. This, however, will result in increased load on the called service and may delay it's recovery.
-In order to mitigate this problem it is recommended to execute retries with delays. `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreaker.html#retryPolicy-java.util.function.Function-[retryPolicy]`
-method can be used to specify retry policy. Retry policy is a function which receives retry count as single argument
-and returns timeout in milliseconds before retry is executed and allows to implement a more complex policy, e.g.
-exponential backoff with jitter. Below is an example of retry timeout which grows linearly with each retry count:
+By default, the timeout between retries is set to 0, which means that retries will be executed one after another without any delay.
+This, however, will result in increased load on the called service and may delay its recovery.
+In order to mitigate this problem, it is recommended to execute retries with a delay.
+
+The `link:../../apidocs/io/vertx/circuitbreaker/CircuitBreaker.html#retryPolicy-io.vertx.circuitbreaker.RetryPolicy-[retryPolicy]` method can be used to specify a retry policy.
+A retry policy is a function which receives the operation failure and retry count as arguments and returns a timeout in milliseconds before retry is executed.
+
+It allows to implement complex policies, e.g. using the value of the https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After[`Retry-After`] header sent by an unavailable service.
+But a few common policies are provided: `link:../../apidocs/io/vertx/circuitbreaker/RetryPolicy.html#constantDelay-long-[RetryPolicy.constantDelay]`, `link:../../apidocs/io/vertx/circuitbreaker/RetryPolicy.html#linearDelay-long-long-[RetryPolicy.linearDelay]` and `link:../../apidocs/io/vertx/circuitbreaker/RetryPolicy.html#exponentialDelayWithJitter-long-long-[RetryPolicy.exponentialDelayWithJitter]`
+
+Below is an example of exponential delay with jitter:
 
 [source,java]
 ----
@@ -196,7 +199,7 @@ CircuitBreaker breaker = CircuitBreaker.create("my-circuit-breaker", vertx,
   System.out.println("Circuit opened");
 }).closeHandler(v -> {
   System.out.println("Circuit closed");
-}).retryPolicy(retryCount -> retryCount * 100L);
+}).retryPolicy(RetryPolicy.exponentialDelayWithJitter(50, 500));
 
 breaker.<String>execute(
   promise -> {

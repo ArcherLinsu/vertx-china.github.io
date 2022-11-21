@@ -9,6 +9,7 @@ scalability and low overhead.
 * Event driven
 * Built-in connection pooling
 * Java 8 Date and Time
+* SSL/TLS
 
 *Not supported yet*
 
@@ -31,7 +32,7 @@ To use the Reactive Oracle Client add the following dependency to the _dependenc
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-oracle-client</artifactId>
- <version>4.3.4</version>
+ <version>4.3.5</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -39,7 +40,7 @@ To use the Reactive Oracle Client add the following dependency to the _dependenc
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-oracle-client:4.3.4'
+ compile 'io.vertx:vertx-oracle-client:4.3.5'
 }
 ----
 
@@ -380,11 +381,9 @@ client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
   });
 ----
 
-The collector processing must not keep a reference on the `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` as
-there is a single row used for processing the entire set.
+The collector processing must not keep a reference on the `link:../../apidocs/io/vertx/sqlclient/Row.html[Row]` as there is a single row used for processing the entire set.
 
-The Java `Collectors` provides many interesting predefined collectors, for example you can
-create easily create a string directly from the row set:
+The Java `Collectors` provides many interesting predefined collectors, for example you can create easily create a string directly from the row set:
 
 [source,java]
 ----
@@ -405,4 +404,26 @@ client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
       System.out.println("Failure: " + ar.cause().getMessage());
     }
   });
+----
+
+== Using SSL/TLS
+
+To enable encryption in client options, use the `link:../../apidocs/io/vertx/oracleclient/OracleConnectOptions.html#setSsl-boolean-[setSsl]` method.
+By default, `ssl` is set to `false`.
+
+[source,java]
+----
+oracleConnectOptions.setSsl(true);
+----
+
+Encryption can be customized using properties.
+For example, to set a trust store:
+
+[source,java]
+----
+oracleConnectOptions
+  .setSsl(true)
+  .addProperty("javax.net.ssl.trustStore", pathToTrustStore)
+  .addProperty("javax.net.ssl.trustStoreType", "JKS")
+  .addProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
 ----
