@@ -1,0 +1,288 @@
+[[_vert_x_grpc_server]]
+== Vert.x gRPC 服务器
+
+Vert.x gRPC Server 是一个新的 gRPC 服务端， 内核部分使用 Vert.x HTTP server 替换了原有的 grpc Netty Server
+
+此服务端不但提供面向 请求/响应 式的服务端接口，也提供服务桥接的接口调用桩
+
+[[_using_vert_x_grpc_server]]
+=== 集成 Vert.x gRPC 服务器
+
+在项目中添加依赖
+
+* Maven（在您的 `pom.xml` 文件中）：
+
+[source,xml,subs="+attributes"]
+----
+<dependency>
+ <groupId>io.vertx</groupId>
+ <artifactId>vertx-grpc-server</artifactId>
+ <version>4.3.4</version>
+</dependency>
+----
+
+* Gradle（在您的 `build.gradle` 文件中）：
+
+[source,groovy,subs="+attributes"]
+----
+dependencies {
+ compile 'io.vertx:vertx-grpc-server:4.3.4'
+}
+----
+
+[[_grpc_requestresponse_server_api]]
+=== gRPC 请求/响应 服务端接口
+
+gRPC 请求/响应 服务端接口可以使用客户端直接进行调用，而不依赖于调用桩
+
+``link:../../apidocs/io/vertx/grpc/server/GrpcServer.html[GrpcServer]`` 就是一个 `Handler<HttpServerRequest>` 并且像 HTTP 服务请求处理器一样使用。
+
+[source,java]
+----
+GrpcServer grpcServer = GrpcServer.server(vertx);
+
+HttpServer server = vertx.createHttpServer(options);
+
+server
+  .requestHandler(grpcServer)
+  .listen();
+----
+
+TIP: `GrpcServer` 可以挂载到 Vert.x Web 路由上
+
+[[_requestresponse]]
+==== 请求/响应
+
+每个服务中的接口都由一个处理器处理
+
+[source,java]
+----
+server.callHandler(GreeterGrpc.getSayHelloMethod(), request -> {
+
+  request.handler(hello -> {
+
+    GrpcServerResponse<HelloRequest, HelloReply> response = request.response();
+
+    HelloReply reply = HelloReply.newBuilder().setMessage("Hello " + hello.getName()).build();
+
+    response.end(reply);
+  });
+});
+----
+
+[[_streaming_request]]
+==== 流式请求
+
+您可以设置处理器处理请求事件
+
+[source,java]
+----
+server.callHandler(StreamingGrpc.getSinkMethod(), request -> {
+  request.handler(item -> {
+    // Process item
+  });
+  request.endHandler(v ->{
+    // No more items
+    // Send the response
+    request.response().end(Empty.getDefaultInstance());
+  });
+  request.exceptionHandler(err -> {
+    // Something wrong happened
+  });
+});
+----
+
+[[_streaming_response]]
+==== 流式响应
+
+流式响应使用 ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#write-java.lang.Object-[write]`` 发送每条响应消息元素
+使用  ``link:../../apidocs/io/vertx/core/streams/WriteStream.html#end--[end]`` 结束流
+
+[source,java]
+----
+server.callHandler(StreamingGrpc.getSourceMethod(), request -> {
+  GrpcServerResponse<Empty, Item> response = request.response();
+  request.handler(empty -> {
+    for (int i = 0;i < 10;i++) {
+      response.write(Item.newBuilder().setValue("1").build());
+    }
+    response.end();
+  });
+});
+----
+
+[[_bidi_requestresponse]]
+==== 双向流
+
+一个双向流可以用一个流式请求和一个流式响应简单的组合起来
+
+[source,java]
+----
+server.callHandler(StreamingGrpc.getPipeMethod(), request -> {
+
+  request.handler(item -> request.response().write(item));
+  request.endHandler(v -> request.response().end());
+});
+----
+
+[[_flow_control]]
+=== 流控
+
+使用 Vert.x streams 对请求和响应进行背压控制
+
+您可以 暂停/恢复/同步 一个请求
+
+[source,java]
+----
+request.pause();
+
+performAsyncOperation().onComplete(ar -> {
+  // And then resume
+  request.resume();
+});
+----
+
+您可以检查响应的写能力，然后设置恢复处理器
+
+[source,java]
+----
+if (response.writeQueueFull()) {
+  response.drainHandler(v -> {
+    // Writable again
+  });
+} else {
+  response.write(item);
+}
+----
+
+[[_compression]]
+=== 压缩
+
+您可在发送消息 *之前* 设置压缩算法，用于压缩消息
+
+[source,java]
+----
+response.encoding("gzip");
+
+// Write items after encoding has been defined
+response.write(Item.newBuilder().setValue("item-1").build());
+response.write(Item.newBuilder().setValue("item-2").build());
+response.write(Item.newBuilder().setValue("item-3").build());
+----
+
+[[_decompression]]
+=== 解压缩
+
+解压缩在服务端自动进行 (译者注：gRPC只内置了gzip，如果要使用其他压缩算法需要在客户端和服务端同时进行扩展)
+
+[[_stub_api]]
+=== 调用桩接口
+
+Vert.x gRPC Server 提供了传统的使用 gRPC 通道的调用桩接口
+
+[source,java]
+----
+GrpcServer grpcServer = GrpcServer.server(vertx);
+
+GreeterGrpc.GreeterImplBase service = new GreeterGrpc.GreeterImplBase() {
+  @Override
+  public void sayHello(HelloRequest request, StreamObserver<HelloReply> responseObserver) {
+    responseObserver.onNext(HelloReply.newBuilder().setMessage("Hello " + request.getName()).build());
+    responseObserver.onCompleted();
+  }
+};
+
+// Bind the service bridge in the gRPC server
+GrpcServiceBridge serverStub = GrpcServiceBridge.bridge(service);
+serverStub.bind(grpcServer);
+
+// Start the HTTP/2 server
+vertx.createHttpServer(options)
+  .requestHandler(grpcServer)
+  .listen();
+----
+
+[[_message_level_api]]
+=== 消息级接口
+
+服务端提供了消息级别的接口用于直接处理 protobuf 编码的 gRPC 消息
+
+TIP: 服务端消息级接口可以和客户端消息级接口一起使用构建一个 gRPC 反向代理
+
+如果您对消息的内容不感兴趣，而是想将消息转发到其他服务，
+比方说您在写一个代理，这些接口就十分有用。
+
+[source,java]
+----
+ServiceName greeterServiceName = ServiceName.create("helloworld", "Greeter");
+
+server.callHandler(request -> {
+
+  if (request.serviceName().equals(greeterServiceName) && request.methodName().equals("SayHello")) {
+
+    request.handler(protoHello -> {
+      // Handle protobuf encoded hello
+      performAsyncOperation(protoHello)
+        .onSuccess(protoReply -> {
+          // Reply with protobuf encoded reply
+          request.response().end(protoReply);
+        }).onFailure(err -> {
+          request.response()
+            .status(GrpcStatus.ABORTED)
+            .end();
+        });
+    });
+  } else {
+    request.response()
+      .status(GrpcStatus.NOT_FOUND)
+      .end();
+  }
+});
+----
+
+您也可以使用 `messageHandler` 处理 ``link:../../apidocs/io/vertx/grpc/common/GrpcMessage.html[GrpcMessage]`` ，这些消息会保留客户端的编码，
+如果您想直接转发压缩后的消息就非常有用，
+可以避免二次解压缩和压缩。
+
+[source,java]
+----
+ServiceName greeterServiceName = ServiceName.create("helloworld", "Greeter");
+
+server.callHandler(request -> {
+
+  if (request.serviceName().equals(greeterServiceName) && request.methodName().equals("SayHello")) {
+
+    request.messageHandler(helloMessage -> {
+
+      // Can be identity or gzip
+      String helloEncoding = helloMessage.encoding();
+
+      // Handle hello message
+      handleGrpcMessage(helloMessage)
+        .onSuccess(replyMessage -> {
+          // Reply with reply message
+
+          // Can be identity or gzip
+          String replyEncoding = replyMessage.encoding();
+
+          // Send the reply
+          request.response().endMessage(replyMessage);
+        }).onFailure(err -> {
+          request.response()
+            .status(GrpcStatus.ABORTED)
+            .end();
+        });
+    });
+  } else {
+    request.response()
+      .status(GrpcStatus.NOT_FOUND)
+      .end();
+  }
+});
+----
+
+``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#writeMessage-io.vertx.grpc.common.GrpcMessage-[writeMessage]`` 和 ``link:../../apidocs/io/vertx/grpc/common/GrpcWriteStream.html#endMessage-io.vertx.grpc.common.GrpcMessage-[endMessage]``
+将处理这些消息编码：
+
+- 如果消息使用服务端编码，将原样发出
+- 如果消息使用一个不同的编码，它将会重新编码，例如：压缩和解压缩
