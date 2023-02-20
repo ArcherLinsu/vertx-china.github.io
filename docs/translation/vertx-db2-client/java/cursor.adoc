@@ -7,7 +7,7 @@ By default, prepared query execution fetches all rows, you can use a
 
 [source,java]
 ----
-connection.prepare("SELECT * FROM users WHERE first_name LIKE $1", ar0 -> {
+connection.prepare("SELECT * FROM users WHERE first_name LIKE ?", ar0 -> {
   if (ar0.succeeded()) {
     PreparedStatement pq = ar0.result();
 
@@ -55,7 +55,7 @@ A stream API is also available for cursors, which can be more convenient, specia
 
 [source,java]
 ----
-connection.prepare("SELECT * FROM users WHERE first_name LIKE $1", ar0 -> {
+connection.prepare("SELECT * FROM users WHERE first_name LIKE ?", ar0 -> {
   if (ar0.succeeded()) {
     PreparedStatement pq = ar0.result();
 

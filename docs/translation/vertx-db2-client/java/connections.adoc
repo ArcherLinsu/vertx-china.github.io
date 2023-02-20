@@ -33,7 +33,7 @@ Prepared queries can be created:
 [source,java]
 ----
 connection
-  .prepare("SELECT * FROM users WHERE first_name LIKE $1")
+  .prepare("SELECT * FROM users WHERE first_name LIKE ?")
   .compose(pq ->
     pq.query()
       .execute(Tuple.of("Andy"))
