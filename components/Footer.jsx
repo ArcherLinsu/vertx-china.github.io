@@ -86,7 +86,7 @@ const Footer = () => {
             Eclipse Vert.x&trade; 是开源的，并在
             <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">Eclipse Public License 2.0</a>和
             <a href="https://www.apache.org/licenses/LICENSE-2.0.html" target="_blank" rel="noopener noreferrer">Apache License 2.0</a>协议下获得了双重许可。<br className="footer-copyright-break"/>
-            网站由 <a href="https://michelkraemer.com" target="_blank" rel="noopener noreferrer">Michel Krämer</a> 设计。
+            网站由 <a href="https://michelkraemer.com" target="_blank" rel="noopener noreferrer">Michel Krämer</a> 设计，由 <a href="/translation/" target="_blank" rel="noopener noreferrer">翻译团队</a> 翻译。
           </div>
           <div className="footer-copyright-eclipse-logo">
             <a href="https://www.eclipse.org/" target="_blank" rel="noopener noreferrer">
