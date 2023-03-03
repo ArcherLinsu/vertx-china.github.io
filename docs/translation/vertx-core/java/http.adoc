@@ -2654,11 +2654,13 @@ used with binary frames that are no split over multiple frames.
 
 ==== Event bus handlers
 
-Every WebSocket automatically registers two handler on the event bus, and when any data are received in this handler,
-it writes them to itself. Those are local subscriptions not routed on the cluster.
+Every WebSocket can register two handlers on the event bus, and when any data are received in these handlers,
+it writes the data to itself. Those are local subscriptions, not reachable from other clustered nodes.
 
 This enables you to write data to a WebSocket which is potentially in a completely different verticle sending data
 to the address of that handler.
+
+This feature is disabled by default, however you can enable it using `link:../../apidocs/io/vertx/core/http/HttpServerOptions.html#setRegisterWebSocketWriteHandlers-boolean-[setRegisterWebSocketWriteHandlers]` or `link:../../apidocs/io/vertx/core/http/WebSocketConnectOptions.html#setRegisterWriteHandlers-boolean-[setRegisterWriteHandlers]`.
 
 The addresses of the handlers are given by `link:../../apidocs/io/vertx/core/http/WebSocketBase.html#binaryHandlerID--[binaryHandlerID]` and
 `link:../../apidocs/io/vertx/core/http/WebSocketBase.html#textHandlerID--[textHandlerID]`.

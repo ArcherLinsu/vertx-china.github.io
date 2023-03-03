@@ -1,7 +1,7 @@
 === Hocon Configuration Format
 
 The Hocon Configuration Format extends the Vert.x Configuration Retriever and provides the
-support for the HOCON(https://github.com/typesafehub/config/blob/master/HOCON.md) format.
+support for the https://github.com/lightbend/config/blob/master/HOCON.md[HOCON] format.
 
 It supports includes, json, properties, macros...
 
@@ -17,12 +17,12 @@ _dependencies_ section of your build descriptor:
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-config-hocon</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-config</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -30,8 +30,8 @@ _dependencies_ section of your build descriptor:
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-config:4.3.8'
-compile 'io.vertx:vertx-config-hocon:4.3.8'
+compile 'io.vertx:vertx-config:4.4.0'
+compile 'io.vertx:vertx-config-hocon:4.4.0'
 ----
 
 ==== Configuring the store to use HOCON
@@ -53,3 +53,21 @@ ConfigRetriever retriever = ConfigRetriever.create(vertx,
 ----
 
 You just need to set `format` to `hocon`.
+
+==== Override configuration using system environment variables
+
+Hocon supports https://github.com/lightbend/config#optional-system-or-env-variable-overrides[system environment variable overrides] using keys with `CONFIG_FORCE_` prefix. You can use this feature by specifying `hocon.env.override` to `true` in the configuration:
+
+[source, java]
+----
+ConfigStoreOptions store = new ConfigStoreOptions()
+  .setType("file")
+  .setFormat("hocon")
+  .setConfig(new JsonObject()
+    .put("hocon.env.override", true)
+    .put("path", "my-config.conf")
+  );
+
+ConfigRetriever retriever = ConfigRetriever.create(vertx,
+  new ConfigRetrieverOptions().addStore(store));
+----

@@ -11,7 +11,7 @@ This implementation is packaged inside:
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-hazelcast</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -27,11 +27,11 @@ Cluster managers do *not* handle the event bus inter-node transport, this is don
 
 == Using this cluster manager
 
-If you are using Vert.x from the command line, the jar corresponding to this cluster manager (it will be named `vertx-hazelcast-4.3.8.jar`
+If you are using Vert.x from the command line, the jar corresponding to this cluster manager (it will be named `vertx-hazelcast-4.4.0.jar`
 should be in the `lib` directory of the Vert.x installation.
 
 If you want clustering with this cluster manager in your Vert.x Maven or Gradle project then just add a dependency to
-the artifact: `io.vertx:vertx-hazelcast:4.3.8` in your project.
+the artifact: `io.vertx:vertx-hazelcast:4.4.0` in your project.
 
 If the jar is on your classpath as above then Vert.x will automatically detect this and use it as the cluster manager.
 Please make sure you don't have any other cluster managers on your classpath or Vert.x might
@@ -191,6 +191,10 @@ Notice that the custom Hazelcast instance need to be configured with:
 
 [source,xml]
 ----
+<member-attributes>
+ <attribute name="__vertx.nodeId">unique-identifier</attribute>
+</member-attributes>
+
 <multimap name="__vertx.subs">
  <backup-count>1</backup-count>
  <value-collection-type>SET</value-collection-type>
@@ -216,6 +220,9 @@ Notice that the custom Hazelcast instance need to be configured with:
 </cp-subsystem>
 ----
 
+CAUTION: The `__vertx.nodeId` is used by Vert.x as identifier of the node in the cluster.
+Make sure to configure unique values across members.
+
 IMPORTANT: Hazelcast clients or smart clients are not supported.
 
 IMPORTANT: Make sure Hazelcast is started before and shut down after Vert.x.
@@ -223,8 +230,8 @@ Also, the Hazelcast shutdown hook should be disabled (see xml example, or via sy
 
 == Changing timeout for failed nodes
 
-By default a node will be removed from the cluster if Hazelcast didn't receive a heartbeat for 300 seconds. To change
-this value `hazelcast.max.no.heartbeat.seconds` system property such as in:
+By default, a node will be removed from the cluster if Hazelcast didn't receive a heartbeat for 300 seconds.
+To change this value `hazelcast.max.no.heartbeat.seconds` system property such as in:
 
 ----
 -Dhazelcast.max.no.heartbeat.seconds=5
@@ -323,7 +330,7 @@ In this later case, you would need in Maven:
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-hazelcast</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -334,7 +341,7 @@ On Gradle, you can achieve the same overloading using:
 [source]
 ----
 dependencies {
-compile ("io.vertx:vertx-hazelcast:4.3.8"){
+compile ("io.vertx:vertx-hazelcast:4.4.0"){
   exclude group: 'com.hazelcast', module: 'hazelcast'
 }
 compile "com.hazelcast:hazelcast:ENTER_YOUR_VERSION_HERE"

@@ -158,12 +158,14 @@ exceptions that happens before the connection is passed to the `link:../../apido
 
 === Event bus write handler
 
-Every socket automatically registers a handler on the event bus, and when any buffers are received in this handler,
-it writes them to itself. Those are local subscriptions not routed on the cluster.
+Every socket can register a handler on the event bus, and when any buffers are received in this handler,
+it writes them to itself. Those are local subscriptions, not reachable from other clustered nodes.
 
 This enables you to write data to a socket which is potentially in a completely different verticle by sending the buffer to the address of that handler.
 
-The address of the handler is given by `link:../../apidocs/io/vertx/core/net/NetSocket.html#writeHandlerID--[writeHandlerID]`
+This feature is disabled by default, however you can enable it using `link:../../apidocs/io/vertx/core/net/NetServerOptions.html#setRegisterWriteHandler-boolean-[setRegisterWriteHandler]` or `link:../../apidocs/io/vertx/core/net/NetClientOptions.html#setRegisterWriteHandler-boolean-[setRegisterWriteHandler]`.
+
+The address of the handler is given by `link:../../apidocs/io/vertx/core/net/NetSocket.html#writeHandlerID--[writeHandlerID]`.
 
 === Local and remote addresses
 
@@ -876,6 +878,22 @@ NetClient client = vertx.createNetClient(options);
 
 Keep in mind that pem configuration, the private key is not crypted.
 
+==== Updating SSL/TLS configuration
+
+You can use the `updateSSLOptions` method to update the key/certifications or trust on a TCP server or client (e.g. to
+implement certificate rotation).
+
+[source,java]
+----
+Future<Void> fut = server.updateSSLOptions(new SSLOptions()
+  .setKeyCertOptions(
+    new JksOptions()
+      .setPath("/path/to/your/server-keystore.jks").
+      setPassword("password-of-your-keystore")));
+----
+
+When the update succeeds the new SSL configuration is used, otherwise the previous configuration is kept.
+
 ==== Self-signed certificates for testing and development purposes
 
 CAUTION: Do not use this in production settings, and note that the generated keys are very insecure.
@@ -991,25 +1009,38 @@ Cipher suite can be specified on the `link:../../apidocs/io/vertx/core/net/NetSe
 
 ==== Configuring TLS protocol versions
 
-By default, the TLS configuration will use the following protocol versions: SSLv2Hello, TLSv1, TLSv1.1 and TLSv1.2. Protocol versions can be
-configured by explicitly adding enabled protocols:
+By default, the default TLS configuration enables the following protocols: TLSv1.2 and TLSv1.3. Protocol versions can be
+enabled by explicitly adding them:
 
 [source,java]
 ----
 NetServerOptions options = new NetServerOptions().
   setSsl(true).
   setKeyStoreOptions(keyStoreOptions).
-  removeEnabledSecureTransportProtocol("TLSv1").
-  addEnabledSecureTransportProtocol("TLSv1.3");
+  addEnabledSecureTransportProtocol("TLSv1.1");
+NetServer server = vertx.createNetServer(options);
+----
+
+They can also be removed:
+
+[source,java]
+----
+NetServerOptions options = new NetServerOptions().
+  setSsl(true).
+  setKeyStoreOptions(keyStoreOptions).
+  removeEnabledSecureTransportProtocol("TLSv1.2");
 NetServer server = vertx.createNetServer(options);
 ----
 
 Protocol versions can be specified on the `link:../../apidocs/io/vertx/core/net/NetServerOptions.html[NetServerOptions]` or `link:../../apidocs/io/vertx/core/net/NetClientOptions.html[NetClientOptions]` configuration.
 
+NOTE: TLS 1.0 (TLSv1) and TLS 1.1 (TLSv1.1) are widely deprecated and have been disabled by default since Vert.x 4.4.0.
+
 ==== SSL engine
 
 The engine implementation can be configured to use https://www.openssl.org[OpenSSL] instead of the JDK implementation.
-OpenSSL provides better performances and CPU usage than the JDK engine, as well as JDK version independence.
+Before JDK started to use hardware intrinsics (CPU instructions) for AES in Java 8 and for RSA in Java 9,
+OpenSSL provided much better performances and CPU usage than the JDK engine.
 
 The engine options to use is
 

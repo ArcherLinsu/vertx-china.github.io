@@ -19,7 +19,7 @@ Notice that you generally need Vert.x Web to use this component. In addition add
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-health-check</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -27,7 +27,7 @@ Notice that you generally need Vert.x Web to use this component. In addition add
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-health-check:4.3.8'
+compile 'io.vertx:vertx-health-check:4.4.0'
 ----
 
 === Creating the health check object.
@@ -246,14 +246,14 @@ This check reports whether a connection to the database can be established:
 [source, java]
 ----
 handler.register("database",
-  promise -> pool.getConnection(connection -> {
-    if (connection.failed()) {
-      promise.fail(connection.cause());
-    } else {
-      connection.result().close();
-      promise.complete(Status.OK());
-    }
-  }));
+ promise -> pool.getConnection(connection -> {
+   if (connection.failed()) {
+     promise.fail(connection.cause());
+   } else {
+     connection.result().close();
+     promise.complete(Status.OK());
+   }
+ }));
 ----
 
 === Service availability
@@ -263,16 +263,16 @@ This check reports whether or not a service (here a HTTP endpoint) is available 
 [source, java]
 ----
 handler.register("my-service",
-  promise ->
-    HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()),
-      client -> {
-        if (client.failed()) {
-          promise.fail(client.cause());
-        } else {
-          client.result().close();
-          promise.complete(Status.OK());
-        }
-      }));
+ promise ->
+   HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()),
+     client -> {
+       if (client.failed()) {
+         promise.fail(client.cause());
+       } else {
+         client.result().close();
+         promise.complete(Status.OK());
+       }
+     }));
 ----
 
 === Event bus
