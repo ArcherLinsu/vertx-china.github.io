@@ -1,0 +1,91 @@
+---
+title: "What's new in Vert.x 4.4"
+category: releases
+authors:
+  - name: Julien Viet
+    github_id: vietj
+summary: >-
+  See an overview of all new and exciting features in Vert.x 4.4, including a new OpenAPI implementation and io_uring support
+pinned: true
+---
+
+Vert.x 4.4 comes with few new exciting features.
+
+Here is an overview of the most important features in Vert.x 4.4.
+
+## new OpenAPI implementation
+
+A new implementation of OpenAPI using the latest JsonSchema API is available as tech preview. This new implementation allows both OpenAPI 3.0 and OpenAPI 3.1 documents to be used as a foundation for a router.
+
+```java
+// the api contract yaml or json
+OpenAPIContract contract = getContract();
+RouterBuilder routerBuilder = RouterBuilder.create(vertx, contract);
+// the ready to mount router that matches the provided contract
+Router router = routerBuilder.createRouter();
+```
+
+As well as it allows both input validation, and (as a totally new feature) output validation.
+
+```java
+RequestValidator validator = RequestValidator.create(vertx, contract);
+
+ValidatableRequest request = getValidatableRequest();
+validator.validate(request, "yourOperationId")
+  .onSuccess(validatedRequest -> {
+    validatedRequest.getBody(); // returns the body
+    validatedRequest.getHeaders(); // returns the header
+...
+```
+
+And:
+
+```java
+ResponseValidator validator = ResponseValidator.create(vertx, contract);
+
+JsonObject cat = new JsonObject().put("name", "foo");
+ValidatableResponse response =
+      ValidatableResponse.create(200, cat.toBuffer(), APPLICATION_JSON.toString());
+...
+// send back the validated response
+validatedResponse.send(httpServerRequest.response());
+```
+
+## Vert.x io_uring transport
+
+Vert.x io_uring is a transport using the io_uring interface of the Linux kernel, providing a high I/O performance scalable interface
+for fully asynchronous Linux syscalls.
+
+Some Vert.x components will leverage this transport:
+
+- Vert.x Core TCP, HTTP, datagram servers/clients
+- PostgreSQL, MySQL, MSSQL and DB2 reactive clients
+- Vert.x gRPC
+- ...
+
+You can read the the full list [here](https://vertx.io/docs/vertx-io_uring-incubator/java/)
+
+## SSL
+
+Vert.x now disables TLS 1.0/1.1 and enables TLS 1.3 by default.
+
+You can now update Vert.x HTTP server/client certificates on the fly:
+
+```java
+vertx.setPeriodic(REFRESH_PERIOD, id -> {
+  SSLOptions options = peekUpdatedConfiguration();
+  server.updateSSLOptions(options);
+});
+```
+
+## Various improvements
+
+
+- [SQL client Create propagatable connection, add Transaction accessor](https://github.com/eclipse-vertx/vertx-sql-client/pull/1231)
+- [vertx-rx Instrumentation for reactive data fetchers](https://github.com/vert-x3/vertx-web/issues/2329)
+- [MQTT Feature/unsubscribe from multiple topics](https://github.com/vert-x3/vertx-mqtt/pull/224)
+- [MQTT manual ack](https://github.com/vert-x3/vertx-mqtt/pull/235)
+- [mail [Issue-172] Support enhanced status code](https://github.com/vert-x3/vertx-mail-client/issues/172)
+- [json schema 2020-12 Support](https://github.com/eclipse-vertx/vertx-json-schema/issues/43)
+- [gRPC context storage based on Vert.x context](https://github.com/eclipse-vertx/vertx-grpc/issues/21)
+- [RabbitMQ  add metrics collector configuration support](https://github.com/vert-x3/vertx-rabbitmq-client/pull/179)
