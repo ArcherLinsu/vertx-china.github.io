@@ -483,7 +483,7 @@ dependencies {
 }
 ----
 
-When using Gradle, you need to add the runtime native library manually depending on your OS and architecture. See https://github.com/hyperxpro/Brotli4j#gradle[the Gradle section of Brotli4j] for more details.
+当您使用 Gradle 时，需要根据操作系统和体系架构来手动添加对应的运行时原生库依赖。参考 https://github.com/hyperxpro/Brotli4j#gradle[Brotli4j 中的 Gradle 章节] 以获取更多细节。
 
 默认情况下解压缩是并未被启用的。
 
@@ -1005,7 +1005,7 @@ dependencies {
 }
 ----
 
-When using Gradle, you need to add the runtime native library manually depending on your OS and architecture. See https://github.com/hyperxpro/Brotli4j#gradle[the Gradle section of Brotli4j] for more details.
+当您使用 Gradle 时，需要根据操作系统和体系架构来手动添加对应的运行时原生库依赖。参考 https://github.com/hyperxpro/Brotli4j#gradle[Brotli4j 中的 Gradle 章节] 以获取更多细节。
 
 您可以根据需要配置压缩机
 
