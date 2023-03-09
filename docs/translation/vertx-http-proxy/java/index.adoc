@@ -55,34 +55,37 @@ proxyServer.requestHandler(proxy).listen(8080);
 
 所有的（user-agent）用户代理请求都方便地转发到 *origin server* 。
 
-=== Origin server routing
+[[_origin_server_routing]]
+=== 源服务器（Origin Server）路由
 
-You can create a proxy that forwards all the traffic to a single server like seen before
+您可以创建一个代理，将所有流量转发到单个服务器，如前所述。
 
-You can set an origin selector to route the traffic to a given server
+您可以设置源选择器（Origin Selector）以将流量路由到指定的服务器。
 
 [source,java]
 ----
 proxy.originSelector(request -> Future.succeededFuture(resolveOriginAddress(request)));
 ----
 
-You can set a function to create the client request to the origin server for ultimate flexibility
+您可以设置一个函数来创建对源服务器的客户端请求，以实现最大的灵活性。
 
 [source,java]
 ----
 proxy.originRequestProvider((request, client) -> client.request(resolveOriginOptions(request)));
 ----
 
-=== Headers forwarding
+[[_headers_forwarding]]
+=== 头部转发
 
-End-to-end headers are forwarded by the proxy, hop-by-hop headers are ignored.
+端到端的头部会被代理转发，而逐跳（hop-by-hop）头部会被忽略。
 
-==== Request authority
+[[_request_authority]]
+==== 请求校验
 
-As a transparent proxy, the request authority ({@code Host} header for HTTP/1.1, {@code :authority} pseudo header
-for HTTP/2) is preserved.
+作为一种透明代理，请求中的请求权限信息 （HTTP/1.1 协议的 {@code Host} 标头，HTTP/2 协议的 {@code ：authority} 
+伪标头），会被代理保留。
 
-You can override the request authority
+您也可以重写请求权限信息。
 
 [source,java]
 ----
@@ -96,11 +99,11 @@ proxy.addInterceptor(new ProxyInterceptor() {
 });
 ----
 
-When the request authority is overridden, the {@code x-forwarded-host} header is set on the request to the origin server
-with the original authority value.
+当请求权限信息被重写时，在对源服务器的请求上会设置 {@code x-forwarded-host} 头部，其值为
+原始的权限信息。
 
-WARNING: changing the request authority can have undesirable side effects and can affect the proxied web server that might
-rely on the original request authority to handle cookies, URL redirects and such.
+WARNING: 更改请求权限信息可能会产生不良的副作用，并可能影响代理的 Web 服务器，因为其可能
+依赖原始的请求权限信息来处理 Cookie、URL 重定向等操作。
 
 [[_websockets]]
 === WebSockets
@@ -127,7 +130,7 @@ HttpProxy proxy = HttpProxy.reverseProxy(new ProxyOptions().setCacheOptions(new 
 
 拦截是使用新功能扩展代理的强大方法。
 
-你可以实现 `link:../../apidocs/io/vertx/httpproxy/ProxyInterceptor.html#handleProxyRequest-io.vertx.httpproxy.ProxyContext-[handleProxyRequest]` 对代理请求执行的任何操作
+您可以实现 `link:../../apidocs/io/vertx/httpproxy/ProxyInterceptor.html#handleProxyRequest-io.vertx.httpproxy.ProxyContext-[handleProxyRequest]` 对代理请求执行的任何操作
 
 [source,java]
 ----
@@ -164,7 +167,7 @@ proxy.addInterceptor(new ProxyInterceptor() {
 [[_body_filtering]]
 ==== Body 过滤
 
-你可以简单地用一个新的Body替换原来的 `link:../../apidocs/io/vertx/httpproxy/Body.html[Body]` 来过滤body
+您可以简单地用一个新的 Body 替换原来的 `link:../../apidocs/io/vertx/httpproxy/Body.html[Body]` 来过滤body
 
 [source,java]
 ----
@@ -190,7 +193,7 @@ proxy.addInterceptor(new ProxyInterceptor() {
 
 `link:../../apidocs/io/vertx/httpproxy/ProxyContext.html#sendRequest--[sendRequest]` 和 `link:../../apidocs/io/vertx/httpproxy/ProxyContext.html#sendResponse--[sendResponse]` 继续当前拦截链，然后将结果发到（origin server）源服务器或者（user-agent）用户代理。
 
-你可以更改控制器, 例如， 您可以立即向（user-agent）用户代理发送响应，而无需请求（origin server）源服务器
+您可以更改控制器, 例如， 您可以立即向用户代理（user-agent）发送响应，而无需请求源服务器（origin server）
 
 [source,java]
 ----
