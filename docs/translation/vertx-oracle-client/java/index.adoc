@@ -418,18 +418,19 @@ client.query("SELECT * FROM users").collecting(collector).execute(ar -> {
   });
 ----
 
-== Using SSL/TLS
+[[_using_ssltls]]
+== 使用 SSL/TLS
 
-To enable encryption in client options, use the `link:../../apidocs/io/vertx/oracleclient/OracleConnectOptions.html#setSsl-boolean-[setSsl]` method.
-By default, `ssl` is set to `false`.
+为了在客户端配置中启用加密传输，您需要使用 `link:../../apidocs/io/vertx/oracleclient/OracleConnectOptions.html#setSsl-boolean-[setSsl]` 方法。
+默认情况下 `ssl` 属性被设置为 `false` 。
 
 [source,java]
 ----
 oracleConnectOptions.setSsl(true);
 ----
 
-Encryption can be customized using properties.
-For example, to set a trust store:
+您可以自定义加密相关的属性。
+例如，要设置信任库：
 
 [source,java]
 ----
