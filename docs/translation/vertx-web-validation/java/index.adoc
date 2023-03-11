@@ -72,7 +72,7 @@ router
   });
 ----
 
-Vert.x Web Validation 提供了非常好用的API来构建一个解析和校验请求的handler
+Vert.x Web Validation 提供了非常好用的API来构建一个解析和校验请求的 handler
 
 [source,java]
 ----
@@ -97,14 +97,10 @@ router
 [[_creating_the_validationhandler]]
 == 创建 `ValidationHandler`
 
-这个模块提供了一个简单好用的builder API 来创建 `link:../../apidocs/io/vertx/ext/web/validation/ValidationHandler.html[ValidationHandler]` ，
+这个模块提供了一个简单好用的 builder API 来创建 `link:../../apidocs/io/vertx/ext/web/validation/ValidationHandler.html[ValidationHandler]` ，
 这个 `link:../../apidocs/io/vertx/core/Handler.html[Handler]` 用于解析和校验请求。
-
-This module provides an easy to use builder API to create your `link:../../apidocs/io/vertx/ext/web/validation/ValidationHandler.html[ValidationHandler]`, the `link:../../apidocs/io/vertx/core/Handler.html[Handler]` that performs the parsing and validation of the request.
-To create this builder use `link:../../apidocs/io/vertx/ext/web/validation/builder/ValidationHandlerBuilder.html#create-io.vertx.json.schema.SchemaParser-[ValidationHandlerBuilder.create]`.
-The provided `link:../../apidocs/io/vertx/json/schema/SchemaParser.html[SchemaParser]` will be used to parse all schemas created with https://vertx.io/docs/vertx-json-schema/java/[Vert.x Json Schema DSL]
-
-`link:../../apidocs/io/vertx/json/schema/SchemaParser.html[SchemaParser]` 用来解析所有由 https://vertx.io/docs/vertx-json-schema/java/[Vert.x Json Schema DSL] 定义的schema
+您可以使用 `link:../../apidocs/io/vertx/ext/web/validation/builder/ValidationHandlerBuilder.html#create-io.vertx.json.schema.SchemaParser-[ValidationHandlerBuilder.create]` 方法以创建该 builder 对象。
+提供的 `link:../../apidocs/io/vertx/json/schema/SchemaParser.html[SchemaParser]` 对象可被用于解析使用 https://vertx.io/docs/vertx-json-schema/java/[Vert.x Json Schema DSL] 创建的所有数据格式。
 
 [[_defining_parameters]]
 === 定义参数
