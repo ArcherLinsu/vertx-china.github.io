@@ -75,9 +75,10 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-==== Connecting to InfluxDB V2
+[[_connecting_to_influxdb_v2]]
+==== 连接到 InfluxDB V2
 
-Connecting to InfluxDB V2 requires that at least the `link:../../apidocs/io/vertx/micrometer/VertxInfluxDbOptions.html#setOrg-java.lang.String-[org]` property is set.
+如果您要连接到 InfluxDB V2 ，那么最少需要设置 `link:../../apidocs/io/vertx/micrometer/VertxInfluxDbOptions.html#setOrg-java.lang.String-[org]` 这个属性。
 
 [source,java]
 ----
@@ -88,9 +89,10 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-==== Using a specific database name or bucket
+[[_using_a_specific_database_name_or_bucket]]
+==== 使用指定的数据库或桶
 
-To configure a specific database name:
+您可以使用以下代码来配置指定的数据库名称:
 
 [source,java]
 ----
@@ -101,12 +103,12 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-For InfluxDB V2, you can use `link:../../apidocs/io/vertx/micrometer/VertxInfluxDbOptions.html#setBucket-java.lang.String-[setBucket]` as well.
+对于 InfluxDB V2 来说，您一样可以使用 `link:../../apidocs/io/vertx/micrometer/VertxInfluxDbOptions.html#setBucket-java.lang.String-[setBucket]` 函数来设置指定的桶。
 
 [[_with_autentication]]
 ==== 认证
 
-Authentication can be configured with a username and a password:
+您可以通过以下代码来配置用户名和密码以通过认证:
 
 [source,java]
 ----
@@ -118,7 +120,7 @@ Vertx vertx = Vertx.vertx(new VertxOptions().setMetricsOptions(
     .setEnabled(true)));
 ----
 
-Or it can be configured with a token:
+或者您也可以通过配置签名的方式进行认证:
 
 [source,java]
 ----
