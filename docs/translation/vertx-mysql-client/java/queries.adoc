@@ -81,7 +81,9 @@ client
 System.out.println("User " + row.getString(0) + " " + row.getString(1));
 ----
 
-或按名字
+CAUTION: Column indexes start at 0, not at 1.
+
+Alternatively, data can be retrieved by name:
 
 [source,java]
 ----

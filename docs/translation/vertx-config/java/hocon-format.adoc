@@ -2,7 +2,7 @@
 === Hocon 配置格式
 
 Hocon 配置格式扩展了 Vert.x Configuration Retriever 并提供了对 HOCON 格式
-（https://github.com/typesafehub/config/blob/master/HOCON.md）的支持
+https://github.com/lightbend/config/blob/master/HOCON.md[HOCON] 的支持
 
 它支持 json、properties、macros 等格式
 
@@ -19,12 +19,12 @@ Hocon 配置格式扩展了 Vert.x Configuration Retriever 并提供了对 HOCON
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-config-hocon</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-config</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -32,8 +32,8 @@ Hocon 配置格式扩展了 Vert.x Configuration Retriever 并提供了对 HOCON
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-config:4.3.8'
-compile 'io.vertx:vertx-config-hocon:4.3.8'
+compile 'io.vertx:vertx-config:4.4.0'
+compile 'io.vertx:vertx-config-hocon:4.4.0'
 ----
 
 [[_configuring_the_store_to_use_hocon]]
@@ -56,3 +56,23 @@ ConfigRetriever retriever = ConfigRetriever.create(vertx,
 ----
 
 您必须将 `format` 设置为 `hocon` 。
+
+You just need to set `format` to `hocon`.
+
+==== Override configuration using system environment variables
+
+Hocon supports https://github.com/lightbend/config#optional-system-or-env-variable-overrides[system environment variable overrides] using keys with `CONFIG_FORCE_` prefix. You can use this feature by specifying `hocon.env.override` to `true` in the configuration:
+
+[source, java]
+----
+ConfigStoreOptions store = new ConfigStoreOptions()
+  .setType("file")
+  .setFormat("hocon")
+  .setConfig(new JsonObject()
+    .put("hocon.env.override", true)
+    .put("path", "my-config.conf")
+  );
+
+ConfigRetriever retriever = ConfigRetriever.create(vertx,
+  new ConfigRetrieverOptions().addStore(store));
+----

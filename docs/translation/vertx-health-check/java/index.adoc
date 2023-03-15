@@ -20,7 +20,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-health-check</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -28,7 +28,7 @@
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-health-check:4.3.8'
+compile 'io.vertx:vertx-health-check:4.4.0'
 ----
 
 [[_creating_the_health_check_object]]
@@ -253,14 +253,14 @@ router.get("/health").handler(healthCheckHandler);
 [source, java]
 ----
 handler.register("database",
-  promise -> pool.getConnection(connection -> {
-    if (connection.failed()) {
-      promise.fail(connection.cause());
-    } else {
-      connection.result().close();
-      promise.complete(Status.OK());
-    }
-  }));
+ promise -> pool.getConnection(connection -> {
+   if (connection.failed()) {
+     promise.fail(connection.cause());
+   } else {
+     connection.result().close();
+     promise.complete(Status.OK());
+   }
+ }));
 ----
 
 [[_service_availability]]
@@ -271,16 +271,16 @@ handler.register("database",
 [source, java]
 ----
 handler.register("my-service",
-  promise ->
-    HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()),
-      client -> {
-        if (client.failed()) {
-          promise.fail(client.cause());
-        } else {
-          client.result().close();
-          promise.complete(Status.OK());
-        }
-      }));
+ promise ->
+   HttpEndpoint.getClient(discovery, rec -> "my-service".equals(rec.getName()),
+     client -> {
+       if (client.failed()) {
+         promise.fail(client.cause());
+       } else {
+         client.result().close();
+         promise.complete(Status.OK());
+       }
+     }));
 ----
 
 [[_event_bus]]

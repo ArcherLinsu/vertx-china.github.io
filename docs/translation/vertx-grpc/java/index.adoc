@@ -24,7 +24,10 @@ Vert.x gRPC 分为两个部分
 
 - Vert.x gRPC Server
 - Vert.x gRPC Client
+- Vert.x gRPC Context Storage
 
 include::server.adoc[]
 
 include::client.adoc[]
+
+include::storage.adoc[]

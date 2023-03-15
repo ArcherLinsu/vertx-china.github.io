@@ -4,6 +4,8 @@
 Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 具有简单直接专注于可扩展性和低开销的 API。
 
+The client is reactive and non-blocking, allowing to handle many database connections with a single thread.
+
 *特性*
 
 * 事件驱动
@@ -32,7 +34,7 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mssql-client</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 * Gradle (in your `build.gradle` file):
@@ -40,7 +42,7 @@ Reactive MSSQL 客户端是微软 SQL Server 的客户端，
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mssql-client:4.3.8'
+ compile 'io.vertx:vertx-mssql-client:4.4.0'
 }
 ----
 

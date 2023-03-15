@@ -2748,11 +2748,13 @@ webSocket.frameHandler(frame -> {
 [[_event_bus_handlers]]
 ==== Event bus 处理器
 
-每个 WebSocket 都会在事件总线上自动注册两个处理器，当此处理器中接收到任何数据时，
+每个 WebSocket 都可以在事件总线上注册两个处理器，当此处理器中接收到任何数据时，
 它会将数据写入 WebSocket。这两个处理器是本地订阅，不会路由到集群上。
 
 基于这个特性，您可以将数据写入 WebSocket（可能在完全不同的 verticle 中），
 只要将数据发送到这两个处理器监听的地址即可。
+
+此特性默认是关闭的，您可以通过方法 `link:../../apidocs/io/vertx/core/http/HttpServerOptions.html#setRegisterWebSocketWriteHandlers-boolean-[setRegisterWebSocketWriteHandlers]` 或者 `link:../../apidocs/io/vertx/core/http/WebSocketConnectOptions.html#setRegisterWriteHandlers-boolean-[setRegisterWriteHandlers]` 来启用它。
 
 这两个处理器的监听地址由 `link:../../apidocs/io/vertx/core/http/WebSocketBase.html#binaryHandlerID--[binaryHandlerID]` 和
 `link:../../apidocs/io/vertx/core/http/WebSocketBase.html#textHandlerID--[textHandlerID]` 给出。

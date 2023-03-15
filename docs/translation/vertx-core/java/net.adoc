@@ -169,10 +169,12 @@ socket.closeHandler(v -> {
 [[_event_bus_write_handler]]
 ===  Event Bus 写处理器
 
-每个 Socket 会自动在Event Bus中注册一个处理器，当这个处理器中收到任意Buffer时，
-它会将数据写入到 Socket。
+每个 Socket 可以在Event Bus中注册一个处理器，当这个处理器中收到任意Buffer时，
+它会将数据写入到 Socket。此过程只会在本地处理，不会传递给集群中的其他节点。
 
 这意味着您可以通过向这个地址发送Buffer的方式，从不同的 Verticle 甚至是不同的 Vert.x 实例中向指定的 Socket 发送数据。
+
+此特性默认是关闭的，您可以通过方法 `link:../../apidocs/io/vertx/core/net/NetServerOptions.html#setRegisterWriteHandler-boolean-[setRegisterWriteHandler]` 或者 `link:../../apidocs/io/vertx/core/net/NetClientOptions.html#setRegisterWriteHandler-boolean-[setRegisterWriteHandler]` 开户。
 
 处理器的地址由 `link:../../apidocs/io/vertx/core/net/NetSocket.html#writeHandlerID--[writeHandlerID]` 方法提供。
 
@@ -904,6 +906,22 @@ NetClient client = vertx.createNetClient(options);
 
 请记住 `pem` 的配置中，私钥是不加密的。
 
+==== Updating SSL/TLS configuration
+
+You can use the `updateSSLOptions` method to update the key/certifications or trust on a TCP server or client (e.g. to
+implement certificate rotation).
+
+[source,java]
+----
+Future<Void> fut = server.updateSSLOptions(new SSLOptions()
+  .setKeyCertOptions(
+    new JksOptions()
+      .setPath("/path/to/your/server-keystore.jks").
+      setPassword("password-of-your-keystore")));
+----
+
+When the update succeeds the new SSL configuration is used, otherwise the previous configuration is kept.
+
 [[_self_signed_certificates_for_testing_and_development_purposes]]
 ==== 用于测试和开发目的的自签名证书
 
@@ -1031,18 +1049,31 @@ NetServer server = vertx.createNetServer(options);
 NetServerOptions options = new NetServerOptions().
   setSsl(true).
   setKeyStoreOptions(keyStoreOptions).
-  removeEnabledSecureTransportProtocol("TLSv1").
-  addEnabledSecureTransportProtocol("TLSv1.3");
+  addEnabledSecureTransportProtocol("TLSv1.1");
+NetServer server = vertx.createNetServer(options);
+----
+
+您也可以将它们移除:
+
+[source,java]
+----
+NetServerOptions options = new NetServerOptions().
+  setSsl(true).
+  setKeyStoreOptions(keyStoreOptions).
+  removeEnabledSecureTransportProtocol("TLSv1.2");
 NetServer server = vertx.createNetServer(options);
 ----
 
 协议版本可在 `link:../../apidocs/io/vertx/core/net/NetServerOptions.html[NetServerOptions]` 或 `link:../../apidocs/io/vertx/core/net/NetClientOptions.html[NetClientOptions]` 配置项中指定。
 
+NOTE: TLS 1.0 (TLSv1) and TLS 1.1 (TLSv1.1) are widely deprecated and have been disabled by default since Vert.x 4.4.0.
+
 [[_ssl_engine]]
 ==== SSL 引擎
 
 引擎实现可以配置为使用 https://www.openssl.org[OpenSSL] 而不是 JDK 实现（来支持 SSL）。
-OpenSSL 提供比 JDK 引擎更好的性能和 CPU 使用率、以及 JDK 版本独立性。
+Before JDK started to use hardware intrinsics (CPU instructions) for AES in Java 8 and for RSA in Java 9,
+OpenSSL 提供比 JDK 引擎更好的性能和 CPU 使用率。
 
 引擎选项可使用：
 

@@ -33,7 +33,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-pg-client</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 * Gradle（在您的 `build.gradle` 文件里）：
@@ -41,7 +41,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-pg-client:4.3.8'
+ compile 'io.vertx:vertx-pg-client:4.4.0'
 }
 ----
 
@@ -352,7 +352,7 @@ NOTE: 通过URI配置的参数将会覆盖默认的配置参数。
 === 环境变量
 
 您也可以使用环境变量来设置连接的属性值，以此来避免硬编码数据库连接信息。
-您可以参考 https://www.postgresql.org/docs/9.6/static/libpq-envars.html[官方文档]来了解更多详情。
+您可以参考 https://www.postgresql.org/docs/current/libpq-envars.html[官方文档]来了解更多详情。
 目前支持下列这些配置参数：
 
 * `PGHOST`

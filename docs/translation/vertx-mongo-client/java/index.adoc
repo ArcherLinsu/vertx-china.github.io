@@ -25,7 +25,7 @@ https://mongodb.github.io/mongo-java-driver/4.1/driver-reactive/getting-started/
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mongo-client</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -33,7 +33,7 @@ https://mongodb.github.io/mongo-java-driver/4.1/driver-reactive/getting-started/
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-mongo-client:4.3.8'
+compile 'io.vertx:vertx-mongo-client:4.4.0'
 ----
 
 
@@ -1120,7 +1120,11 @@ Vert.x MongoDB 客户端把配置参数放在 JSON 对象中。
  "trustAll" : false,                  // boolean
  "keyPath" : "key.pem",               // string
  "certPath" : "cert.pem",             // string
- "caPath" : "ca.pem"                  // string
+ "caPath" : "ca.pem",                 // string
+
+ // Network compression Settings
+ "compressors"           : ["zstd", "snappy", "zlib"],  // string array
+ "zlibCompressionLevel"  : 6                            // int
 }
 ----
 
@@ -1157,6 +1161,12 @@ Vert.x MongoDB 客户端把配置参数放在 JSON 对象中。
 `keyPath`:: 设置客户端私钥的路径。客户端私钥是用于在与mongo建立SSL连接时，对服务器进行身份验证。
 `certPath`:: 设置客户端证书的路径。客户端证书是用来在与mongo建立SSL连接时，对服务器进行身份验证。
 `caPath`:: 设置CA证书的路径。CA证书是用于在与mongo建立SSL连接时，当做一个信任源。
+`compressors`:: Sets the compression algorithm for network transmission. Valid values range from [`snappy`, `zlib`, `zstd`], the default value is `null` (meaning no compression).
+[NOTE]
+====
+For `snappy` and `zstd` compression algorithms support, additional dependencies must be added to your project build descriptor (https://github.com/xerial/snappy-java[`snappy-java`] and https://github.com/luben/zstd-jni[`zstd-java`], respectively).
+====
+`zlibCompressionLevel`:: Sets the compression level for zlib. Valid values are between -1 and 9, the default value is -1 if zlib is enabled.
 
 
 请注意：上面提到的各类参数的默认值，都是 MongoDB Java 驱动的默认值。

@@ -16,7 +16,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-rabbitmq-client</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -27,7 +27,7 @@
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-rabbitmq-client:4.3.8'
+ compile 'io.vertx:vertx-rabbitmq-client:4.4.0'
 }
 ----
 
@@ -322,7 +322,7 @@ client.queueDeclare("my-queue", true, false, true, config, queueResult -> {
 
 [source,java]
 ----
-Buffer message = Buffer.buffer("body", "Hello RabbitMQ, from Vert.x !");
+Buffer message = Buffer.buffer("Hello RabbitMQ, from Vert.x !");
 client.basicPublish("", "my.queue", message, pubResult -> {
   if (pubResult.succeeded()) {
     System.out.println("Message published !");
@@ -339,7 +339,7 @@ client.basicPublish("", "my.queue", message, pubResult -> {
 
 [source,java]
 ----
-Buffer message = Buffer.buffer("body", "Hello RabbitMQ, from Vert.x !");
+Buffer message = Buffer.buffer("Hello RabbitMQ, from Vert.x !");
 
 // Put the channel in confirm mode. This can be done once at init.
 client.confirmSelect(confirmResult -> {

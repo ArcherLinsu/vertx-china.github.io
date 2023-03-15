@@ -16,7 +16,7 @@ Vert.x邮件客户端通过本地邮件服务器（例如： postfix）或者外
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mail-client</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 
@@ -24,7 +24,7 @@ Vert.x邮件客户端通过本地邮件服务器（例如： postfix）或者外
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-mail-client:4.3.8'
+compile 'io.vertx:vertx-mail-client:4.4.0'
 ----
 
 [[_creating_a_client]]
@@ -263,6 +263,7 @@ MailMessage对象有如下属性
 * `keepAliveTimeoutUnit`, 保证池中连接处于活跃状态（keep alive）的时间单位。默认为`TimeUnit.SECONDS`
 * `ntDomain`, 字符串类型, 用于NTLM协议身份认证的域名，如果 `用户名` 格式为:`<DOMAIN>\<UserName>` 则使用 `\` 前的部分作为域名
 * `workstation`, 字符串类型, 用于NTLM协议身份认证的工作站名称。
+* `maxMailsPerConnection`, long, the max emails count per connection before it gets closed
 
 [[_mailresult_object]]
 === MailResult对象

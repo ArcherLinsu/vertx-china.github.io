@@ -82,7 +82,9 @@ Row对象（`link:../../apidocs/io/vertx/sqlclient/Row.html[Row]`）可以让您
 System.out.println("User " + row.getString(0) + " " + row.getString(1));
 ----
 
-或者通过名称
+CAUTION: Column indexes start at 0, not at 1.
+
+Alternatively, data can be retrieved by name:
 
 [source,java]
 ----

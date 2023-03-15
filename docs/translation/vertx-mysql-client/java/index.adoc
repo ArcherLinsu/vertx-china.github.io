@@ -3,6 +3,8 @@
 
 响应式 MySQL 客户端具有简单易懂的 API，专注于可扩展性和低开销。
 
+The client is reactive and non-blocking, allowing to handle many database connections with a single thread.
+
 *特性*
 
 * 事件驱动
@@ -34,7 +36,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-mysql-client</artifactId>
- <version>4.3.8</version>
+ <version>4.4.0</version>
 </dependency>
 ----
 * Gradle (在您的 `build.gradle` 文件中):
@@ -42,7 +44,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-mysql-client:4.3.8'
+ compile 'io.vertx:vertx-mysql-client:4.4.0'
 }
 ----
 
