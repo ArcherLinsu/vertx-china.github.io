@@ -1,0 +1,11 @@
+[CAUTION]
+====
+当您在写数据时，如果您是通过 ProxySQL 连接的数据库，则无法使用以下功能。
+如果尝试使用，将看到以下错误消息：
+
+----
+RECEIVED AN UNKNOWN COMMAND: 28 -- PLEASE REPORT A BUG
+----
+
+这是因为代理不处理从游标中获取行所需的 `COM_STMT_FETCH` 命令类型。
+====
