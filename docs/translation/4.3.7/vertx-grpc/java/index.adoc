@@ -1,0 +1,30 @@
+= Vert.x gRPC
+
+可以在维基百科看到对gRPC全面的介绍
+
+[quote, wikipedia, wikipedia]
+____
+gRPC是谷歌开源的远程方法调用（RPC）系统。
+它基于 HTTP/2 传输协议和 ProtoBuffer 接口描述语言，
+提供认证，双向流，流量控制，阻塞和非阻塞的调用桩绑定，以及接口调用的撤销、超时等功能和特性。
+它为很多语言生成跨平台客户端和服务端。
+____
+
+Vert.x gRPC 是将谷歌 gRPC 编程风格与 Vert.x 编程风格统一的模块。
+使用本模块，您可以在保留 Vert.x Streams 和 Futures 编码风格的同时享受
+gRPC 原有的各种特性和优势。
+
+更多关于 gRPC 的信息请查看官方文档 http://www.grpc.io/ 。
+
+WARNING: 本模块是 Vert.x 技术栈自 4.3 版本后对 gRPC 支持的新实现，
+基于 gRPC Netty 实现的老模块依然保留，更名为Vert.x gRPC Netty ，相关链接：https://vertx.io/docs/vertx-grpc-netty/java/ 。
+本模块处于技术前瞻状态，接口定义可能在后续版本中进行改动
+
+Vert.x gRPC 分为两个部分
+
+- Vert.x gRPC Server
+- Vert.x gRPC Client
+
+include::server.adoc[]
+
+include::client.adoc[]

@@ -1,0 +1,229 @@
+= Vert.x Json Schema
+:toc: left
+
+Vert.x Json Schema组件提供了一个异步可扩展的 https://json-schema.org/[Json Schema] 规范实现。
+你可以使用 Json Schema 去验证每一个json结构的数据。该组件提供以下特性：
+
+* 实现了 https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-00[draft 2020-12]
+* 实现了 https://datatracker.ietf.org/doc/html/draft-handrews-json-schema-validation-02[draft 2019-09]
+* 实现了 https://datatracker.ietf.org/doc/html/draft-handrews-json-schema-validation-01[draft 7]
+* 实现了 https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00[draft 4]
+* `$ref` 解析和缓存的引用解除
+* 通过DSL来构建schemas
+
+[[_using_vert_x_json_schema]]
+== 使用 Vert.x Json Schema
+
+为了使用 Vert.x Json Schema ，需要在构建配置文件中添加如下 _依赖_：
+
+* Maven （在 `pom.xml` 文件中）：
+
+[source,xml,subs="+attributes"]
+----
+<dependency>
+ <groupId>io.vertx</groupId>
+ <artifactId>vertx-json-schema</artifactId>
+ <version>4.3.7</version>
+</dependency>
+----
+
+* Gradle （在 `build.gradle` 文件中）：
+
+[source,groovy,subs="+attributes"]
+----
+dependencies {
+ compile 'io.vertx:vertx-json-schema:4.3.7'
+}
+----
+
+[[_concepts]]
+== 相关概念
+
+=== JsonSchema
+
+Schemas可以两种形式存在：
+
+* 基于 JSON 表达形式的 JSON 对象
+* 基于 `true/false` 布尔值
+
+`link:../../apidocs/io/vertx/json/schema/JsonSchema.html[JsonSchema]` 接口同时兼容这两种类型，
+无需频繁检查类型。
+
+[[_schemarepository]]
+=== Schema 存储仓库/Repository
+
+`link:../../apidocs/io/vertx/json/schema/SchemaRepository.html[SchemaRepository]` 包含 `link:../../apidocs/io/vertx/json/schema/JsonSchema.html [JsonSchema]` 实例。
+它将执行解除引用模式以加快验证速度。
+该存储仓库是一个简单的密钥存储，这表示着它不允许出现重复的 ID。
+
+存储仓库随后创建 `link:../../apidocs/io/vertx/json/schema/Validator.html[Validator]`
+实例并获取存储仓库中所有的从属（sub）schemas。
+
+[[_validator]]
+=== 验证器
+
+顾名思义，`link:../../apidocs/io/vertx/json/schema/Validator.html[Validator]` 使用一个起始 schema 以验证对象。
+输出格式则取决于配置。
+
+[[_parse_a_schema]]
+== 解析schema
+
+使用多个schemas或从属/子/sub schemas时，建议使用 `Repository 存储仓库`。
+
+要解析 schema，您需要一个 `JsonSchema` 以及一些初始配置。
+由于schemas可以包含引用，因此验证器和存储仓库需要获取您的应用程序的 `baseUri 基础通用资源识别号`。
+这允许您在其他从属/子/sub schemas中引用您自己的schemas。出于解除引用的目的，您无需配置草稿/draft。
+
+[source,java]
+----
+SchemaRepository repository =
+  SchemaRepository.create(new JsonSchemaOptions().setBaseUri("https://vertx.io"));
+----
+
+您可以将 `JsonSchema` 实例用于不同的 `Validator 验证器`，
+且可直接使用 `JsonParser` 解析不同的 `JsonSchema`。
+
+现在你可以解析schema了：
+
+[source,java]
+----
+JsonSchema schema = JsonSchema.of(object);
+
+// Or
+
+repository.dereference(JsonSchema.of(object));
+----
+
+[IMPORTANT]
+====
+请记住，出于安全原因，此模块不会尝试下载任何引用的子schema/sub-schema。
+所有必需的 sub-schemas 应提供给存储仓库/repository 对象。
+====
+
+[[_validate]]
+== 验证
+
+鉴于 json-schema 的动态特性以及有条件的 `if-then-else`，其无法在流式传输中开展验证。
+由于这个原因，验证是一个阻塞操作。
+如果您的验证过程非常耗时，那么建议在专用线程池上运行验证或使用 `executeBlocking`。
+一个schema可以有两种状态：
+
+验证一个schema：
+
+[source,java]
+----
+OutputUnit result = Validator.create(
+    schema,
+    new JsonSchemaOptions().setDraft(Draft.DRAFT7))
+  .validate(json);
+
+if (result.getValid()) {
+  // Successful validation
+}
+----
+
+[[_custom_formats]]
+== 自定义格式
+
+不允许添加自定义格式。这听起来像是一个限制，但它源自验证规范。
+验证器假设未知格式为有效输入，
+并将该验证委托给应用程序业务代码中的自定义验证器。
+
+[[_building_your_schemas_from_code]]
+== 用代码来构建schema
+
+如果你想要使用代码来构建schema，你可以使用附带的DSL。目前只有Draft-7支持这个特性。
+
+首先，通过静态导入（import static） `link:../../apidocs/io/vertx/json/schema/draft7/dsl/Schemas.html[Schemas]` 和 `link:../../apidocs/io/vertx/json/schema/draft7/dsl/Keywords.html[Keywords]` 。
+
+[[_creating_the_schema]]
+=== 创建schema
+
+在 `link:../../apidocs/io/vertx/json/schema/draft7/dsl/Schemas.html[Schemas]` 内部提供了schema创建的静态方法：
+
+[source,java]
+----
+SchemaBuilder intSchemaBuilder = intSchema();
+SchemaBuilder objectSchemaBuilder = objectSchema();
+----
+
+[[_using_the_keywords]]
+=== 使用关键词
+
+对于每一个schema，你是否可以使用 `link:../../apidocs/io/vertx/json/schema/draft7/dsl/Keywords.html[Keywords]` 方法来构建关键词，
+这取决于schema的类型：
+
+[source,java]
+----
+stringSchema()
+  .with(format(StringFormat.DATETIME));
+arraySchema()
+  .with(maxItems(10));
+schema() // 生成同时接收数组和整数的schema
+  .with(type(SchemaType.ARRAY, SchemaType.INT));
+----
+
+[[_defining_the_schema_structure]]
+=== 定义schema的结构
+
+根据你创建的schema，你可以定义结构。
+
+使用属性schema和其他属性schema来创建一个对象类型的schema：
+
+[source,java]
+----
+objectSchema()
+  .requiredProperty("name", stringSchema())
+  .requiredProperty("age", intSchema())
+  .additionalProperties(stringSchema());
+----
+
+创建一个数组类型的schema：
+
+[source,java]
+----
+arraySchema()
+  .items(stringSchema());
+----
+
+创建元组类型的schema：
+
+[source,java]
+----
+tupleSchema()
+  .item(stringSchema()) // 第一个元素
+  .item(intSchema()) // 第二个元素
+  .item(booleanSchema()); // 第三个元素
+----
+
+[[_ref_and_aliases]]
+=== `$ref` 和 别名
+
+你可以使用 `link:../../apidocs/io/vertx/json/schema/common/dsl/Schemas.html#ref-io.vertx.core.json.pointer.JsonPointer-[Schemas.ref]` 方法来添加一个 `$ref` schema。
+通过 `link:../../apidocs/io/vertx/json/schema/common/dsl/SchemaBuilder.html#id-io.vertx.core.json.pointer.JsonPointer-[id]` 来指定对应schema的 `$id` 关键词。
+
+你也可以使用别名来引用通过dsl定义的schema。你可以使用 `link:../../apidocs/io/vertx/json/schema/common/dsl/SchemaBuilder.html#alias-java.lang.String-[alias]` 来为一个schema设置别名。
+这样你就可以使用 `link:../../apidocs/io/vertx/json/schema/common/dsl/Schemas.html#refToAlias-java.lang.String-[Schemas.refToAlias]` 来根据别名引用schema。
+
+[source,java]
+----
+intSchema()
+  .alias("myInt");
+
+objectSchema()
+  .requiredProperty("anInteger", refToAlias("myInt"));
+----
+
+[[_using_the_schema]]
+=== 使用schema
+
+定义完schema后，您可调用 `link:../../apidocs/io/vertx/json/schema/common/dsl/SchemaBuilder.html#toJson--[toJson]` 以返回schema的 JSON 表达：
+
+[source,java]
+----
+JsonObject schema = objectSchema()
+  .requiredProperty("name", stringSchema())
+  .requiredProperty("age", intSchema())
+  .additionalProperties(stringSchema())
+  .toJson();
+----
