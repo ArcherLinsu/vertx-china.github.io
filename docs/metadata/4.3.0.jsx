@@ -1,6 +1,6 @@
 import { clone } from "./helpers"
 import oldDocs from "./4.2.0"
-import { insert, remove } from "./helpers"
+import { insert, remove, find } from "./helpers"
 
 const docs = clone(oldDocs)
 
@@ -44,5 +44,7 @@ insert(docs, "vertx-uri-template",
     label: "技术预览"
   }
  )
+
+find(docs, "vertx-rx-java3").label = null
 
 export default docs

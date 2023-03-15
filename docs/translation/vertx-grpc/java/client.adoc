@@ -17,7 +17,7 @@ Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-grpc-client</artifactId>
- <version>4.3.5</version>
+ <version>4.3.6</version>
 </dependency>
 ----
 
@@ -26,7 +26,7 @@ Vert.x gRPC Client 是一个新的 gRPC 客户端，其内核部分使用 Vert.x
 [source,groovy,subs="+attributes"]
 ----
 dependencies {
- compile 'io.vertx:vertx-grpc-client:4.3.5'
+ compile 'io.vertx:vertx-grpc-client:4.3.6'
 }
 ----
 

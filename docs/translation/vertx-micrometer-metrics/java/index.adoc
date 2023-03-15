@@ -32,7 +32,7 @@ Maven 用户应在 pom 文件中添加如下依赖：
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.3.5</version>
+ <version>4.3.6</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -45,7 +45,7 @@ Gradle 用户，添加如下依赖：
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.3.5'
+compile 'io.vertx:vertx-micrometer-metrics:4.3.6'
 compile 'io.micrometer:micrometer-registry-influx:${micrometer.version}'
 ----
 
@@ -152,7 +152,7 @@ Maven用户在pom文件中添加如下依赖：
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.3.5</version>
+ <version>4.3.6</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -165,7 +165,7 @@ Gradle 用户，添加如下依赖：
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.3.5'
+compile 'io.vertx:vertx-micrometer-metrics:4.3.6'
 compile 'io.micrometer:micrometer-registry-prometheus:${micrometer.version}'
 ----
 
@@ -228,7 +228,7 @@ Maven用户在pom文件中添加如下依赖：
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-micrometer-metrics</artifactId>
- <version>4.3.5</version>
+ <version>4.3.6</version>
 </dependency>
 <dependency>
  <groupId>io.micrometer</groupId>
@@ -241,7 +241,7 @@ Gradle 用户，添加如下依赖：
 
 [source,groovy,subs="+attributes"]
 ----
-compile 'io.vertx:vertx-micrometer-metrics:4.3.5'
+compile 'io.vertx:vertx-micrometer-metrics:4.3.6'
 compile 'io.micrometer:micrometer-registry-jmx:${micrometer.version}'
 ----
 
