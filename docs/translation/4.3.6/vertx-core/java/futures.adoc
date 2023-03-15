@@ -1,0 +1,232 @@
+[[_future_results]]
+== Future的异步结果
+
+Vert.x 4使用future承载异步结果。
+
+异步的方法会返回一个 `link:../../apidocs/io/vertx/core/Future.html[Future]` 对象，其包含
+_成功_ 或 _失败_ 的异步结果。
+
+我们不能直接操作future的异步结果，而应该设置future的handler；当future执行完毕，结果可用时，会调用handler进行处理。
+
+[source,java]
+----
+FileSystem fs = vertx.fileSystem();
+
+Future<FileProps> future = fs.props("/my_file.txt");
+
+future.onComplete((AsyncResult<FileProps> ar) -> {
+  if (ar.succeeded()) {
+    FileProps props = ar.result();
+    System.out.println("File size = " + props.size());
+  } else {
+    System.out.println("Failure: " + ar.cause().getMessage());
+  }
+});
+----
+
+NOTE: Vert.x 3的API只提供了回调模式；为了减少从Vert.x 3迁移到Vert.x 4的工作量，Vert.x 4为每个异步方法都保留了回调版本。
+如上面样例代码的 `props` 方法，提供了带回调参数的版本
+`link:../../apidocs/io/vertx/core/file/FileSystem.html#props-java.lang.String-io.vertx.core.Handler-[props]`
+
+[CAUTION]
+====
+请勿混淆 _futures_ 与 _promises_ 。
+
+如果 futures 代表的是异步结果的 "读取端"，那么 promise 就是 "写入端"。
+它们允许您推迟获取结果的操作。
+
+在大多数情况下，您不需要在 Vert.x 应用程序中自行创建 promise。
+<<_future_composition>> 和 <<_future_coordination>> 为您提供了转换和合并异步结果的工具。
+
+但是，如果，在您的代码库中，有使用回调的历史遗留方法，那么您可以利用 promise 来扩展 `link:../../apidocs/io/vertx/core/Handler.html[io.vertx.core.Handler<io.vertx.core.AsyncResult>]`：
+
+[source,java]
+----
+Promise<String> promise = Promise.promise();
+legacyGreetAsync(promise);
+Future<String> greeting = promise.future();
+----
+====
+
+[CAUTION]
+====
+诸如 `onSuccess`、`onFailure` 和 `onComplete` 之类的终端操作并不能保证回调的调用顺序。
+
+考虑注册 2 个回调的 future：
+
+[source,java]
+----
+future.onComplete(ar -> {
+  // 做些什么
+});
+future.onComplete(ar -> {
+  // 可能先被调用
+});
+----
+
+第二个回调完全有可能在第一个回调之前被调用。
+
+如您需要保证顺序，考虑将 <<_future_composition>> 与 `link:../../apidocs/io/vertx/core/Future.html#andThen-io.vertx.core.Handler-[andThen]` 一起使用。
+====
+
+[#_future_composition]
+== Future组合
+
+`link:../../apidocs/io/vertx/core/Future.html#compose-java.util.function.Function-[compose]` 方法作用于顺序组合 future：
+
+- 若当前future成功，执行 `compose` 方法指定的方法，该方法返回新的future；
+当返回的新future完成时，future组合成功；
+- 若当前future失败，则future组合失败。
+
+[source,java]
+----
+FileSystem fs = vertx.fileSystem();
+
+Future<Void> future = fs
+  .createFile("/foo")
+  .compose(v -> {
+    // createFile文件创建完成后执行
+    return fs.writeFile("/foo", Buffer.buffer());
+  })
+  .compose(v -> {
+    // writeFile文件写入完成后执行
+    return fs.move("/foo", "/bar");
+  });
+----
+
+这里例子中，有三个操作被串起来了：
+
+1. 一个文件被创建（`createFile`）
+2. 一些东西被写入到文件（`writeFile`）
+3. 文件被移走（`move`）
+
+如果这三个步骤全部成功，则最终的 `Future`（`future`）会是成功的；
+其中任何一步失败，则最终 `Future` 就是失败的。
+
+除了上述方法， `link:../../apidocs/io/vertx/core/Future.html[Future]` 还提供了更多方法：`map`、`recover`、`otherwise`、`andThen`，以及 `flatMap` （等同 `compose` 方法）。
+
+[#_future_coordination]
+== Future协作
+
+Vert.x 中的 `link:../../apidocs/io/vertx/core/Future.html[futures]` 支持协调多个Future，
+支持并发组合（并行执行多个异步调用）和顺序组合（依次执行异步调用）。
+
+`link:../../apidocs/io/vertx/core/CompositeFuture.html#all-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.all]` 方法接受多个 `Future` 对象作为参数（最多6个，或者传入 `List`）。
+当所有的 `Future` 都成功完成，该方法将返回一个 _成功的_ `Future`；当任一个 `Future` 执行失败，则返回一个 _失败的_ `Future`：
+
+[source,java]
+----
+Future<HttpServer> httpServerFuture = httpServer.listen();
+
+Future<NetServer> netServerFuture = netServer.listen();
+
+CompositeFuture.all(httpServerFuture, netServerFuture).onComplete(ar -> {
+  if (ar.succeeded()) {
+    // 所有服务器启动完成
+  } else {
+    // 有一个服务器启动失败
+  }
+});
+----
+
+所有被合并的 `Future` 中的操作同时运行。当组合的处理操作完成时，该方法返回的 `Future` 上绑定的处理器（`link:../../apidocs/io/vertx/core/Handler.html[Handler]`）会被调用。
+只要有一个操作失败（其中的某一个 `Future` 的状态被标记成失败），则返回的 `Future` 会被标记为失败。
+如果所有的操作都成功，则返回的 `Future` 将会成功完成。
+
+当操作成功时，您需要按照 `CompositeFuture.all` 的参数顺序来调用 `resultAt` 方法以获取操作的执行结果。以上面的代码为例，无论是哪个操作
+先完成，您通过 `resultAt(0)` 获取到的都是 `httpServer` 的结果，而通过 `resultAt(1)` 可以获取到 `netServer` 的结果。
+
+您可以传入一个 `Future` 列表（可能为空）：
+
+[source,java]
+----
+CompositeFuture.all(Arrays.asList(future1, future2, future3));
+----
+
+`all` 方法的合并会 _等待_ 所有的 Future 成功执行（或任一失败），而 `any` 方法的合并会
+_等待_ 第一个成功执行的 Future。`link:../../apidocs/io/vertx/core/CompositeFuture.html#any-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.any]` 方法接受多个 `Future` 作为参数（最多6个，或传入 `List`）。当任意一个 `Future` 成功得到结果，则该 `Future` 成功；当所有的 `Future` 都执行失败，则该 `Future` 失败。
+
+[source,java]
+----
+CompositeFuture.any(future1, future2).onComplete(ar -> {
+  if (ar.succeeded()) {
+    // 至少一个成功
+  } else {
+    // 所有的都失败
+  }
+});
+----
+
+它也可使用 `Future` 列表传参：
+
+[source,java]
+----
+CompositeFuture.any(Arrays.asList(f1, f2, f3));
+----
+
+`join` 方法的合并会 _等待_ 所有的 `Future` 完成，无论成败。
+`link:../../apidocs/io/vertx/core/CompositeFuture.html#join-io.vertx.core.Future-io.vertx.core.Future-[CompositeFuture.join]` 方法接受多个 `Future` 作为参数（最多6个），并将结果归并成一个 `Future` 。当全部 `Future` 成功执行完成，得到的 `Future` 是成功状态的；当至少一个 `Future` 执行失败时，得到的 `Future` 是失败状态的。
+
+[source,java]
+----
+CompositeFuture.join(future1, future2, future3).onComplete(ar -> {
+  if (ar.succeeded()) {
+    // 所有都成功
+  } else {
+    // 全部完成（无论成功还是失败），且至少一个失败
+  }
+});
+----
+
+它也可使用 `Future` 列表传参：
+
+[source,java]
+----
+CompositeFuture.join(Arrays.asList(future1, future2, future3));
+----
+
+[[_completionstage_interoperability]]
+=== 兼容CompletionStage
+
+JDK的 `CompletionStage` 接口用于组合异步操作，Vert.x的 `Future` API可兼容 `CompletionStage` 。
+
+我们可以用 `link:../../apidocs/io/vertx/core/Future.html#toCompletionStage--[toCompletionStage]` 方法将Vert.x的 `Future` 对象转为 `CompletionStage` 对象，如：
+
+[source,java]
+----
+Future<String> future = vertx.createDnsClient().lookup("vertx.io");
+future.toCompletionStage().whenComplete((ip, err) -> {
+  if (err != null) {
+    System.err.println("Could not resolve vertx.io");
+    err.printStackTrace();
+  } else {
+    System.out.println("vertx.io => " + ip);
+  }
+});
+----
+
+相应地，可使用 `link:../../apidocs/io/vertx/core/Future.html#fromCompletionStage-java.util.concurrent.CompletionStage-[Future.fromCompletionStage]` 方法将 `CompletionStage` 对象转为Vert.x的 `Future` 对象。
+`Future.fromCompletionStage` 有两个重载方法：
+
+. 第一个重载方法只接收一个 `CompletionStage` 参数，会在执行 `CompletionStage` 实例的线程中调用 `Future` 的方法；
+. 第二个重载方法额外多接收一个 `link:../../apidocs/io/vertx/core/Context.html[Context]` 参数，会在Vert.x的Context中调用 `Future` 的方法。
+
+IMPORTANT: 由于Vert.x的 `Future` 通常会与Vert.x的代码、库以及客户端等一起使用，为了与Vert.x的线程模型更好地配合，大部分场景下应使用 `Future.fromCompletionStage(CompletionStage, Context)` 方法。
+
+下面的例子展示了如何将 `CompletionStage` 对象转为Vert.x的 `Future` 对象，这里选择使用Vert.x的Context执行:
+
+[source,java]
+----
+Future.fromCompletionStage(completionStage, vertx.getOrCreateContext())
+  .flatMap(str -> {
+    String key = UUID.randomUUID().toString();
+    return storeInDb(key, str);
+  })
+  .onSuccess(str -> {
+    System.out.println("We have a result: " + str);
+  })
+  .onFailure(err -> {
+    System.err.println("We have a problem");
+    err.printStackTrace();
+  });
+----
