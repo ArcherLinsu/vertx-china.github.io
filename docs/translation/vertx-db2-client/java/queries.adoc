@@ -29,7 +29,7 @@ SQL字符通过位置引用实际的参数，并使用数据库的语法 {PREPAR
 [source,java]
 ----
 client
-  .preparedQuery("SELECT * FROM users WHERE id=$1")
+  .preparedQuery("SELECT * FROM users WHERE id=?")
   .execute(Tuple.of("andy"), ar -> {
   if (ar.succeeded()) {
     RowSet<Row> rows = ar.result();
@@ -63,7 +63,7 @@ client
 [source,java]
 ----
 client
-  .preparedQuery("INSERT INTO users (first_name, last_name) VALUES ($1, $2)")
+  .preparedQuery("INSERT INTO users (first_name, last_name) VALUES (?, ?)")
   .execute(Tuple.of("Andy", "Guibert"),  ar -> {
   if (ar.succeeded()) {
     RowSet<Row> rows = ar.result();
@@ -122,7 +122,7 @@ client
 [source,java]
 ----
 sqlConnection
-  .prepare("SELECT * FROM users WHERE id= ?", ar -> {
+  .prepare("SELECT * FROM users WHERE id = ?", ar -> {
     if (ar.succeeded()) {
       PreparedStatement preparedStatement = ar.result();
       preparedStatement.query()
@@ -156,7 +156,7 @@ batch.add(Tuple.of("andy", "Andy Guibert"));
 
 // Execute the prepared batch
 client
-  .preparedQuery("INSERT INTO USERS (id, name) VALUES ($1, $2)")
+  .preparedQuery("INSERT INTO USERS (id, name) VALUES (?, ?)")
   .executeBatch(batch, res -> {
   if (res.succeeded()) {
 

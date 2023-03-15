@@ -1,5 +1,5 @@
 = 响应式 DB2 客户端
-:PREPARED_PARAMS: `?` ​
+:PREPARED_PARAMS: `?`
 
 响应式的DB2客户端具有直接简单的API，
 专注于可伸缩性和低开销。
@@ -39,7 +39,7 @@
 <dependency>
  <groupId>io.vertx</groupId>
  <artifactId>vertx-db2-client</artifactId>
- <version>4.3.7</version>
+ <version>4.3.8</version>
 </dependency>
 ----
 * Gradle (在您的 `build.gradle` 文件中):
@@ -47,7 +47,7 @@
 [source,groovy]
 ----
 dependencies {
- compile 'io.vertx:vertx-db2-client:4.3.7'
+ compile 'io.vertx:vertx-db2-client:4.3.8'
 }
 ----
 
